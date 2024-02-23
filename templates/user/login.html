@@ -1,0 +1,29 @@
+<div class="modal fade" id="login_ajax" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="alert alert-danger d-none" role="alert"></div>
+            <form action="{% url 'user:login_ajax' %}" id="form_ajax" method="post">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Авторизируйтесь</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="Username">Username<span class="text-danger">*</span></label>
+                        {{ login_ajax.username }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="Password">Password<span class="text-danger">*</span></label>
+                        {{ login_ajax.password }}
+                    </div>
+                </div>
+                <div class="modal-footer pt-4">
+                    <button type="submit" class="btn btn-success mx-auto w-100">Login</button>
+                </div>
+                <p class="text-center">Not yet account, <a href="{% url 'user:register_ajax' %}">Signup</a></p>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,139 @@
+{% extends 'cinema/base.html' %}
+{% load static %}
+
+{% block title %}User page{% endblock %}
+
+{% block content %}
+    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+        <div class="container-fluid py-md-3">
+            <div class="content-wrapper" style="background-color: white;">
+                <!-- Main content -->
+                <div class="content">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="exampleInputText1">Имя</label>
+                                <input class="form-control" type="text" id="exampleInputText1"
+                                       placeholder="Писать сюда...">
+                            </div>
+                            <div class="col-md-6" style="margin-top: 32px;">
+                                <label for="exampleInputText1">Пол</label>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn bg-olive active">
+                                        <input type="radio" name="options" id="option_b1" autocomplete="off"
+                                               checked="">
+                                        Male
+                                    </label>
+                                    <label class="btn bg-secondary">
+                                        <input type="radio" name="options" id="option_b2" autocomplete="off">Female
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Фамилия</label>
+                            <input class="form-control" type="text" id="exampleInputText1"
+                                   placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6" style="margin-top: 32px;">
+                            <label for="exampleInputText1">Язык</label>
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <label class="btn bg-olive active">
+                                    <input type="radio" name="options" id="option_b1" autocomplete="off" checked="">
+                                    UA
+                                </label>
+                                <label class="btn bg-secondary">
+                                    <input type="radio" name="options" id="option_b2" autocomplete="off">ENG
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Псевдоним</label>
+                            <input class="form-control" type="text" id="exampleInputText1"
+                                   placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText2">Телефон</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="exampleInputText2"
+                                       placeholder="Писать сюда...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">E-mail</label>
+                            <input class="form-control" type="text" id="exampleInputText1"
+                                   placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6 form-group" style="padding-left: 3px;">
+                            <div class="col-md-6">
+                                <label for="exampleInputText2">Дата рождения</label>
+                                <input class="form-control" type="datetime-local" id="exampleInputText2"
+                                       placeholder="Писать сюда...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Адресс</label>
+                            <input class="form-control" type="text" id="exampleInputText1"
+                                   placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText2">Город</label>
+                            <label for="exampleSelect">Выберите опцию:</label>
+                            <select class="form-control" id="exampleSelect">
+                                <option value="option1">Опция 1</option>
+                                <option value="option2">Опция 2</option>
+                                <option value="option3">Опция 3</option>
+                            </select>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Пароль</label>
+                            <input class="form-control" type="text" id="exampleInputText1"
+                                   placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText2">Повторить пароль</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="exampleInputText2"
+                                       placeholder="Писать сюда...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Номер карты</label>
+                            <input class="form-control" type="text" id="exampleInputText1"
+                                   placeholder="Писать сюда...">
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-primary"
+                            style="width: 400px; height: 40px;">Сохранить
+                    </button>
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- /.content -->
+        </div>
+        </div>
+    </section>
+{% endblock %}
+{% block script %}
+    <script src="../../static/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../../static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../../static/dist/js/adminlte.min.js"></script>
+{% endblock %}

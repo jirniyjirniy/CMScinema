@@ -1,0 +1,123 @@
+{% extends 'admin_page/base.html' %}
+{% block title %}All pages{% endblock %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <form>
+                        <div class="card-body">
+                            <div class="row form-group">
+                                <div class="col-md-6">
+                                    <label for="exampleInputText1">Название</label>
+                                    <input class="form-control" type="text" id="exampleInputText1"
+                                           placeholder="Писать сюда...">
+                                </div>
+                                <div class="col-md-6" style="margin-top: 32px;">
+                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn bg-olive active">
+                                            <input type="radio" name="options" id="option_b1" autocomplete="off"
+                                                   checked="">
+                                            ВКЛ
+                                        </label>
+                                        <label class="btn bg-secondary">
+                                            <input type="radio" name="options" id="option_b2" autocomplete="off">ВЫКЛ
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Описание</label>
+                                <textarea class="form-control" rows="3" placeholder="Писать сюда..."></textarea>
+                            </div>
+                            <label>Главная картинка</label>
+                            <div class="row">
+                                <div class="col-sm-1">
+                                    <a href="https://via.placeholder.com/1200/000000.png?text=2" data-toggle="lightbox"
+                                       data-title="sample 2 - black" data-gallery="gallery">
+                                        <img src="https://via.placeholder.com/300/000000?text=2" class="img-fluid mb-2"
+                                             alt="black sample" style="width:100%;"/>
+                                    </a>
+                                </div>
+                                <input type="file" id="fileInput" style="display:none;"/>
+                                <button type="button" class="btn btn-block btn-success"
+                                        style="width: 200px; height: 40px; margin-top: 50px; margin-right: 10px;"
+                                        onclick="document.getElementById('fileInput').click();">Добавить
+                                </button>
+                                <button type="button" class="btn btn-block btn-danger"
+                                        style="width: 200px; height: 40px; margin-top: 50px;">Удалить
+                                </button>
+                            </div>
+                            <label for="exampleInputFile">Галлерея картинок</label>
+                            <div class="row">
+                                <div class="col-sm-1">
+                                    <a href="https://via.placeholder.com/1200/000000.png?text=2" data-toggle="lightbox"
+                                       data-title="sample 2 - black" data-gallery="gallery">
+                                        <img src="https://via.placeholder.com/300/000000?text=2" class="img-fluid mb-2"
+                                             alt="black sample" style="width:100%;"/>
+                                    </a>
+                                    <td>
+                                        <button type="button" class="btn btn-block btn-danger">Удалить</button>
+                                    </td>
+                                </div>
+                                <td>
+                                    <button type="button" class="btn btn-block btn-success"
+                                            style="width: 200px; height: 40px; margin-top: 50px; margin-right: 10px;"
+                                            onclick="document.getElementById('fileInput').click();">Добавить
+                                    </button>
+                                </td>
+                            </div>
+                            <br>
+                            <label for="exampleInputText">SEO блок:</label>
+                            <div class="container">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-6">
+                                        <div class="form-group text-center">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">URL</span>
+                                                </div>
+                                                <input class="form-control" type="text" placeholder="Писать сюда...">
+                                            </div>
+                                            <br>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Title</span>
+                                                </div>
+                                                <input class="form-control" type="text" placeholder="Писать сюда...">
+                                            </div>
+                                            <br>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Key words</span>
+                                                </div>
+                                                <input class="form-control" type="text" placeholder="Писать сюда...">
+                                            </div>
+                                            <br>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Description</span>
+                                                </div>
+                                                <textarea class="form-control" rows="5"
+                                                          placeholder="Писать сюда..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- /.card-body -->
+
+                        <div class="card-footer text-center">
+                            <button type="submit" class="btn btn-primary" style="width: 400px; height: 40px;">
+                                Сохранить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}

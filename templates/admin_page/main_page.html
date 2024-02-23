@@ -1,0 +1,78 @@
+{% extends 'admin_page/base.html' %}
+
+{% block content %}
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Main content -->
+        <div class="content">
+            <form method="post" action="{% url 'adminlte:main_page' %}">
+                {% csrf_token %}
+                <div class="container-fluid">
+                    <div class="row form-group">
+                        <div class="col-md-6">
+                            <label for="exampleInputText1">Название акции</label>
+                            {{ form.phone_number }}
+                        </div>
+                        <div class="col-md-2">
+                            <label for="exampleInputText1">Статус</label>
+                            <div class="d-flex col-md-2">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
+                                <div class="form-check form-switch">
+                                    {{ form.status }}
+                                </div>
+                                <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>SEO текст</label>
+                        {{ form.seo_text }}
+                    </div>
+                    <label for="exampleInputText">SEO блок:</label>
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <div class="form-group text-center">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">URL</span>
+                                        </div>
+                                        {{ seo_form.url }}
+                                    </div>
+                                    <br>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Title</span>
+                                        </div>
+                                        {{ seo_form.title }}
+                                    </div>
+                                    <br>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Key words</span>
+                                        </div>
+                                        {{ seo_form.keywords }}
+                                    </div>
+                                    <br>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Description</span>
+                                        </div>
+                                        {{ seo_form.desc }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-center">
+                        <button type="submit" class="btn btn-primary"
+                                style="width: 400px; height: 40px;">Сохранить
+                        </button>
+                    </div>
+                    <!-- /.row -->
+                </div>
+            </form>
+        </div><!-- /.container-fluid -->
+    </div>
+{% endblock %}

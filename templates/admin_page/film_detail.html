@@ -1,0 +1,269 @@
+{% extends 'admin_page/base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <form enctype="multipart/form-data" action="{% url 'adminlte:film_details' movie.title movie.id %}">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="exampleInputText">Название Фильма</label>
+                                {{ form.title }}
+                            </div>
+                            <div class="form-group">
+                                <label>Описание</label>
+                                {{ form.description }}
+                            </div>
+                            <label>Главная картинка</label>
+                            <div class="row">
+                                <div class="col-sm-1">
+                                    <a href="{{ movie.main_image.url }}" data-toggle="lightbox"
+                                       data-title="sample 2 - black" data-gallery="gallery">
+                                        <img src="{{ movie.main_image.url }}" class="img-fluid mb-2"
+                                             alt="black sample" style="width:100%;"/>
+                                    </a>
+                                </div>
+                                {{ form.main_image }}
+                            </div>
+                            <label for="exampleInputFile">Галлерея картинок</label>
+                            <div class="row">
+                                {% for image in images %}
+                                    <div id="added-container"
+                                         style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
+                                        <label style="cursor: pointer;">
+                                            <img src="{{ image.image.url }}"
+                                                 style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;">
+                                        </label>
+                                        <h1>{{ image.title }}</h1>
+                                        <a class="btn btn-danger" href="{% url 'adminlte:delete-form' image.id %}">Удалить</a>
+                                    </div>
+                                {% endfor %}
+                                <div class="form-container"
+                                     style="margin-right:10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
+                                    <label for="id_image" style="cursor: pointer;">
+                                        <img id="previewImage"
+                                             src="https://static.vecteezy.com/system/resources/previews/005/337/799/non_2x/icon-image-not-found-free-vector.jpg"
+                                             alt="Картинка с крестиком"
+                                             style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;">
+                                    </label>
+
+                                    {% for form in formset %}
+                                        {{ form.image }}
+                                        {{ form.text }}
+                                    {% endfor %}
+                                </div>
+                                <td>
+                                    <button type="button" class="btn btn-block btn-success"
+                                            style="width: 200px; height: 40px; margin-top: 180px; margin-right: 10px;">
+                                        Добавить
+                                    </button>
+                                </td>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <label for="exampleInputText">Ссылка на трейлер</label>
+                                {{ form.trailer_link }}
+                            </div>
+                            {#                            <div class="form-group">#}
+                            {#                                <label for="exampleInputText">Тип кино</label>#}
+                            {#                                <br>#}
+                            {#                                <div class="btn-group btn-group-toggle" data-toggle="buttons">#}
+                            {#                                    {% for radio in form.movie_type %}#}
+                            {#                                        <label class="btn bg-secondary active">#}
+                            {#                                            {{ radio.tag }}#}
+                            {#                                        {{ radio.choice_label }}#}
+                            {#                                        </label>#}
+                            {#                                    {% endfor %}#}
+                            {#                                </div>#}
+                            {#                            </div>#}
+                            <label for="exampleInputText">SEO блок:</label>
+                            <div class="container">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-6">
+                                        <div class="form-group text-center">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">URL</span>
+                                                </div>
+                                                {{ form.seo_url }}
+                                            </div>
+                                            <br>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Title</span>
+                                                </div>
+                                                {{ form.seo_title }}
+                                            </div>
+                                            <br>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Key words</span>
+                                                </div>
+                                                {{ form.seo_keywords }}
+                                            </div>
+                                            <br>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Description</span>
+                                                </div>
+                                                {{ form.seo_description }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- /.card-body -->
+
+                        <div class="card-footer text-center">
+                            <button type="submit" class="btn btn-primary" style="width: 400px; height: 40px;">
+                                Сохранить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            function addForm(event, formId) {
+                event.preventDefault();
+
+                let totalForms = parseInt($('#' + formId + ' #id_form-TOTAL_FORMS').val());
+
+                let newForm = $('#' + formId + ' #form-container').clone();
+
+                let newFormId = 'form-container-' + totalForms;
+                let previewId = 'previewImage_' + formId + '_' + totalForms;
+                let inputId = 'id_image_' + formId + '_' + totalForms;
+
+                newForm.attr('id', newFormId);
+                newForm.find('input, select, textarea').each(function () {
+                    let name = $(this).attr('name').replace('-' + (totalForms - 1) + '-', '-' + totalForms + '-');
+                    let id = 'id_' + name;
+                    $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+                });
+
+                newForm.find('#previewImage').attr({'id': previewId, 'src': '{% static "img/200.jpeg" %}'});
+                newForm.find('label').attr('for', inputId);
+                newForm.find('input[type="file"]').attr({'id': inputId});
+
+                totalForms++;
+                $('#' + formId + ' #id_form-TOTAL_FORMS').val(totalForms);
+
+                $('#' + formId + ' #add-form').before(newForm);
+
+                $('#' + formId + ' #' + newFormId + ' #previewImage').on('click', function () {
+                    $('#' + formId + ' #' + newFormId + ' #' + inputId).click();
+                });
+
+                $('#' + formId + ' #' + newFormId + ' #' + inputId).on('change', function () {
+                    updatePreview(this, previewId);
+                });
+            }
+
+            function updatePreview(input, previewId) {
+                if (input.files && input.files[0]) {
+                    let reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $('#' + previewId).attr('src', e.target.result);
+                    };
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            $(document).on('change', 'input[type="file"]', function () {
+                let previewId = $(this).siblings('label').find('img').attr('id');
+                updatePreview(this, previewId);
+            });
+
+            $(document).on('click', '#add-form', function (event) {
+                let formId = $(this).closest('form').attr('id');
+                addForm(event, formId);
+            });
+
+            let csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+
+            function handleRotationSpeedChange(rotationSpeedElement, formId) {
+                let timeDelayValue = rotationSpeedElement.val();
+
+                $.ajax({
+                    url: '{% url "adminlte:update_rotation_speed" %}',
+                    type: 'POST',
+                    data: {
+                        'form_id': formId,
+                        'time_delay': timeDelayValue
+                    },
+                    headers: {
+                        'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()
+                    },
+                    success: function (response) {
+                        console.log('Rotation speed updated successfully:', response);
+                    },
+                    error: function (error) {
+                        console.error('Error updating rotation speed:', error);
+                    }
+                });
+            }
+
+            $('#form-first #rotation-speed').on('change', function () {
+                handleRotationSpeedChange($(this), 'form-first');
+            });
+
+            $('#form-second #rotation-speed2').on('change', function () {
+                handleRotationSpeedChange($(this), 'form-second');
+            });
+
+            $(document).on('submit', 'form[id^="form-"]', function (e) {
+                e.preventDefault();
+
+                let formId = $(this).attr('id');
+                let form_data = new FormData($('#' + formId)[0]);
+
+                form_data.append('from_id', formId)
+
+                console.log(form_data, formId)
+
+                $.ajax({
+                    url: '{% url "adminlte:banner_page" %}',
+                    type: 'POST',
+                    data: form_data,
+                    contentType: false,
+                    processData: false,
+                    headers: {
+                        'X-CSRFToken': csrf_token
+                    },
+                    success: function (response) {
+                        console.log('Server response:' + response)
+                        if (response.success) {
+                            console.log('Form submitted successfully');
+                            window.location.replace('{% url 'adminlte:banner_page' %}')
+                        } else {
+                            let errorsHtml = '<ul>';
+                            for (let i = 0; i < response.errors.length; i++) {
+                                errorsHtml += '<div class="alert alert-danger" role="alert">' + response.errors[i] + '</div>';
+                            }
+                            errorsHtml += '</ul>';
+
+                            $('#' + formId + ' #error-container').html(errorsHtml);
+                        }
+                    },
+                    error: function (error) {
+                        console.error('Error submitting form:', error);
+                    },
+                });
+            });
+        });
+    </script>
+{% endblock %}

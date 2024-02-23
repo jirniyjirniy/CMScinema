@@ -1,0 +1,265 @@
+{% extends 'admin_page/base.html' %}
+{% block content %}
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    {% if cinema_id %}
+                        <form enctype="multipart/form-data" action="{% url 'adminlte:cinema_edit' cinema_id %}"
+                              method="post" novalidate>
+                        {% csrf_token %}
+                    {% else %}
+                        <form enctype="multipart/form-data" action="{% url 'adminlte:cinema_add' %}" method="post"
+                              novalidate>
+                        {% csrf_token %}
+                    {% endif %}
+                    {{ formset.management_form }}
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="exampleInputText">Название Фильма</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="form-group">
+                            <label>Описание</label>
+                            {{ form.desc }}
+                        </div>
+                        <div class="form-group">
+                            <label>Условия</label>
+                            {{ form.conditions }}
+                        </div>
+                        <label>Логотип</label>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <img id="logoPreview" class="img-fluid mb-2" alt="logo preview"
+                                     style="width:100%;"
+                                     src="{% if form.logo.value %}{{ form.logo.value.url }}
+{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"/>
+                            </div>
+                            {{ form.logo }}
+                        </div>
+                        <label>Фото верхнего баннера</label>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <img id="topBannerPreview" class="img-fluid mb-2" alt="top banner preview"
+                                     src="{% if form.top_banner.value %}{{ form.top_banner.value.url }}
+{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                     style="width:100%;"/>
+                            </div>
+                            {{ form.top_banner }}
+                        </div>
+                        <label for="exampleInputFile">Галлерея картинок</label>
+                        <div class="row" id="gallery-container">
+                            {% for gallery_form in formset %}
+                                <div class="col-md-2" id="gallery-form">
+                                    <a href="https://via.placeholder.com/300.png?text=No+Image"
+                                       data-toggle="lightbox" data-title="sample 2 - black" data-gallery="gallery">
+                                        <img id="gallery-preview" src="
+                                                {% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                             class="img-fluid mb-2" alt="black sample" style="width:100%;"/>
+                                    </a>
+                                    {{ gallery_form.image }}
+                                    {{ gallery_form.id }}
+                                </div>
+                            {% endfor %}
+                            <button type="button" class="btn btn-block btn-success"
+                                    style="width: 200px; height: 40px; margin-top: 50px; margin-right: 10px;"
+                                    id="add-gallery-form">Добавить
+                            </button>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row card">
+                        <label class="text-center" style="font-size: 30px;">Залы</label>
+                        <!-- /.card-header -->
+                    {% if cinema_hall %}
+                        <div class="card-body">
+                            <table id="example2" class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                <tr>
+                                    <th>Название зала</th>
+                                    <th>Дата создания</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for hall in cinema_hall %}
+                                    <tr>
+                                        <td>{{ hall.number }} Зал | {{ hall.cinema }}</td>
+                                        <td>{{ hall.created_at }}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'adminlte:hall_card' cinema_id=cinema_id hall_id=hall.id %}" type="button" class="btn btn-outline-warning">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                                     height="16" fill="currentColor"
+                                                     class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                    <path
+                                                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z">
+                                                    </path>
+                                                    <path fill-rule="evenodd"
+                                                          d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z">
+                                                    </path>
+                                                </svg>
+                                                Редактировать
+                                            </a>
+                                            <a href="{% url 'adminlte:hall_delete' hall.id cinema_id %}" type="button" class="btn btn-outline-danger">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                                     height="16" fill="currentColor" class="bi bi-trash"
+                                                     viewBox="0 0 16 16">
+                                                    <path
+                                                            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z">
+                                                    </path>
+                                                    <path
+                                                            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z">
+                                                    </path>
+                                                </svg>
+                                                Удалить
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th>Название зала</th>
+                                    <th>Дата создания</th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                            <br>
+                            <a href="{% url 'adminlte:hall_add' cinema_id %}" class="btn btn-success" style="margin-left: 47%">Добавить зал</a>
+                        </div>
+                    {% else %}
+                        <h1 class="text-center">Зал можно добавить после создания кинотеатра!</h1>
+                    {% endif %}
+                    </div>
+                    <label for="exampleInputText">SEO блок:</label>
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <div class="form-group text-center">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">URL</span>
+                                        </div>
+                                        {{ seo_form.url }}
+                                    </div>
+                                    <br>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Title</span>
+                                        </div>
+                                        {{ seo_form.title }}
+                                    </div>
+                                    <br>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Key words</span>
+                                        </div>
+                                        {{ seo_form.keywords }}
+                                    </div>
+                                    <br>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Description</span>
+                                        </div>
+                                        {{ seo_form.desc }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer text-center">
+                        <button type="submit" class="btn btn-primary" style="width: 400px; height: 40px;">
+                            Сохранить
+                        </button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
+            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
+
+    <script>
+        function handlePreview(input, previewId) {
+            var preview = document.getElementById(previewId);
+
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        document.getElementById('id_logo').addEventListener('change', function () {
+            handlePreview(this, 'logoPreview');
+        });
+
+        document.getElementById('id_top_banner').addEventListener('change', function () {
+            handlePreview(this, 'topBannerPreview');
+        });
+
+        document.getElementById('galleryPreview').addEventListener('change', function () {
+            handlePreview(this, 'gallery-preview')
+        })
+
+        let galleryForm = document.querySelectorAll('#gallery-form');
+        let totalForms = document.querySelector("#id_gallery-formset-TOTAL_FORMS");
+        let addButton = document.querySelector("#add-gallery-form");
+        let container = document.querySelector('#gallery-container');
+
+        let formNum = galleryForm.length - 1;
+        addButton.addEventListener('click', addGalleryCard)
+
+        function addGalleryCard(e) {
+            e.preventDefault();
+
+            let newForm = galleryForm[0].cloneNode(true);
+            let formRegex = RegExp(`gallery-formset-(\\d){1}-`, 'g');
+
+            formNum++;
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `gallery-formset-${formNum}-`);
+
+            let image = newForm.querySelector('#galleryPreview');
+            let newId = `galleryPreview${formNum}`;
+            image.id = newId;
+
+            let photo = newForm.querySelector('#gallery-preview');
+            let newPhotoId = `gallery-preview${formNum}`;
+            photo.id = newPhotoId;
+            photo.src = 'https://via.placeholder.com/300.png?text=No+Image'
+
+
+            image.addEventListener('change', function () {
+                handlePreview(this, newPhotoId);
+            });
+
+            container.insertBefore(newForm, addButton);
+
+            totalForms.value = formNum + 1;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let galleryForms = document.querySelectorAll('#gallery-container .col-md-2');
+
+            galleryForms.forEach(function (form, index) {
+                let galleryInput = form.querySelector('#galleryPreview');
+                let fileInput = form.querySelector('[name^="formset-' + index + '-image"]');
+
+                galleryInput.addEventListener('change', function () {
+                    fileInput.value = galleryInput.src;
+                });
+            });
+        });
+
+    </script>
+
+{% endblock %}

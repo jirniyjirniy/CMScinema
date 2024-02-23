@@ -1,0 +1,9 @@
+{% for gallery_image in gallery_images %}
+    <div class="card"
+         style="margin-right: 10px; border: 1px solid #3498db; padding: 20px; max-width: 300px; text-align: center; background-color: #f2f2f2; display: flex; flex-direction: column; margin-bottom: 20px;">
+        <img src="{{ gallery_image.image.url }}" alt="{{ gallery_image.title }}"
+             style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;">
+        {{ gallery_image.title }}
+        <!-- Дополните данными, которые вы хотите отображать -->
+    </div>
+{% endfor %}

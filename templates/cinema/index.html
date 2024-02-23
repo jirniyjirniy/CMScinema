@@ -1,0 +1,129 @@
+{% extends 'cinema/base.html' %}
+{% load static %}
+
+{% block title %}Main Page{% endblock %}
+{% block body_style %}style="background-image:
+    url(https://m.media-amazon.com/images/M/MV5BOGE4NzU1YTAtNzA3Mi00ZTA2LTg2YmYtMDJmMThiMjlkYjg2XkEyXkFqcGdeQXVyNTgzMDMzMTg@._V1_FMjpg_UX1000_.jpg);"{% endblock %}
+{% block content %}
+    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+        <div class="container-fluid">
+            <div class="col-md-8" style="margin-left: 18%;">
+                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                    <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for image in gallery_images %}
+                                <div class="carousel-item active" data-bs-interval="2000">
+                                    <img src="{{ image.image.url }}" class="d-block w-100" alt="...">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+                            data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+                            data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+            <div class="row" style="margin-left: 20%;">
+                <div class="left-ads-display col-lg-9" style="width: 1500px;">
+                    <div class="left-ads-display col-lg-10">
+                        <span class="badge rounded-pill text-bg-success"
+                              style="margin-left: 40%; margin-top: 30px; width: 400px; height: 50px; font-size: 27px">Смотрите уже сегодня</span>
+                        <div class="row" id="search_part">
+                            {% for movie in movies_now %}
+                                <div class="col-md-4 product-men">
+                                    <div class="product-shoe-info editContent text-center mt-lg-4"
+                                         style="background-color: whitesmoke;">
+                                        <div class="men-thumb-item">
+                                            <img src="{% if movie.main_image %}{{ movie.main_image.url }}{% else %}https://s3.vcdn.biz/static/f/5768112441/image.jpg/pt/r375x0x4{% endif %}"
+                                                 class="img-fluid" alt="">
+                                        </div>
+                                        <div class="item-info-product">
+                                            <span class="badge rounded-pill text-bg-info"
+                                                  style="width: 50px; margin-top: 5px;">{{ movie.type }}</span>
+                                            <h4 class="">
+                                                <a href="{{ movie.get_absolute_url }}"
+                                                   class="editContent">{{ movie.title }}</a>
+                                            </h4>
+                                        </div>
+                                        <a class="btn btn-warning" href="../cinema/film_card.html"
+                                           style="color: #000;">Купить</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <span class="badge rounded-pill text-bg-warning"
+                              style="margin-left: 40%; margin-top: 30px; width: 400px; height: 50px; font-size: 27px">Смотрите скоро</span>
+                        <div class="row">
+                            {% for movie in movies_soon %}
+                                <div class="col-md-4 product-men">
+                                    <div class="product-shoe-info editContent text-center mt-lg-4"
+                                         style="background-color: whitesmoke;">
+                                        <div class="men-thumb-item">
+                                            <img src="{% if movie.main_image %}{{ movie.main_image.url }}
+                                            {% else %}https://s3.vcdn.biz/static/f/5768112441/image.jpg/pt/r375x0x4
+                                            {% endif %}"
+                                                 class="img-fluid" alt="">
+                                        </div>
+                                        <div class="item-info-product">
+                                            <span class="badge rounded-pill text-bg-info"
+                                                  style="width: 50px; margin-top: 5px;">{{ movie.type }}</span>
+                                            <h4 class="">
+                                                <a href="{{ movie.get_absolute_url }}"
+                                                   class="editContent">{{ movie.title }}</a>
+                                            </h4>
+                                        </div>
+                                        <label for=""
+                                               style="color: brown; font-size: 20px;">{{ movie.coming_soon }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            $('#search_form').submit(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    type: this.method,
+                    url: this.action,
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function (response) {
+                        if (currentURL !== '{% url 'cinema:index' %}') {
+                            window.location.replace('{% url 'cinema:index' %}')
+                        } else {
+                            $('#search_part').html(response.html);
+                        }
+                    },
+                    error: function (response) {
+                        $('#search_part').html(response.html);
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock %}

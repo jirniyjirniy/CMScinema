@@ -1,0 +1,32 @@
+{% extends 'cinema/base.html' %}
+{% load static %}
+
+{% block title %}Event Card{% endblock %}
+
+{% block content %}
+    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+        {% for event in events %}
+            <div class="container-fluid py-md-3">
+                {% for image in gallery_images %}
+                    <img src="{{ image.image.url }}" alt=""
+                         style="height: 400px; width: 2200px; margin-left: -100px;">
+                {% endfor %}
+                <h1>
+                    {{ event.title }}
+                </h1>
+                <span class="badge rounded-pill text-bg-secondary"
+                      style="width: auto; margin-top: 5px;">{{ event.date|date:'d.m.Y' }}</span>
+                <span class="badge rounded-pill text-bg-danger"
+                      style="width: auto; margin-top: 5px;">{{ event.cinema }}</span>
+                <div class="col-md-12" style="margin-top: 50px;">
+                    <div class="row">
+                        <img src="{{ event.main_image.url }}" alt=""
+                             style="height: 400px; width: 400px;">
+                        <p style="width: 1500px;">{{ event.desc }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'admin_page/base.html' %}
+{% block content %}
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Main content -->
+        <div class="content">
+            <div class="container-fluid">
+                <div class="card-body">
+                    <div class="row">
+                        {% for cinema in cinemas %}
+                            <div class="col-sm-2">
+                                <a href="{{ cinema.logo.url }}" data-toggle="lightbox"
+                                   data-title="sample 2 - black" data-gallery="gallery">
+                                    <img src="{{ cinema.logo.url }}" class="img-fluid mb-2"
+                                         alt="black sample"/>
+                                </a>
+                                <h2>{{ cinema.title }}</h2>
+                                <form method="post" action="{% url 'adminlte:cinema_delete' cinema.id %}">
+                                    {% csrf_token %}
+                                    <input type="submit" class="btn btn-block btn-danger" value="Удалить">
+                                </form>
+                                <br>
+                                <a href="{% url 'adminlte:cinema_edit' cinema_id=cinema.id %}" class="btn btn-block btn-info">Редактировать</a>
+                            </div>
+                        {% endfor %}
+                        <td>
+                            <a href="{% url 'adminlte:cinema_add' %}" type="button" class="btn btn-block btn-success"
+                               style="width: 300px; height: 40px; margin-top: 150px; margin-left: 50px;">Добавить</a>
+                        </td>
+                    </div>
+                </div>
+
+                <!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content -->
+    </div>
+{% endblock %}

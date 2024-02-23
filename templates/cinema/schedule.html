@@ -1,0 +1,216 @@
+{% extends 'cinema/base.html' %}
+{% load static %}
+
+{% block title %}Schedule{% endblock %}
+
+{% block content %}
+    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+        <div class="row" style="margin-left: 20%; margin-top: 20px;">
+            <div class="left-ads-display col-lg-9" style="width: 1500px;">
+                <div class="left-ads-display col-lg-10">
+                    <div class="row">
+                        <div class="col-md-2" style="margin-top: 20px; font-weight: bold; font-size: large;">
+                            <label for="">Показывать только:</label>
+                        </div>
+                        <form action="{% url 'cinema:schedule_ajax' %}" id="schedule-filter" method="get"
+                              class="row col-md-10">
+                            {% csrf_token %}
+                            <div class="col-md-3" style="margin-top: 20px; width: 100px">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                           id="flexRadioDefault1" checked value="all">
+                                    <label class="form-check-label" for="flexRadioDefault1">
+                                            <span class="badge rounded-pill text-bg-warning"
+                                                  style="width: 50px; margin-top: 5px;">ВСЕ</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                           id="flexRadioDefault2" value="3D">
+                                    <label class="form-check-label" for="flexRadioDefault2">
+                                            <span class="badge rounded-pill text-bg-danger"
+                                                  style="width: 50px; margin-top: 5px;">3D</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                           id="flexRadioDefault3" value="2D">
+                                    <label class="form-check-label" for="flexRadioDefault3">
+                                            <span class="badge rounded-pill text-bg-info"
+                                                  style="width: 50px; margin-top: 5px;">2D</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                           id="flexRadioDefault4" value="IMAX">
+                                    <label class="form-check-label" for="flexRadioDefault4">
+                                            <span class="badge rounded-pill text-bg-success"
+                                                  style="width: 50px; margin-top: 5px;">IMAX</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-2" style="margin-top: 20px;">
+                                <select class="form-select" aria-label="Default select example" id="cinemaSelect">
+                                    <option selected value="all">Кинотеатр</option>
+                                    {% for cinema in cinema_list %}
+                                        <option value="{{ cinema.id }}">{{ cinema.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2" style="margin-top: 20px;">
+                                <select class="form-select" aria-label="Default select example" id="dateSelect">
+                                    <option selected value="all">Дата</option>
+                                    {% for data in unique_dates %}
+                                        <option value="{{ data }}">{{ data|date:'d F, Y' }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2" style="margin-top: 20px;">
+                                <select class="form-select" aria-label="Default select example" id="filmSelect">
+                                    <option selected value="all">Фильм</option>
+                                    {% for movie in movie_list %}
+                                        <option value="{{ movie.id }}">{{ movie.title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2" style="margin-top: 20px;">
+                                <select class="form-select" aria-label="Default select example" id="hallSelect">
+                                    <option selected value="all">Зал</option>
+                                    {% for hall in hall_list %}
+                                        <option value="{{ hall.cinema.id }} {{ hall.id }}">{{ hall.cinema }}|{{ hall.number }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button class='btn btn-success' type="submit"
+                                    style="width: 200px; height: 40px; margin-top: 20px">
+                                Применить фильтр
+                            </button>
+                        </form>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-11 schedule-section-container">
+                            {% for date, sessions in grouped_sessions.items %}
+                                <div class="col-md-12 schedule-section" id="date-section-{{ date|date:'Y-m-d' }}">
+                                    <h1>{{ date|date:'d F, Y' }}</h1>
+                                    <br>
+                                    <div class="container-fluid py-md-3">
+                                        <div class="row">
+                                            <div class="col-md-7">
+                                                <div class="card-body">
+                                                    <table id="schedule-table" class="table table-bordered table-hover">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>Дата и время</th>
+                                                            <th>Фильм</th>
+                                                            <th>Зал</th>
+                                                            <th>Цена</th>
+                                                            <th>Бронировать</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {% for session in sessions %}
+                                                            <tr>
+                                                                <td>
+                                                                    {{ session.time|date:'H:i' }}
+                                                                </td>
+                                                                <td>{{ session.movie.title }}
+                                                                    <label class="form-check-label"
+                                                                           for="flexRadioDefault3">
+                                            <span class="badge rounded-pill text-bg-{% if session.type == '3D' %}danger{% elif session.type == '2D' %}info{% else %}success{% endif %}"
+                                                  style="width: 50px; margin-top: 5px;">{% if session.type == '3D' %}3D{% elif session.type == '2D' %}2D{% else %}IMAX{% endif %}</span>
+                                                                    </label>
+                                                                </td>
+                                                                <td>{{ session.cinema_hall }}</td>
+                                                                <td>{{ session.price }}</td>
+                                                                <td><a href="{{ session.get_absolute_url }}"
+                                                                       style="font-weight: bold; color: red">Бронировать</a>
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                        </tbody>
+                                                        <tfoot>
+                                                        <tr>
+                                                            <th>Дата и время</th>
+                                                            <th>Фильм</th>
+                                                            <th>Зал</th>
+                                                            <th>Цена</th>
+                                                            <th>Бронировать</th>
+                                                        </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-1">
+                            <img src="https://explainedthis.com/wp-content/uploads/2023/07/the-neon-demon-ending.webp"
+                                 class="rounded float-end" alt="..." style="width: 450px; height:  1000px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section>
+{% endblock %}
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $("#schedule-filter").submit(function (event) {
+                event.preventDefault();
+                let selectedMovieType = $("input[name='flexRadioDefault']:checked").val();
+                let selectedCinema = $("#cinemaSelect").val();
+                let selectedDate = $("#dateSelect").val();
+                let selectedFilm = $("#filmSelect").val();
+                let selectedHall = $("#hallSelect").val();
+
+                let csrftoken = getCookie('csrftoken');
+
+
+                $.ajax({
+                    url: '{% url 'cinema:schedule_ajax' %}',
+                    method: 'GET',
+                    data: {
+                        cinema_id: selectedCinema,
+                        date_id: selectedDate,
+                        film_id: selectedFilm,
+                        hall_id: selectedHall,
+                        movie_type: selectedMovieType,
+                    },
+                    dataType: 'json',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);  // Установка CSRF-токена в заголовок
+                    },
+                    success: function (response) {
+                        $('.schedule-section-container').empty();
+                        $('.schedule-section-container').append(response.html);
+                        {#$('#schedule-table').html(response.html);#}
+                    }
+                });
+            });
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Ищем cookie по имени
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+
+{% endblock %}

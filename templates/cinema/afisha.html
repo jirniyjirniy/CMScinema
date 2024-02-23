@@ -1,0 +1,63 @@
+{% extends 'cinema/base.html' %}
+{% load static %}
+
+{% block title %}Afisha{% endblock %}
+
+{% block content %}
+    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+        <div class="container-fluid py-md-3">
+            <div class="row">
+                <div class="side-bar col-lg-3">
+                    <hr>
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="{% url 'cinema:afisha' %}" class="nav-link active" aria-current="page">
+                                <svg class="bi me-2" width="16" height="16">
+                                    <use xlink:href="#home"></use>
+                                </svg>
+                                Афиша
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'cinema:soon' %}" class="nav-link link-dark">
+                                <svg class="bi me-2" width="16" height="16">
+                                    <use xlink:href="#speedometer2"></use>
+                                </svg>
+                                Скоро
+                            </a>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
+                <!-- //product left -->
+                <!-- product right -->
+                <div class="left-ads-display col-lg-9">
+                    <div class="row">
+                        {% for movie in movies %}
+                            <div class="col-md-4 product-men">
+                                <div class="product-shoe-info editContent text-center mt-lg-4">
+                                    <div class="men-thumb-item">
+                                        <img src="{{ movie.main_image.url }}"
+                                             class="img-fluid" alt="">
+                                    </div>
+                                    <div class="item-info-product">
+                                        <span class="badge rounded-pill text-bg-info"
+                                              style="width: 50px; margin-top: 5px;">{{ movie.type }}</span>
+                                        <h4 class="">
+                                            <a href="{{ movie.get_absolute_url }}" class="editContent">{{ movie.title }}</a>
+                                        </h4>
+                                    </div>
+                                    <a href="{{ movie.get_absolute_url }}"><button class="btn btn-warning">Купить</button></a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <!--<div class="grid-img-right mt-4 text-right bg bg1" >
+                        <span class="money editContent" >Flat 50% Off</span>
+                        <a href="moviesingle.html" class="btn" >Now</a>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<!--
+This is a starter template page. Use this page to start your new project from
+scratch. This page gets rid of all links and provides the needed markup only.
+-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AdminLTE 3 | Starter</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="../static/plugins/fontawesome-free/css/all.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../static/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Navbar Search -->
+                <li class="nav-item" style="padding-bottom: 20px;">
+                    <a class="nav-link" href="#" role="button">
+                        <i class="bi bi-person-fill" style="padding-bottom: 15px; color: #000;">Администратор</i>
+
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button" style="color: #000;">
+                        <i class="bi bi-power"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a href="" class="brand-link">
+                <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+                    style="opacity: .8">
+                <span class="brand-text font-weight-light">Admin Pannel</span>
+            </a>
+    
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                        data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class
+                       with font-awesome or any other icon font library -->
+                        <li class="nav-item">
+                            <a href="stats_page.html" class="nav-link">
+                                <i class="bi bi-bar-chart"></i>
+                                <p>
+                                    Статистика
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="banner.html" class="nav-link">
+                                <i class="bi bi-images"></i>
+                                <p>
+                                    Баннер/Слайдер
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="films.html" class="nav-link">
+                                <i class="bi bi-film"></i>
+                                <p>
+                                    Фильм
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="cinemas.html" class="nav-link">
+                                <i class="bi bi-building"></i>
+                                <p>
+                                    Кинотеатр
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="news_page.html" class="nav-link">
+                                <i class="bi bi-newspaper"></i>
+                                <p>
+                                    Новости
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="events_page.html" class="nav-link">
+                                <i class="bi bi-calendar-event"></i>
+                                <p>
+                                    Акции
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="pages.html" class="nav-link">
+                                <i class="bi bi-file-earmark"></i>
+                                <p>
+                                    Страницы
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="users.html" class="nav-link">
+                                <i class="bi bi-people"></i>
+                                <p>
+                                    Пользователи
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="sender.html" class="nav-link">
+                                <i class="bi bi-envelope-check"></i>
+                                <p>
+                                    Рассылка
+                                </p>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Main content -->
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Имя</label>
+                            <input class="form-control" type="text" id="exampleInputText1" placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6" style="margin-top: 32px;">
+                            <label for="exampleInputText1">Язык</label>
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <label class="btn bg-olive active">
+                                    <input type="radio" name="options" id="option_b1" autocomplete="off" checked="">
+                                    UA
+                                </label>
+                                <label class="btn bg-secondary">
+                                    <input type="radio" name="options" id="option_b2" autocomplete="off">ENG
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Фамилия</label>
+                            <input class="form-control" type="text" id="exampleInputText1" placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6" style="margin-top: 32px;">
+                            <label for="exampleInputText1">Пол</label>
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <label class="btn bg-olive active">
+                                    <input type="radio" name="options" id="option_b1" autocomplete="off" checked="">
+                                    Male
+                                </label>
+                                <label class="btn bg-secondary">
+                                    <input type="radio" name="options" id="option_b2" autocomplete="off">Female
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Псевдоним</label>
+                            <input class="form-control" type="text" id="exampleInputText1" placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText2">Телефон</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="exampleInputText2"
+                                    placeholder="Писать сюда...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">E-mail</label>
+                            <input class="form-control" type="text" id="exampleInputText1" placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6 form-group" style="padding-left: 3px;">
+                            <div class="col-md-6">
+                                <label for="exampleInputText2">Дата рождения</label>
+                                <input class="form-control" type="datetime-local" id="exampleInputText2"
+                                    placeholder="Писать сюда...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Адресс</label>
+                            <input class="form-control" type="text" id="exampleInputText1" placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText2">Город</label>
+                            <label for="exampleSelect">Выберите опцию:</label>
+                            <select class="form-control" id="exampleSelect">
+                                <option value="option1">Опция 1</option>
+                                <option value="option2">Опция 2</option>
+                                <option value="option3">Опция 3</option>
+                            </select>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Пароль</label>
+                            <input class="form-control" type="text" id="exampleInputText1" placeholder="Писать сюда...">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText2">Повторить пароль</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="exampleInputText2"
+                                    placeholder="Писать сюда...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label for="exampleInputText1">Номер карты</label>
+                            <input class="form-control" type="text" id="exampleInputText1" placeholder="Писать сюда...">
+                        </div>
+                    </div>
+                    <!-- /.row -->
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 400px; height: 40px;">Сохранить</button>
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+
+        <!-- Control Sidebar -->
+    </div>
+    <!-- ./wrapper -->
+
+    <!-- REQUIRED SCRIPTS -->
+
+    <!-- jQuery -->
+    <script src="../static/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="../static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../static/dist/js/adminlte.min.js"></script>
+</body>
+
+</html>

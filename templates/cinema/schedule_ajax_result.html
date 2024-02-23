@@ -1,0 +1,55 @@
+<div class="row">
+    {% for date, sessions in grouped_sessions.items %}
+        <div class="col-md-12 schedule-section" id="date-section-{{ date|date:'Y-m-d' }}">
+            <h1>{{ date|date:'d F, Y' }}</h1>
+            <br>
+            <div class="container-fluid py-md-3">
+                <div class="row">
+                    <div class="col-md-7">
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Дата и время</th>
+                                    <th>Фильм</th>
+                                    <th>Зал</th>
+                                    <th>Цена</th>
+                                    <th>Бронировать</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for session in sessions %}
+                                    <tr>
+                                        <td>{{ session.time|date:'H:i' }}</td>
+                                        <td>{{ session.movie.title }}
+                                            <label class="form-check-label"
+                                                   for="flexRadioDefault3">
+                                            <span class="badge rounded-pill text-bg-{% if session.type == '3D' %}danger{% elif session.type == '2D' %}info{% else %}success{% endif %}"
+                                                  style="width: 50px; margin-top: 5px;">{% if session.type == '3D' %}
+                                                3D{% elif session.type == '2D' %}2D{% else %}IMAX{% endif %}</span>
+                                            </label>
+                                        </td>
+                                        <td>{{ session.cinema_hall }}</td>
+                                        <td>{{ session.price }}</td>
+                                        <td><a href="{{ session.get_absolute_url }}"
+                                               style="font-weight: bold; color: red">Бронировать</a></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th>Дата и время</th>
+                                    <th>Фильм</th>
+                                    <th>Зал</th>
+                                    <th>Цена</th>
+                                    <th>Бронировать</th>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

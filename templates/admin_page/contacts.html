@@ -1,0 +1,272 @@
+{% extends 'admin_page/base.html' %}
+
+{% block content %}
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" style="background-color: white;">
+        <!-- Main content -->
+        <div class="content">
+            <form action="{% url 'adminlte:contact_page' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ formset.management_form }}
+                <div id="contact-formset-container">
+                    <div id="contact-form"
+                         style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;">
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="exampleInputText1">Название кинотеатра</label>
+                                {{ form.title }}
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label>Адресс</label>
+                                {{ form.address }}
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-md-6">
+                                <label for="exampleInputText1">Координаты для карты</label>
+                                {{ form.coords }}
+                            </div>
+                        </div>
+                        <label>Лого</label>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <img id="id_main_logo" src="
+                                        
+                                        
+                                        
+                                        {% if form.instance.logo %}{{ form.instance.logo.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                     class="img-fluid mb-2" alt="black sample" style="width:100%;"/>
+                            </div>
+                            {{ form.logo }}
+                            {{ form.id }}
+                        </div>
+                    </div>
+                    {% for form in formset %}
+                        <div id="contact-form"
+                             style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;">
+                            <div class="row form-group">
+                                <div class="col-md-4">
+                                    <label for="exampleInputText1">Название кинотеатра</label>
+                                    {{ form.title }}
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="exampleInputText1">Статус</label>
+                                    <div class="d-flex col-md-2">
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
+                                        <div class="form-check form-switch">
+                                            {{ form.status }}
+                                        </div>
+                                        <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-6">
+                                    <label>Адресс</label>
+                                    {{ form.address }}
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <div class="col-md-6">
+                                    <label for="exampleInputText1">Координаты для карты</label>
+                                    {{ form.coords }}
+                                </div>
+                            </div>
+                            <label>Лого</label>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <img id="id_main_logo" src="
+                                            
+                                            
+                                            
+                                            {% if form.instance.logo %}{{ form.instance.logo.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                         class="img-fluid mb-2" alt="black sample" style="width:100%;"/>
+                                </div>
+                                {{ form.logo }}
+                                {{ form.id }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <button id="add-contact-form" type="button" class="btn btn-primary"
+                            style="width: 400px; height: 40px; margin-top: 20px; margin-left: 40%">
+                        Добавить еще
+                    </button>
+                </div>
+                <label for="exampleInputText" style="margin-top: 20px;">SEO блок:</label>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="form-group text-center">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">URL</span>
+                                    </div>
+                                    <input class="form-control" type="text" placeholder="Писать сюда...">
+                                </div>
+                                <br>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Title</span>
+                                    </div>
+                                    <input class="form-control" type="text" placeholder="Писать сюда...">
+                                </div>
+                                <br>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Key words</span>
+                                    </div>
+                                    <input class="form-control" type="text" placeholder="Писать сюда...">
+                                </div>
+                                <br>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Description</span>
+                                    </div>
+                                    <textarea class="form-control" rows="5" placeholder="Писать сюда..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-primary" style="width: 400px; height: 40px;">Сохранить
+                    </button>
+                </div>
+            </form>
+
+            {% with empty_form=formset.empty_form %}
+                <div id="empty-contact-form"
+                     style="display: none; border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;">
+                    <div class="row form-group">
+                        <div class="col-md-4">
+                            <label for="exampleInputText1">Название кинотеатра</label>
+                            {{ empty_form.title }}
+                        </div>
+                        <div class="col-md-2">
+                            <label for="exampleInputText1">Статус</label>
+                            <div class="d-flex col-md-2">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
+                                <div class="form-check form-switch">
+                                    {{ form.status }}
+                                </div>
+                                <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-6">
+                            <label>Адресс</label>
+                            {{ empty_form.address }}
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-6">
+                            <label for="exampleInputText1">Координаты для карты</label>
+                            {{ empty_form.coords }}
+                        </div>
+                    </div>
+                    <label>Лого</label>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <img src="https://via.placeholder.com/300.png?text=No+Image"
+                                 class="img-fluid mb-2"
+                                 alt="black sample" style="width:100%;" id="id_main_logo"/>
+                        </div>
+                        {{ empty_form.logo }}
+                        {{ empty_form.id }}
+                    </div>
+                </div>
+            {% endwith %}
+            <!-- /.row -->
+        </div>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+{% endblock %}
+
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
+            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
+
+    <script>
+        {#function handlePreview(input, previewId) {#}
+        {#    var preview = document.getElementById(previewId);#}
+        {##}
+        {#    var reader = new FileReader();#}
+        {##}
+        {#    reader.onload = function (e) {#}
+        {#        preview.src = e.target.result;#}
+        {#    }#}
+        {##}
+        {#    reader.readAsDataURL(input.files[0]);#}
+        {# }#}
+        {##}
+        {#document.getElementById('topPreview').addEventListener('change', function () {#}
+        {#    handlePreview(this, 'id_main_logo');#}
+        {# });#}
+
+
+        let galleryForm = document.querySelectorAll('#empty-contact-form');
+        let totalForms = document.querySelector("#id_contact-formset-TOTAL_FORMS");
+        let addButton = document.querySelector("#add-contact-form");
+        let container = document.querySelector('#contact-formset-container');
+        console.log(container);
+        let formNum = galleryForm.length - 1;
+        addButton.addEventListener('click', addGalleryCard)
+
+        function addGalleryCard(e) {
+            e.preventDefault();
+
+            let newForm = galleryForm[0].cloneNode(true);
+            newForm.style.display = 'block';
+
+            let formTitleRegex = RegExp(`contact-formset-__prefix__-title`, 'i');
+            let formAddressRegex = RegExp(`contact-formset-__prefix__-address`, 'i');
+            let formCoordsRegex = RegExp(`contact-formset-__prefix__-coords`, 'i');
+            let formLogoRegex = RegExp(`contact-formset-__prefix__-logo`, 'i');
+
+            formNum++;
+            newForm.innerHTML = newForm.innerHTML.replace(formTitleRegex, `contact-formset-${formNum}-title`);
+            newForm.innerHTML = newForm.innerHTML.replace(formAddressRegex, `contact-formset-${formNum}-address`);
+            newForm.innerHTML = newForm.innerHTML.replace(formCoordsRegex, `contact-formset-${formNum}-coords`);
+            newForm.innerHTML = newForm.innerHTML.replace(formLogoRegex, `contact-formset-${formNum}-logo`);
+
+            let image = newForm.querySelector('#topPreview');
+            let newId = `topPreview${formNum}`;
+            image.id = newId;
+
+            let photo = newForm.querySelector('#id_main_logo');
+            let newPhotoId = `id_main_logo${formNum}`;
+            photo.id = newPhotoId;
+            photo.src = 'https://via.placeholder.com/300.png?text=No+Image'
+
+
+            image.addEventListener('change', function () {
+                handlePreview(this, newPhotoId);
+            });
+
+            container.insertBefore(newForm, addButton);
+
+
+            totalForms.value = formNum + 1;
+
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let galleryForms = document.querySelectorAll('#contact-container .col-md-2');
+
+            galleryForms.forEach(function (form, index) {
+                let galleryInput = form.querySelector('#topyPreview');
+                let fileInput = form.querySelector('[name^="formset-' + index + '-image"]');
+
+                galleryInput.addEventListener('change', function () {
+                    fileInput.value = galleryInput.src;
+                });
+            });
+        });
+    </script>
+
+{% endblock %}
+

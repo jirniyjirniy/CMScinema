@@ -1,0 +1,216 @@
+{% extends 'admin_page/base.html' %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <div class="content">
+            <div class="container-fluid">
+                <div class="row card">
+                    <label class="text-center" style="font-size: 30px;">Страницы</label>
+                    <div class="card-body">
+                        <table id="example2" class="table table-bordered table-hover">
+                            <thead>
+                            <tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Дата регистрации</th>
+                                <th>День рождения</th>
+                                <th>Email</th>
+                                <th>Телефон</th>
+                                <th>ФИО</th>
+                                <th>Псевдоним</th>
+                                <th>Город</th>
+                            </tr>
+                            </tr>
+                            </thead>
+                            {% for user in users %}
+                                <tbody>
+                                <tr>
+                                    <td>{{ user.pk }}</td>
+                                    <td>{{ user.reg_date|date:'d.m.Y' }}</td>
+                                    <td>{{ user.birth_date|date:'d.m.Y' }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.phone_number }}</td>
+                                    <td>{{ user.name }} {{ user.second_name }}</td>
+                                    <td>{{ user.nickname }}</td>
+                                    <td>{{ user.city }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-outline-warning btn-edit"
+                                                data-toggle="modal"
+                                                data-target="#editModal" data-user-id="{{ user.pk }}"
+                                                data-user-birth="{{ user.birth_date|date:'d.m.Y' }}"
+                                                data-user-email="{{ user.email }}"
+                                                data-user-name="{{ user.name }}"
+                                                data-user-second-name="{{ user.second_name }}"
+                                                data-user-nickname="{{ user.nickname }}"
+                                                data-user-city="{{ user.city }}"
+                                                data-user-phone="{{ user.phone_number }}"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 fill="currentColor"
+                                                 class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                                <path
+                                                        d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z">
+                                                </path>
+                                                <path fill-rule="evenodd"
+                                                      d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z">
+                                                </path>
+                                            </svg>
+                                            Редактировать
+                                        </button>
+                                        <a href="{% url 'adminpage:delete_user' user.pk %}" type="button" class="btn btn-outline-danger">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 fill="currentColor"
+                                                 class="bi bi-trash" viewBox="0 0 16 16">
+                                                <path
+                                                        d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z">
+                                                </path>
+                                                <path
+                                                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z">
+                                                </path>
+                                            </svg>
+                                            Удалить
+                                        </a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            {% endfor %}
+                            <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Дата регистрации</th>
+                                <th>День рождения</th>
+                                <th>Email</th>
+                                <th>Телефон</th>
+                                <th>ФИО</th>
+                                <th>Псевдоним</th>
+                                <th>Город</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Редактирование пользователя</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Форма редактирования -->
+                    <form id="editForm" action="{% url 'adminpage:user_save' user_pk=0 %}" method="post">
+                        {% csrf_token %}
+                        <!-- Здесь добавьте поля формы для редактирования данных пользователя -->
+                        <input type="hidden" id="editUserId" name="editUserId">
+                        <!-- Пример поля для редактирования имени пользователя -->
+                        <div class="form-group">
+                            <label for="editUserBirth">День рождения:</label>
+                            <input type="text" class="form-control" id="editUserBirth" name="editUserBirth">
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserEmail">Email:</label>
+                            <input type="text" class="form-control" id="editUserEmail" name="editUserEmail">
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserName">Имя:</label>
+                            <input type="text" class="form-control" id="editUserName" name="editUserName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editSecondUserName">Фамилия:</label>
+                            <input type="text" class="form-control" id="editSecondUserName" name="editSecondUserName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editNickName">Псевдоним:</label>
+                            <input type="text" class="form-control" id="editNickName" name="editNickName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserCity">Город:</label>
+                            <input type="text" class="form-control" id="editUserCity" name="editUserCity">
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserPhone">Телефон:</label>
+                            <input type="text" class="form-control" id="editUserPhone" name="editUserPhone">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="saveUserBtn">Сохранить изменения</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            let csrftoken = $('[name=csrfmiddlewaretoken]').val();  // Перемещаем получение токена за пределы функции
+
+            $('#editForm').submit(function (event) {
+                event.preventDefault();
+
+                let userId = $('#editUserId').val();
+                let userBirth = $('#editUserBirth').val();
+                let userEmail = $('#editUserEmail').val();
+                let userName = $('#editUserName').val();
+                let userSecondName = $('#editSecondUserName').val();
+                let userNickName = $('#editNickName').val();
+                let userCity = $('#editUserCity').val();
+                let userPhone = $('#editUserPhone').val();
+
+                $.ajax({
+                    url: $(this).attr('action').replace('0', userId),
+                    method: 'POST',
+                    data: {
+                        csrfmiddlewaretoken: csrftoken,
+                        user_id: userId,
+                        birth_date: userBirth,
+                        email: userEmail,
+                        name: userName,
+                        second_name: userSecondName,
+                        nickname: userNickName,
+                        city: userCity,
+                        phone_number: userPhone,
+                    },
+                    success: function (response) {
+                        window.location.reload()
+                    },
+                    error: function () {
+                        alert('Произошла ошибка');
+                    }
+                });
+            });
+
+            $('#editModal').on('show.bs.modal', function (event) {
+                let button = $(event.relatedTarget);
+                let userId = button.data('user-id');
+                let userBirth = button.data('user-birth');
+                let userEmail = button.data('user-email');
+                let userName = button.data('user-name');
+                let userSecondName = button.data('user-second-name');
+                let userNickName = button.data('user-nickname');
+                let userCity = button.data('user-city');
+                let userPhone = button.data('user-phone');
+
+                let modal = $(this);
+                modal.find('#editUserId').val(userId);
+                modal.find('#editUserBirth').val(userBirth);
+                modal.find('#editUserEmail').val(userEmail);
+                modal.find('#editUserName').val(userName);
+                modal.find('#editSecondUserName').val(userSecondName);
+                modal.find('#editNickName').val(userNickName);
+                modal.find('#editUserCity').val(userCity);
+                modal.find('#editUserPhone').val(userPhone);
+            });
+        });
+    </script>
+{% endblock %}
+
+

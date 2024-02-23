@@ -1,0 +1,18 @@
+<div class="schedule">
+    {% for date, sessions in grouped_sessions.items %}
+        <div class="row">
+            <button class='date-button'
+                    style="width: 80px; margin-right: 20px; background-color: white; border: 3px solid #000;">
+                {{ date|date:"M d" }}
+            </button>
+            {% for session in sessions %}
+                <div style="border: 3px solid #000; width: 110px; margin-right: 20px;">
+                    <a href="{{ session.get_absolute_url }}">
+                        {{ session.time }} | {{ session.type }} | Зал {{ session.cinema_hall_number }}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        <br>
+    {% endfor %}
+</div>

@@ -1,0 +1,78 @@
+{% extends 'cinema/base.html' %}
+{% load static %}
+
+{% block title %}Hall card{% endblock %}
+
+{% block content %}
+    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+        <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
+             style="height: 400px; width: 2200px; margin-left: -100px;">
+        <div class="container-fluid py-md-3">
+            <br>
+            <div class="row">
+                <div class="col-md-2">
+                    <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
+                         style="height: 600px; width: 220px;">
+                    <h4>Смотрите сегодня</h4>
+                    <div class="card-body">
+                        <table id="example2" class="table table-bordered table-hover" style="width: 150px;">
+                            <thead>
+                            <tr>
+                                <th>Сеанс</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for s in sessions_today %}
+                            <tr>
+                                <td><a href="{{ s.get_absolute_url }}">{{ s.movie.title }} - {{ s.time }}</a></td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="" class="btn btn-success">Расписание сеансов</a>
+                </div>
+                <div class="col-md-10">
+                    <h1 class="text-center">Зал {{ hall.number }}</h1>
+                    <p style="margin-top: 50px; margin-right: 50px; margin-left: -60px;">
+                        {{ hall.desc }}
+                    </p>
+                    <h1 class="text-center">Карта зала</h1>
+                    <img src="{{ hall.scheme.url }}" alt=""
+                         style="height: 1000px; width: 1600px;">
+                    <div class="col-md-6" style="margin-left: 400px;">
+                        <h1 class="text-center">Фотогалерея</h1>
+                        <div id="carouselExampleCaptions" class="carousel slide">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0"
+                                        class="active" aria-current="true" aria-label="Slide 1"></button>
+                                <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1"
+                                        aria-label="Slide 2"></button>
+                                <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"
+                                        aria-label="Slide 3"></button>
+                            </div>
+                            <div class="carousel-inner">
+                                {% for image in gallery_images %}
+                                    <div class="carousel-item active">
+                                        <img src="{{ image.image.url }}"
+                                             class="d-block w-100" alt="...">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button"
+                                    data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

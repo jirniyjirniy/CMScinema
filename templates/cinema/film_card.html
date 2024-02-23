@@ -1,0 +1,202 @@
+{% extends 'cinema/base.html' %}
+{% load static %}
+
+{% block title %}Film Card{% endblock %}
+
+{% block content %}
+    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+        <div class="trailer-container text-center">
+            <iframe width="1600" height="900" src="{{ movie.trailer_url }}"
+                    frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div class="row" style="margin-left: 20%;">
+            <div class="left-ads-display col-lg-9" style="width: 1500px;">
+                <div class="left-ads-display col-lg-10">
+                    <br>
+                    <div class="container-fluid py-md-3">
+                        {% if movie.status == True %}
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h1>Расписание сеансов кинотеатра</h1>
+                                </div>
+                                <form action="{% url 'cinema:movie_sessions_ajax' %}" method="get" id='filter'
+                                      class="row col-md-6">
+                                    {% csrf_token %}
+                                    <div class="col-md-4" style="margin-top: 20px;">
+                                        <select class="form-select" aria-label="Default select example"
+                                                id="city-select">
+                                            <option selected value="all">--Выберите город--</option>
+                                            {% for city in cities %}
+                                                <option value="{{ city.id }}">{{ city.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3" style="margin-top: 20px; margin-left: 30px;">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                                   id="flexRadioDefault1" checked value="all">
+                                            <label class="form-check-label" for="flexRadioDefault1">
+                                            <span class="badge rounded-pill text-bg-warning"
+                                                  style="width: 50px; margin-top: 5px;">ВСЕ</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                                   id="flexRadioDefault2" value="3D">
+                                            <label class="form-check-label" for="flexRadioDefault2">
+                                            <span class="badge rounded-pill text-bg-danger"
+                                                  style="width: 50px; margin-top: 5px;">3D</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                                   id="flexRadioDefault3" value="2D">
+                                            <label class="form-check-label" for="flexRadioDefault3">
+                                            <span class="badge rounded-pill text-bg-info"
+                                                  style="width: 50px; margin-top: 5px;">2D</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="flexRadioDefault"
+                                                   id="flexRadioDefault4" value="IMAX">
+                                            <label class="form-check-label" for="flexRadioDefault4">
+                                            <span class="badge rounded-pill text-bg-success"
+                                                  style="width: 50px; margin-top: 5px;">IMAX</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <button class='btn btn-success' type="submit"
+                                            style="width: 200px; height: 40px; margin-top: 50px">
+                                        Применить фильтр
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+                        <div class="schedule">
+                            {% for date, sessions in grouped_sessions.items %}
+                                <div class="row">
+                                    <button class='date-button'
+                                            style="width: 80px; margin-right: 20px; background-color: white; border: 3px solid #000;">
+                                        {{ date|date:"M d" }}
+                                    </button>
+                                    {% for session in sessions %}
+                                        <div style="border: 3px solid #000; width: 110px; margin-right: 20px;">
+                                            <a href="{% url 'cinema:ticket_booking' session.session_id movie.id session.movie_slug session.time %}">
+                                                {{ session.time }} | {{ session.type }} |
+                                                Зал {{ session.cinema_hall_number }}
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <br>
+                            {% endfor %}
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <img src="{{ movie.main_image.url }}"
+                                     class="rounded float-start" alt="..." style="width: 450px; height: 450px;">
+                                <div class="col-md-6">
+                                    <h2 style="width: 400px">Информация о фильме</h2>
+                                    <p>Год:{{ movie.data|date:'Y' }}</p>
+                                    <p>Страна: USA</p>
+                                    <p>Композитор: {{ movie.melodist }}</p>
+                                    <p>Продюсер: {{ movie.director }}</p>
+                                    <p>Режиссер: {{ movie.screenwriter }}</p>
+                                    <p>Актеры: {{ movie.artist }}</p>
+                                    <p>Жанр: {% for g in genres %}
+                                        {{ g }}
+                                        {% if not forloop.last %},{% endif %}
+                                    {% endfor %}</p>
+                                    <p>Бюджет: {{ movie.budget }}$</p>
+                                    <p>Возраст: {{ movie.age }}+</p>
+                                    <p>Время: {{ movie.time }} min</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                {% if movie.status == True %}
+                                    <a href="{{ first_session.get_absolute_url }}">
+                                        <button class="btn btn-warning"
+                                                style="width: 400px; height: 60px; margin-left: 300px;">Купить
+                                        </button>
+                                    </a>
+                                {% else %}
+                                    <span class="badge rounded-pill text-bg-warning"
+                                          style="margin-left: 80%; width: 300px; height: 50px; font-size: 27px">Скоро выйдет</span>
+                                {% endif %}
+                                <p class="text-center" style="width: 700px; margin-left: 100px; margin-top: 40px;">
+                                    {{ movie.desc }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-7" style="margin-left: 25%;">
+                                <div id="carouselExampleCaptions" class="carousel slide">
+                                    <div class="carousel-indicators">
+                                        <button type="button" data-bs-target="#carouselExampleCaptions"
+                                                data-bs-slide-to="0" class="active" aria-current="true"
+                                                aria-label="Slide 1"></button>
+                                        <button type="button" data-bs-target="#carouselExampleCaptions"
+                                                data-bs-slide-to="1" aria-label="Slide 2"></button>
+                                        <button type="button" data-bs-target="#carouselExampleCaptions"
+                                                data-bs-slide-to="2" aria-label="Slide 3"></button>
+                                    </div>
+                                    <div class="carousel-inner">
+                                        {% for img in gallery_images %}
+                                            <div class="carousel-item active">
+                                                <img src="{{ img.image.url }}"
+                                                     class="d-block w-100" alt="...">
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button class="carousel-control-prev" type="button"
+                                            data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button"
+                                            data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            реклама
+                            <img src="https://maxperformanceonline.com/wp-content/uploads/2014/01/1920x200-mp-blog-header.jpg"
+                                 style="width: 100%;"></img>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $("#filter").submit(function (event) {
+                event.preventDefault();
+                let selectedCity = $("#city-select").val();
+                let selectedMovieType = $("input[name='flexRadioDefault']:checked").val();
+                let movieId = "{{ movie.id }}";
+
+                $.ajax({
+                    url: '{% url 'cinema:movie_sessions_ajax' %}',
+                    method: 'GET',
+                    data: {
+                        movie_id: movieId,
+                        city_id: selectedCity,
+                        movie_type: selectedMovieType
+                    },
+                    success: function (response) {
+                        $(".schedule").html(response);
+                    }
+                });
+            });
+        });
+    </script>
+
+{% endblock %}

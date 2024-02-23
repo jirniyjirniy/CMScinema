@@ -1,0 +1,197 @@
+{% extends 'admin_page/base.html' %}
+
+{% block content %}
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    {% if hall_id %}
+                        <form action="{% url 'adminlte:hall_card' cinema_id hall_id %}" enctype="multipart/form-data"
+                              method="post">
+                        {% csrf_token %}
+                    {% else %}
+                        <form action="{% url 'adminlte:hall_add' cinema_id %}" enctype="multipart/form-data"
+                              method="post">
+                        {% csrf_token %}
+                    {% endif %}
+                    {{ formset.management_form }}
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="exampleInputText">Номер зала</label>
+                            {{ form.hall_number }}
+                        </div>
+                        <div class="form-group">
+                            <label>Описание зала</label>
+                            {{ form.desc }}
+                        </div>
+                        <label>Схема зала</label>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <img id="schemPreview" src="{% if form.scheme.value %}{{ form.scheme.value.url }}
+{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}" class="img-fluid mb-2"
+                                     alt="black sample" style="width:100%;"/>
+                            </div>
+                            {{ form.scheme }}
+                        </div>
+                        <label>Верхний баннер</label>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <img id="topBannerPreview"
+                                     src="{% if form.top_banner.value %}{{ form.top_banner.value.url }}
+{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}" class="img-fluid mb-2"
+                                     alt="black sample" style="width:100%;"/>
+                            </div>
+                            {{ form.top_banner }}
+                        </div>
+                        <label for="exampleInputFile">Галлерея картинок</label>
+                        <div class="row" id="gallery-container">
+                            {% for gallery_form in formset %}
+                                <div class="col-md-2" id="gallery-form">
+                                    <a href="https://via.placeholder.com/300.png?text=No+Image"
+                                       data-toggle="lightbox" data-title="sample 2 - black" data-gallery="gallery">
+                                        <img id="gallery-preview" src="
+                                                
+                                                    
+                                                {% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                             class="img-fluid mb-2" alt="black sample" style="width:100%;"/>
+                                    </a>
+                                    {{ gallery_form.image }}
+                                    {{ gallery_form.id }}
+                                </div>
+                            {% endfor %}
+                            <button type="button" class="btn btn-block btn-success"
+                                    style="width: 200px; height: 40px; margin-top: 50px; margin-right: 10px;"
+                                    id="add-gallery-form">Добавить
+                            </button>
+                        </div>
+                        <label for="exampleInputText">SEO блок:</label>
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    <div class="form-group text-center">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">URL</span>
+                                            </div>
+                                            {{ seo_form.url }}
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Title</span>
+                                            </div>
+                                            {{ seo_form.title }}
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Key words</span>
+                                            </div>
+                                            {{ seo_form.keywords }}
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Description</span>
+                                            </div>
+                                            {{ seo_form.desc }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer text-center">
+                        <button type="submit" class="btn btn-primary"
+                                style="width: 400px; height: 40px;">Сохранить
+                        </button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
+            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
+
+    <script>
+        function handlePreview(input, previewId) {
+            var preview = document.getElementById(previewId);
+
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        document.getElementById('id_scheme').addEventListener('change', function () {
+            handlePreview(this, 'schemPreview');
+        });
+
+        document.getElementById('id_top_banner').addEventListener('change', function () {
+            handlePreview(this, 'topBannerPreview');
+        });
+
+        document.getElementById('galleryPreview').addEventListener('change', function () {
+            handlePreview(this, 'gallery-preview')
+        })
+
+        let galleryForm = document.querySelectorAll('#gallery-form');
+        let totalForms = document.querySelector("#id_hall-formset-TOTAL_FORMS");
+        let addButton = document.querySelector("#add-gallery-form");
+        let container = document.querySelector('#gallery-container');
+
+        let formNum = galleryForm.length - 1;
+        addButton.addEventListener('click', addGalleryCard)
+
+        function addGalleryCard(e) {
+            e.preventDefault();
+
+            let newForm = galleryForm[0].cloneNode(true);
+            let formRegex = RegExp(`hall-formset-(\\d){1}-`, 'g');
+
+            formNum++;
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `hall-formset-${formNum}-`);
+
+            let image = newForm.querySelector('#galleryPreview');
+            let newId = `galleryPreview${formNum}`;
+            image.id = newId;
+
+            let photo = newForm.querySelector('#gallery-preview');
+            let newPhotoId = `gallery-preview${formNum}`;
+            photo.id = newPhotoId;
+            photo.src = 'https://via.placeholder.com/300.png?text=No+Image'
+
+
+            image.addEventListener('change', function () {
+                handlePreview(this, newPhotoId);
+            });
+
+            container.insertBefore(newForm, addButton);
+
+            totalForms.value = formNum + 1;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            let galleryForms = document.querySelectorAll('#gallery-container .col-md-2');
+
+            galleryForms.forEach(function (form, index) {
+                let galleryInput = form.querySelector('#galleryPreview');
+                let fileInput = form.querySelector('[name^="formset-' + index + '-image"]');
+
+                galleryInput.addEventListener('change', function () {
+                    fileInput.value = galleryInput.src;
+                });
+            });
+        });
+
+    </script>
+{% endblock %}

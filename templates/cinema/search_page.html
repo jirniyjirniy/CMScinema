@@ -1,0 +1,30 @@
+{% if error %}
+    <p>ОШИБКА</p>
+{% else %}
+    {% if movies_now%}
+        {% for movie in movies_now %}
+            <div class="col-md-4 product-men">
+                <div class="product-shoe-info editContent text-center mt-lg-4"
+                     style="background-color: whitesmoke;">
+                    <div class="men-thumb-item">
+                        <img src="
+                                {% if movie.main_image %}{{ movie.main_image.url }}{% else %}https://s3.vcdn.biz/static/f/5768112441/image.jpg/pt/r375x0x4{% endif %}"
+                             class="img-fluid" alt="">
+                    </div>
+                    <div class="item-info-product">
+                <span class="badge rounded-pill text-bg-info"
+                      style="width: 50px; margin-top: 5px;">{{ movie.type }}</span>
+                        <h4 class="">
+                            <a href="{{ movie.get_absolute_url }}"
+                               class="editContent">{{ movie.title }}</a>
+                        </h4>
+                    </div>
+                    <a class="btn btn-warning" href="../cinema/film_card.html"
+                       style="color: #000;">Купить</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h1 class="text-center" style="font-style: italic; color: green;">Такого фильма нет</h1>
+    {% endif %}
+{% endif %}

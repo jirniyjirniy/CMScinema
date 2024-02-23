@@ -1,0 +1,202 @@
+{% extends 'cinema/base.html' %}
+{% load static %}
+
+{% block title %}Booking{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'dist/css/booking_style.css' %}">
+    <style>
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 10px;
+            display: inline-block;
+            background-color: #ccc;
+            cursor: pointer;
+            text-align: center;
+            line-height: 40px;
+            font-size: 14px;
+            border: 1px solid #aaa;
+        }
+
+        .reserved {
+            background-color: #44b3f1;
+            cursor: not-allowed;
+        }
+
+        #selectedSeats {
+            margin-top: 20px;
+        }
+
+        #infoContainer {
+            margin-top: 20px;
+        }
+
+        #seatMap {
+            margin-left: 25%;
+        }
+
+        #reserveButton {
+            width: 200px;
+            height: 40px;
+            margin-left: 43%;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+        <div class="container-fluid py-md-3">
+            <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
+                 style="height: 400px; width: 2157px; margin-left: -100px;">
+            <div class="row">
+                <div class="col-md-3" style="margin-top: 20px;">
+                    <img src="{{ movie.main_image.url }}" alt=""
+                         style="height: 500px; width: 400px;">
+                    <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
+                         style="height: 500px; width: 200px; margin-top: 20px;">
+                </div>
+                <div class="col-md-6" style="margin-top: -350px">
+                    <h1>{{ movie.title }} | {{ session_m.type }}</h1>
+                    <div class="row">
+                        <h4>Цена: {{ session_m.price }}грн</h4>
+                        <h4>Дата: {{ session_m.time|date:'D.d H:i' }}</h4>
+                        <button class="seat"></button>
+                        - Свободные
+                        <button class="seat reserved"></button>
+                        - Занятые
+                        <button class="seat selected"></button>
+                        - Выбранные
+                        <div id="seatMap"></div>
+                        <div id="selectedSeats"></div>
+                        {#                        <div id="infoContainer"></div>#}
+                        <form id="seatReservationForm" method="post" action="{% url 'cinema:reserve_seats' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="selected_seats" id="id_selected_seats">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <input type="hidden" name="seat_price" id="id_seat_price" value="{{ session_m.price }}">
+                            <input type="hidden" name="movie_ses_id" value="{{ session_m.id }}">
+                        </form>
+                        <button id="reserveButton">Забронировать</button>
+                    </div>
+                </div>
+                <div class="col-md-3" style="margin-top: -350px">
+                    <div id="infoContainer"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+{% block script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const seatMapContainer = document.getElementById('seatMap');
+            const selectedSeatsContainer = document.getElementById('selectedSeats');
+            const infoContainer = document.getElementById('infoContainer');
+            const rows = 5;
+            const seatsPerRow = 10;
+            let selectedSeats = [];
+            const reservedSeats = {{ reserved_seats|safe }};
+
+            for (let row = 1; row <= rows; row++) {
+                for (let seat = 1; seat <= seatsPerRow; seat++) {
+                    const seatElement = document.createElement('div');
+                    seatElement.classList.add('seat');
+                    seatElement.dataset.row = row;
+                    seatElement.dataset.seat = seat;
+
+                    if (isSeatReserved(row, seat, reservedSeats)) {
+                        seatElement.classList.add('reserved');
+                        seatElement.classList.add('disabled');
+                    } else {
+                        seatElement.addEventListener('click', toggleSeat);
+                    }
+
+                    seatMapContainer.appendChild(seatElement);
+                }
+                seatMapContainer.appendChild(document.createElement('br'));
+            }
+
+            function toggleSeat(event) {
+                const seat = event.target;
+
+                if (seat.classList.contains('reserved')) {
+                    return;
+                }
+
+                const isSelected = seat.classList.toggle('selected');
+
+                const seatInfo = {
+                    row: seat.dataset.row,
+                    seat: seat.dataset.seat,
+                    price: {{ session_m.price }}
+                };
+
+                if (isSelected) {
+                    selectedSeats.push(seatInfo);
+                } else {
+                    selectedSeats = selectedSeats.filter(s => s.row !== seatInfo.row || s.seat !== seatInfo.seat);
+                }
+
+                updateSelectedSeats();
+            }
+
+            function updateSelectedSeats() {
+                infoContainer.innerHTML = '<p style="font-size: 20px; color: black">Выбранные места:</p>';
+
+                let totalCost = 0;
+                for (const seatInfo of selectedSeats) {
+                    infoContainer.innerHTML += `<p>Ряд: ${seatInfo.row}, Место: ${seatInfo.seat}, Цена: $${seatInfo.price}</p>`;
+                    totalCost += seatInfo.price;
+                }
+
+                infoContainer.innerHTML += `<p style="font-size:20px; color: green">Общая стоимость: $${totalCost}`;
+                document.getElementById('id_selected_seats').value = JSON.stringify(selectedSeats);
+            }
+
+            const reserveButton = document.getElementById('reserveButton');
+            reserveButton.addEventListener('click', reserveSeats);
+
+            function reserveSeats() {
+                if (selectedSeats.length === 0) {
+                    alert('Выберите места перед бронированием.');
+                    return;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: $('#seatReservationForm').attr('action'),
+                    data: {
+                        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                        selected_seats: JSON.stringify(selectedSeats),
+                        user_id: '{{ user.id }}',
+                        seat_price: {{ session_m.price }},
+                        movie_ses_id: '{{ session_m.id }}'
+                    },
+                    success: function (response) {
+                        $("#infoContainer").html('<p style="margin-left: 24%; color: green; font-size:20px">' + 'Ваши места успешно зарезервированы, приятного просмотра!' + '</p>');
+                        for (const seatInfo of selectedSeats) {
+                            const seatSelector = `[data-row="${seatInfo.row}"][data-seat="${seatInfo.seat}"]`;
+                            const reservedSeat = document.querySelector(seatSelector);
+                            if (reservedSeat) {
+                                reservedSeat.classList.add('reserved', 'disabled');
+                            }
+                        }
+                    },
+                    error: function (error) {
+                        alert('Произошла ошибка при бронировании мест.');
+                        console.error(error);
+                    }
+                });
+            }
+
+            function isSeatReserved(row, seat, reservedSeats) {
+                for (const reservedSeat of reservedSeats) {
+                    if (reservedSeat.row === row && reservedSeat.seat === seat) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+    </script>
+{% endblock %}
+

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Tickets</title>
+</head>
+<body>
+    <h2>Your Tickets</h2>
+    <ul>
+        {% for reservation in reservations %}
+            <li>{{ reservation.row }}, Seat: {{ reservation.seat }} - ${{ reservation.total_price }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
