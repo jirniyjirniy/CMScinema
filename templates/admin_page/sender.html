@@ -1,90 +1,88 @@
 {% extends 'admin_page/base.html' %}
+{% load static %}
 
 {% block content %}
     <div class="content-wrapper">
         <!-- Main content -->
         <div class="content">
-            <div class="container-fluid">
-                <div class="row" style="border: 3px solid #000; border-radius: 30px; margin: 30px; padding: 20px;">
-                    <h1 class="text-center">E-mail</h1>
-                    <div class="col-md-6">
-                        <div class="row">
-                            <div class="radio-buttons"
-                                 style="display: flex; flex-direction: row; margin-left: 20px;">
-                                <label for="">Кому отправлять</label>
-                                <label style="margin-bottom: 10px; margin-left: 20px; display: block;">
-                                    <input type="radio" name="photoSelection" value="Все пользователи"> Все пользователи
-                                </label>
-                                <label style="display: block; margin-left: 20px;">
-                                    <input type="radio" name="photoSelection" value="Выборочно"> Выборочно
-                                </label>
-                                <button class="btn btn-info" id="sendButton" type="button" style="margin-left: 20px"
-                                        data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                    Выбрать пользователей
-                                </button>
+            <form id="mailForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="container-fluid">
+                    <div class="row" style="border: 3px solid #000; border-radius: 30px; margin: 30px; padding: 20px;">
+                        <h1 class="text-center">E-mail</h1>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="radio-buttons"
+                                     style="display: flex; flex-direction: row; margin-left: 20px;">
+                                    <label for="">Кому отправлять</label>
+                                    <label style="margin-bottom: 10px; margin-left: 20px; display: block;">
+                                        <input type="radio" name="photoSelection" value="all_users"> Все
+                                        пользователи
+                                    </label>
+                                    <label style="display: block; margin-left: 20px;">
+                                        <input type="radio" name="photoSelection" value="selective"> Выборочно
+                                    </label>
+                                    <button class="btn btn-info" id="sendButton" type="button" style="margin-left: 20px"
+                                            data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                        Выбрать пользователей
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row" style="margin: 9px;">
+                                <div><label>Загрузить HTML-письмо</label>
+                                    <input type="file" name="file" id="templateFile" style="display: none;">
+                                    <button id="uploadButton" type="button" class="btn btn-info">Загрузить шаблон
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-left: 9px;">
+                                <div>
+                                    <label>Загруженный файл:</label>
+                                    <span id="uploadedFileName"></span>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-left: 9px;">
+                                <div>
+                                    <label>Шаблон используемый в текущей рассылке:</label>
+                                    <span id="uploadedFileName2"></span>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-left: 9px;">
+                                <div>
+                                    <label>Количество писем:</label>
+                                    <span id="completedEmails">0</span> / <span id="totalEmails">0</span>
+                                    <label style="margin-left: 20px;">Рассылка выполнена на</label>
+                                    <span id="progress">0%</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="row" style="margin: 9px;">
-                            <div><label>Загрузить HTML-письмо</label>
-                                <button class="btn btn-info" style="width: 400px; height: 40px;">Загрузить</button>
+                        <div class="col-md-6">
+                            <div class="row" style="border: 3px solid #000; border-radius: 30px; padding: 20px;">
+                                <h4 class="text-center">Список последних загруженных шаблонов</h4>
+                                {% for template in templates_list %}
+                                    <div class="radio-buttons"
+                                         style="display: flex; flex-direction: row; margin-left: 20px; margin-top: 20px;">
+                                        <a href="" style="margin-left: 20px; display: flex; align-items: center;">
+                                            <input type="radio" name="templateSelection"
+                                                   value="{{ template.id }}">{{ template.name }}
+                                        </a>
+                                        <a href="{% url 'adminlte:delete_template' template.id %}"
+                                           class="btn btn-danger"
+                                           style="margin-left: 20px; align-self: center;">
+                                            Удалить
+                                        </a>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
-                        <div class="row" style="margin-left: 9px;">
-                            <div>
-                                <label>Загруженный файл:</label>
-                                <a href="">Шаблон.html</a>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-left: 9px;">
-                            <div>
-                                <label>Шаблон используемый в текущей рассылке:</label>
-                                <a href="">Шаблон_использ.html</a>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-left: 9px;">
-                            <div>
-                                <label>Количество писем:</label>
-                                145 240
-                                <label style="margin-left: 20px;">Рассылка выполнена на</label>
-                                45%
-                            </div>
-                        </div>
+                        <button id="submitBtn" type="submit" class="btn btn-info"
+                                style="margin-top: 20px; width: 500px; height: 50px; margin-left: 33%">
+                            Начать рассылку
+                        </button>
                     </div>
-                    <div class="col-md-6">
-                        <div class="row" style="border: 3px solid #000; border-radius: 30px; padding: 20px;">
-                            <h4 class="text-center">Список последних загруженных шаблонов</h4>
-                            <div class="radio-buttons"
-                                 style="display: flex; flex-direction: row; margin-left: 20px; margin-top: 20px;">
-                                <a href="" style="margin-left: 20px; display: flex; align-items: center;">
-                                    <input type="radio" name="photoSelection">Шаблон.html
-                                </a>
-                                <button class="btn btn-danger" style="margin-left: 20px; align-self: center;">
-                                    Удалить
-                                </button>
-                            </div>
-                            <div class="radio-buttons"
-                                 style="display: flex; flex-direction: row; margin-left: 20px; margin-top: 20px;">
-                                <a href="" style="margin-left: 20px; display: flex; align-items: center;">
-                                    <input type="radio" name="photoSelection">Шаблон.html
-                                </a>
-                                <button class="btn btn-danger" style="margin-left: 20px; align-self: center;">
-                                    Удалить
-                                </button>
-                            </div>
-                            <div class="radio-buttons"
-                                 style="display: flex; flex-direction: row; margin-left: 20px; margin-top: 20px;">
-                                <a href="" style="margin-left: 20px; display: flex; align-items: center;">
-                                    <input type="radio" name="photoSelection">Шаблон.html
-                                </a>
-                                <button class="btn btn-danger" style="margin-left: 20px; align-self: center;">
-                                    Удалить
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.row -->
-            </div><!-- /.container-fluid -->
+                    <!-- /.row -->
+                </div><!-- /.container-fluid -->
+            </form>
         </div>
 
         <!-- /.content -->
@@ -98,39 +96,216 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-
+                    <div class="card-body">
+                        <table id="example2" class="table table-bordered table-hover" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Name</th>
+                                <th>Email</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user in users_list %}
+                                <tr>
+                                    {#                                    <td><input type="checkbox" name="send_checkbox" value="{{ user.email }}"></td>#}
+                                    <td></td>
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.email }}</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success">Отправить выбранным</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 {% endblock %}
+
 {% block script %}
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    {#    <script src="https://cdn.datatables.net/2.0.2/css/dataTables.dataTables.css"></script>#}
+    {#    <script src="https://cdn.datatables.net/2.0.2/js/dataTables.min.js"></script>#}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
+
+    <!-- DataTables core JavaScript -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <!-- DataTables Select extension JavaScript -->
+    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+
+    <!-- DataTables core CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
+    <!-- DataTables Select extension CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css">
+
     <script>
+        function getCSRFToken() {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, 'csrftoken'.length + 1) === ('csrftoken' + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring('csrftoken'.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
         $(document).ready(function () {
+            var selectedUsers = [];
+
+            let table = new DataTable('#example2', {
+                columnDefs: [
+                    {
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0
+                    }
+                ],
+                select: {
+                    style: 'multi',
+                    selector: 'td:first-child'
+                },
+                order: [[1, 'asc']],
+                {#pageLength: 1,#}
+            });
+
+            $('#exampleModal').on('hidden.bs.modal', function () {
+                updateSelectedUsers(table);
+            });
+
+            function updateSelectedUsers(table) {
+                selectedUsers = [];
+                table.rows({selected: true}).data().each(function (value) {
+                    selectedUsers.push(value[2]);
+                });
+                console.log(selectedUsers)
+            }
+
             $('#sendButton').hide();
 
             $('input[name="photoSelection"]').on('change', function () {
-                var isSelective = $('input[name="photoSelection"][value="Выборочно"]').prop('checked');
-
+                var isSelective = $('input[name="photoSelection"][value="selective"]').prop('checked');
                 $('#sendButton').toggle(isSelective);
             });
 
-            $('#exampleModal').on('show.bs.modal', function () {
-                var isSelective = $('input[name="photoSelection"][value="Выборочно"]').prop('checked');
 
-                $('input[name="photoSelection"][value="Выборочно"]').prop('checked', isSelective);
+            $('#submitBtn').click(function (event) {
+                event.preventDefault();
+                updateSelectedUsers(table);
 
-                $('#sendButton').toggle(isSelective);
+                var formData = new FormData($('#mailForm')[0]);
+                formData.append('selectedUsers', JSON.stringify(selectedUsers));
+
+                $.ajax({
+                    url: '{% url "adminlte:process_form" %}',
+                    type: 'post',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        {#location.reload()#}
+                    },
+                    error: function (xhr, status, error) {
+                        // Обработка ошибки
+                    }
+                });
+            });
+
+
+            $('#uploadButton').click(function () {
+                $('#templateFile').click();
+            });
+
+            $('#templateFile').change(function () {
+                var formData = new FormData($('#mailForm')[0]);
+
+                formData.append('file', $(this)[0].files[0]);
+
+                $.ajax({
+                    url: '{% url "adminlte:upload_template" %}',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    success: function (data) {
+                        var uploadedFileName = data.filename;
+
+                        $('#uploadedFileName').text(uploadedFileName);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Ошибка загрузки шаблона:', error);
+                    }
+                });
+            });
+
+            $('input[name="templateSelection"]').change(function () {
+                var selectedTemplateName = $('input[name="templateSelection"]:checked').parent().text().trim();
+                $('#uploadedFileName2').text(selectedTemplateName);
+            });
+
+            function checkProgress(task_id) {
+                $.ajax({
+                    url: '/celery-progress/' + task_id + '/',
+                    type: 'GET',
+                    success: function (data) {
+                        var state = data.state;
+                        if (state === 'PROGRESS') {
+                            var progress = data.progress.percent;
+                            var current = data.progress.current;
+                            var total = data.progress.total;
+                            $('#progress').text(progress + '%');
+                            $('#completedEmails').text(current);
+                            $('#totalEmails').text(total);
+                        } else if (state === 'SUCCESS') {
+                            clearInterval(progressInterval);
+                        }
+                    }
+                });
+            }
+
+
+            var progressInterval;
+            $('#submitBtn').click(function (event) {
+                event.preventDefault();
+                updateSelectedUsers(table);
+
+                var formData = new FormData($('#mailForm')[0]);
+                formData.append('selectedUsers', JSON.stringify(selectedUsers));
+
+                $.ajax({
+                    url: '{% url "adminlte:process_form" %}',
+                    type: 'post',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        console.log(response)
+                        var task_id = response.task_id;
+                        progressInterval = setInterval(function () {
+                            checkProgress(task_id);
+                        }, 1000);
+                    },
+                    error: function (xhr, status, error) {
+                        // Обработка ошибки
+                    }
+                });
             });
         });
-    </script>
 
+    </script>
 {% endblock %}
+

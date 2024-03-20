@@ -1,17 +1,28 @@
 from datetime import datetime
 
+from celery import current_task
+from celery.result import AsyncResult
+from celery import uuid
+from django.core.cache import cache
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.forms import formset_factory
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from adminpage.forms import GalleryImageForm, MovieForm, GalleryFormSet, CinemaForm, SeoForm, GalleryFormSetSecond, \
     HallForm, EventsNewsPageForm, PagesForm, BannerTopFormset, BannerTopFormsetSecond, MainPageForm, \
-    ContanctPageFormset, ContanctPageForm, ContanctPageFormsetSecond
+    ContanctPageFormset, ContanctPageForm, ContanctPageFormsetSecond, EmailTemplateForm
+from adminpage.models import EmailTemplate
 from authy.models import CustomUser
 from cinema.models import Gallery, GalleryImage, MovieCard, SeoBlock, Cinema, CinemaHall, NewsEvents, Pages, Banner, \
     MainPage, Contacts
+
+from .tasks import send_email_task
 
 
 def stats_page(request):
@@ -171,6 +182,10 @@ class CinemaAddView(View):
                 gallery, created = Gallery.objects.get_or_create(title=title)
                 images = GalleryImage.objects.filter(gallery=gallery).last().title[-1]
                 counter += int(images)
+
+                for form in formset.deleted_forms:
+                    form.instance.delete()
+
                 for form in formset.extra_forms:
                     gallery_images = form.cleaned_data['image']
                     gallery_image_title = f'{title} {counter}'
@@ -725,3 +740,80 @@ class ContactPageView(View):
             'form': form,
         }
         return render(request, self.template_name, context)
+
+
+class EmailSenderView(View):
+    def get(self, request, *args, **kwargs):
+        users_list = CustomUser.objects.all()
+        templates_list = EmailTemplate.objects.all().order_by('-uploaded_at')[:5]
+
+        context = {
+            'users_list': users_list,
+            'templates_list': templates_list,
+        }
+        return render(request, 'admin_page/sender.html', context)
+
+
+def delete_template(request, template_id):
+    template = get_object_or_404(EmailTemplate, id=template_id)
+
+    if request.method == 'GET':
+        template.delete()
+    return redirect('adminlte:sender')
+
+
+def upload_template(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        print('Скачан')
+        uploaded_file = request.FILES['file']
+        name = uploaded_file.name
+
+        template = EmailTemplate(name=name, file=uploaded_file)
+        template.save()
+
+        all_templates = EmailTemplate.objects.all()
+        if all_templates.count() > 5:
+            oldest_template = all_templates.order_by('uploaded_at').first()
+            oldest_template.delete()
+
+        return JsonResponse({'success': True, 'filename': name})
+    else:
+        return JsonResponse({'success': False,
+                             'error': 'No file found in request'})
+
+
+def process_form(request):
+    if request.method == 'POST':
+        photo_selection = request.POST.get('photoSelection')
+        template_selection_id = request.POST.get('templateSelection')
+        send_checkbox = request.POST.get('selectedUsers')
+
+        # Определяем содержимое шаблона
+        template_content = None
+        if template_selection_id:
+            selected_template = EmailTemplate.objects.get(id=template_selection_id)
+            template_content = selected_template.file.read().decode('utf-8')
+
+        elif 'file' in request.FILES:
+            uploaded_file = request.FILES.get('file')
+            template_content = uploaded_file.read().decode('utf-8')
+
+        # Определяем, кому отправлять
+        recipient_emails = []
+        if photo_selection == 'all_users':
+            recipient_emails = list(CustomUser.objects.values_list('email', flat=True))
+
+        elif photo_selection == 'selective':
+            if send_checkbox:
+                recipient_emails = send_checkbox.split(',')
+                recipient_emails = [email.strip(' "[]') for email in recipient_emails]
+
+        # Вызываем задачу для отправки писем
+        if recipient_emails:
+            task = send_email_task.delay(recipient_emails, "Тема письма", template_content)
+            send_email_task.delay(recipient_emails, "Тема письма", template_content)
+            return JsonResponse({'success': True, 'task_id': task.task_id})
+        else:
+            return JsonResponse({'success': False, 'error': 'No recipients specified'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Only POST requests are allowed'})

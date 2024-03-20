@@ -8,6 +8,7 @@ urlpatterns = [
     path('adminpage/', include('adminpage.urls', namespace='adminpage')),
     path('user/', include('authy.urls', namespace='user')),
     path('cinema/', include('cinema.urls', namespace='cinema')),
+    path('celery-progress/', include('celery_progress.urls'))
 ]
 
 if settings.DEBUG:

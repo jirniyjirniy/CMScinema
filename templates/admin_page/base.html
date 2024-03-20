@@ -89,7 +89,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="news_page.html" class="nav-link">
+                    <a href="{% url 'adminlte:news_list' %}" class="nav-link">
                         <i class="bi bi-newspaper"></i>
                         <p>
                             Новости
@@ -97,7 +97,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="events_page.html" class="nav-link">
+                    <a href="{% url 'adminlte:events_list' %}" class="nav-link">
                         <i class="bi bi-calendar-event"></i>
                         <p>
                             Акции
@@ -105,7 +105,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="pages.html" class="nav-link">
+                    <a href="{% url 'adminlte:pages' %}" class="nav-link">
                         <i class="bi bi-file-earmark"></i>
                         <p>
                             Страницы
@@ -121,7 +121,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="sender.html" class="nav-link">
+                    <a href="{% url 'adminlte:sender' %}" class="nav-link">
                         <i class="bi bi-envelope-check"></i>
                         <p>
                             Рассылка

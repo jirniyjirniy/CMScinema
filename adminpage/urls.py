@@ -3,7 +3,7 @@ from django.urls import path
 from .views import user_page, user_save_data, delete_user, films_page, \
     film_details, CinemaListView, CinemaAddView, delete_cinema, CinemaHallView, delete_hall, NewsView, NewsList, \
     delete_news, EventListView, EventView, PageView, BannerPageView, TopBannerView, PagesView, MainPageView, \
-    ContactPageView
+    ContactPageView, EmailSenderView, upload_template, delete_template, process_form
 
 app_name = 'adminlte'
 
@@ -33,5 +33,9 @@ urlpatterns = [
     path('pages/', PagesView.as_view(), name='pages'),
     path('page-add/', PageView.as_view(), name='page_add'),
     path('page/main-page/', MainPageView.as_view(), name='main_page'),
-    path('page/contacts/', ContactPageView.as_view(), name='contact_page')
+    path('page/contacts/', ContactPageView.as_view(), name='contact_page'),
+    path('sender/', EmailSenderView.as_view(), name='sender'),
+    path('upload_template/', upload_template, name='upload_template'),
+    path('delete_template/<int:template_id>', delete_template, name='delete_template'),
+    path('test/', process_form, name='process_form'),
 ]

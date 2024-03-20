@@ -1,5 +1,7 @@
 from django import forms
 from django.forms import formset_factory, modelformset_factory
+
+from adminpage.models import EmailTemplate
 from cinema.models import GalleryImage, Cinema, Gallery, SeoBlock, NewsEvents, Pages, Banner, MainPage, Contacts
 
 
@@ -72,8 +74,8 @@ class GalleryForm(forms.ModelForm):
             'image': forms.FileInput(attrs={'class': 'form-control', 'id': 'galleryPreview'})}
 
 
-GalleryFormSet = modelformset_factory(GalleryImage, form=GalleryForm, extra=1)
-GalleryFormSetSecond = modelformset_factory(GalleryImage, form=GalleryForm, extra=0)
+GalleryFormSet = modelformset_factory(GalleryImage, form=GalleryForm, extra=1, can_delete=True)
+GalleryFormSetSecond = modelformset_factory(GalleryImage, form=GalleryForm, extra=0, can_delete=True)
 
 
 class SeoForm(forms.ModelForm):
@@ -249,3 +251,9 @@ class ContanctPageForm(forms.ModelForm):
 
 ContanctPageFormset = modelformset_factory(Contacts, form=ContanctPageForm, extra=1, can_delete=True)
 ContanctPageFormsetSecond = modelformset_factory(Contacts, form=ContanctPageForm, extra=0, can_delete=True)
+
+
+class EmailTemplateForm(forms.ModelForm):
+    class Meta:
+        model = EmailTemplate
+        fields = ['name', 'file']
