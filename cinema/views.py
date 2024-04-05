@@ -5,11 +5,12 @@ from itertools import groupby
 from django.db.models import DateField
 from django.db.models.functions import Cast
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
-from django.views import View
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from django.views import View
 
-from .models import MovieCard, MovieSes, Gallery, GalleryImage, CinemaHall, Cinema, CinemaCity, NewsEvents, Reservation
+from .models import (Cinema, CinemaCity, CinemaHall, Gallery, GalleryImage,
+                     MovieCard, MovieSes, NewsEvents, Reservation)
 
 
 class MovieSessionsAjaxView(View):
@@ -47,29 +48,22 @@ class MovieSessionsAjaxView(View):
 
 
 def index(request):
+    query = request.GET.get('q')
     movies_now = MovieCard.objects.filter(status=True)
     movies_soon = MovieCard.objects.filter(status=False)
     galley = GalleryImage.objects.filter(gallery__title='На главной вверх')
+
+    if query:
+        movies_now = movies_now.filter(title__icontains=query)
+        movies_soon = movies_soon.filter(title__icontains=query)
 
     context = {
         'movies_now': movies_now,
         'movies_soon': movies_soon,
         'gallery_images': galley,
+        'query': query
     }
     return render(request, 'cinema/index.html', context)
-
-
-class IndexSearch(View):
-    def get(self, request):
-        search_title = request.GET.get('q')
-        if search_title != '':
-            movies_now = MovieCard.objects.filter(title__icontains=search_title, status=True)
-        else:
-            movies_now = MovieCard.objects.filter(status=True)
-
-        success_html = render(request, 'cinema/search_page.html', {'movies_now': movies_now}).content.decode('utf-8')
-        response_data = {'success': True, 'html': success_html}
-        return JsonResponse(response_data, safe=False)
 
 
 def about_cinema(request):
@@ -315,12 +309,14 @@ def reserve_seats(request):
         movie_ses_id = request.POST.get('movie_ses_id')
         movie_ses = get_object_or_404(MovieSes, id=movie_ses_id)
 
-        total_cost = len(selected_seats) * float(seat_price)
+        # total_cost = len(selected_seats) * float(seat_price)
+        total_cost = 0
 
         reservations = []
         for seat_info in selected_seats:
             row = int(seat_info['row'])
             seat = int(seat_info['seat'])
+            total_cost = int(seat_price)
             reservation = Reservation(user=user, row=row, seat=seat, total_price=total_cost, session=movie_ses)
             reservation.save()
             reservations.append(reservation)

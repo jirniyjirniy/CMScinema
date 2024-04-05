@@ -35,32 +35,6 @@
 
 {% block content %}
     <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <div class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-1">
-                        <h2 class="m-0" style="font-size: 15px;">Основной параметр:</h2>
-                        <select class="form-select" id="dropdown" name="city">
-                            <option value="">список</option>
-                            <!-- Добавьте другие города по мере необходимости -->
-                        </select>
-                    </div>
-                    <div class="col-sm-1">
-                        <h2 class="m-0" style="font-size: 15px;">Конверсия:</h2>
-                        <select class="form-select" id="dropdown" name="city">
-                            <option value="">список</option>
-                            <!-- Добавьте другие города по мере необходимости -->
-                        </select>
-                    </div>
-                    <div class="col-sm-2" style="margin-top: 23px;">
-                        <a href="" style="text-decoration: none;">Изменение группы каналов</a>
-                    </div>
-                </div><!-- /.row -->
-            </div><!-- /.container-fluid -->
-        </div>
-        <!-- /.content-header -->
-
         <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
@@ -69,7 +43,7 @@
                         <!-- New card goes here -->
                         <div class="card card-danger">
                             <div class="card-header">
-                                <h3 class="card-title">Лучшие каналы</h3>
+                                <h3 class="card-title">Статистика фильмов</h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                         <i class="fas fa-minus"></i>
@@ -87,9 +61,9 @@
                     </div>
                     <!-- Small boxes (Stat box) -->
                     <section class="col-lg-5 connectedSortable">
-                        <divclass="card card-info">
+                        <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">Line Chart</h3>
+                                <h3 class="card-title">Статистика продаж за неделю</h3>
 
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -113,77 +87,42 @@
                         <!-- small box -->
                         <div class="small-box bg-warning">
                             <div class="inner">
-                                <h3>44</h3>
+                                <h3>{{ all_users }}</h3>
 
                                 <p>User Registrations</p>
                             </div>
                             <div class="icon">
                                 <i class="ion ion-person-add"></i>
                             </div>
-                            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            <a href="{% url 'adminlte:user_page' %}" class="small-box-footer">More info <i
+                                    class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                 </div>
-                <div class="row align-items-center">
-                    <div class="col-1">
-                        <select class="form-select" id="dropdown" name="city" aria-label="Сеансы">
-                            <option selected>Сеансы</option>
-                            <option value="1">Список</option>
-                            <!-- Добавьте другие города по мере необходимости -->
-                        </select>
-                    </div>
-                    <div class="col-auto">
-                        <span class="mx-0">И</span>
-                    </div>
-                    <div class="col">
-                        <a href="" style="text-decoration: none;">Выбор показателя</a>
-                    </div>
-                </div>
-                <br>
-
-
+                
                 <!-- ./col -->
                 <!-- /.row -->
                 <!-- Main row -->
                 <div class="row">
-                    <!-- Left col -->
+                    <div class="d-flex">
+                        <p class="d-flex flex-column">
+                            <span class="text-bold text-lg">{{ formatted_total_income }}</span>
+                            <span>Прибыль за все время</span>
+                        </p>
+                    </div>
+                    <!-- /.d-flex -->
 
-                    <div class="card">
-                        <div class="card-header border-0">
-                            <div class="d-flex justify-content-between">
-                                <h3 class="card-title">Online Store Visitors</h3>
-                                <a href="javascript:void(0);">View Report</a>
+                    <div class="position-relative mb-4">
+                        <div class="chartjs-size-monitor">
+                            <div class="chartjs-size-monitor-expand">
+                                <div class=""></div>
+                            </div>
+                            <div class="chartjs-size-monitor-shrink">
+                                <div class=""></div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="d-flex">
-                                <p class="d-flex flex-column">
-                                    <span class="text-bold text-lg">820</span>
-                                    <span>Visitors Over Time</span>
-                                </p>
-                                <p class="ml-auto d-flex flex-column text-right">
-                                    <span class="text-success">
-                                        <i class="fas fa-arrow-up"></i> 12.5%
-                                    </span>
-                                    <span class="text-muted">Since last week</span>
-                                </p>
-                            </div>
-                            <!-- /.d-flex -->
-
-                            <div class="position-relative mb-4">
-                                <canvas id="visitors-chart" height="200"></canvas>
-                            </div>
-
-                            <div class="d-flex flex-row justify-content-end">
-                                <span class="mr-2">
-                                    <i class="fas fa-square text-primary"></i> This Week
-                                </span>
-
-                                <span>
-                                    <i class="fas fa-square text-gray"></i> Last Week
-                                </span>
-                            </div>
-                        </div>
+                        <canvas id="sales-chart" height="200" style="display: block; width: 484px; height: 200px;"
+                                width="484" class="chartjs-render-monitor"></canvas>
                     </div>
 
                     <!-- /.Left col -->
@@ -282,14 +221,14 @@
     <!-- Bootstrap 4 -->
     <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <!-- ChartJS -->
-    <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
+    {#    <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>#}
     <!-- Sparkline -->
-    <script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>
+    {#    <script src="{% static 'plugins/sparklines/sparkline.js' %}"></script>#}
     <!-- JQVMap -->
-    <script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>
-    <script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>
+    {#    <script src="{% static 'plugins/jqvmap/jquery.vmap.min.js' %}"></script>#}
+    {#    <script src="{% static 'plugins/jqvmap/maps/jquery.vmap.usa.js' %}"></script>#}
     <!-- jQuery Knob Chart -->
-    <script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
+    {#    <script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>#}
     <!-- daterangepicker -->
     <script src="{% static 'plugins/moment/moment.min.js' %}"></script>
     <script src="{% static 'plugins/daterangepicker/daterangepicker.js' %}"></script>
@@ -301,32 +240,29 @@
     <script src="{% static 'plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.js' %}"></script>
-    <!-- AdminLTE for demo purposes -->
-    <!-- <script src="dist/js/demo.js"></script> -->
-    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-    <script src="{% static 'dist/js/pages/dashboard.js' %}"></script>
-    <script src="{% static 'dist/js/pages/dashboard3.js' %}"></script>
+    {#    <script src="{% static 'dist/js/pages/dashboard3.js' %}"></script>#}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         $(function () {
-            
+
+            var movieTitles = [];
+            var ticketCounts = [];
+
+            {% for movie in movies_with_ticket_count %}
+                movieTitles.push('{{ movie.title }}');
+                ticketCounts.push({{ movie.ticket_count }});
+            {% endfor %}
+
             var donutChartCanvas = $('#donutChart').get(0).getContext('2d');
             var donutData = {
-                labels: [
-                    'Display',
-                    'Paid Search',
-                    'Organic Search',
-                    'Referral',
-                    'Direct',
-                    'Navigator',
-                    'Lexus'
-                ],
+                labels:
+                movieTitles,
                 datasets: [
                     {
-                        data: [700, 500, 400, 600, 300, 100, 4000],
+                        data: ticketCounts,
                         backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de', '#000'],
                     }
                 ]
@@ -380,22 +316,36 @@
 
             var lineChartCanvas = $('#lineChart').get(0).getContext('2d');
 
+            var currentWeekLabels = [];
+            var currentWeekData = [];
+            var previousWeekLabels = [];
+            var previousWeekData = [];
+
+            {% for date, count in current_week_ticket_counts.items %}
+                currentWeekLabels.push('{{ date }}');
+                currentWeekData.push({{ count }});
+            {% endfor %}
+
+            {% for date, count in previous_week_ticket_counts.items %}
+                previousWeekLabels.push('{{ date }}');
+                previousWeekData.push({{ count }});
+            {% endfor %}
 
             var lineChartData = {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+                labels: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
                 datasets: [
                     {
-                        label: 'Dataset 1',
+                        label: 'Текущая неделя',
                         borderColor: '#f56954',
                         backgroundColor: 'rgba(245, 105, 84, 0.5)',
-                        data: [65, 59, 20, 81, 56, 55, 40],
+                        data: currentWeekData,
                         fill: true,
                     },
                     {
-                        label: 'Dataset 2',
+                        label: 'Прошедшая неделя',
                         borderColor: '#00a65a',
                         backgroundColor: 'rgba(0, 166, 90, 0.5)',
-                        data: [28, 48, 40, 19, 86, 27, 90],
+                        data: previousWeekData,
                         fill: true,
                     }
                 ]
@@ -415,6 +365,93 @@
                 data: lineChartData,
                 options: lineChartOptions
             });
+
+            /* global Chart:false */
+
+            $(function () {
+                'use strict'
+
+                var ticksStyle = {
+                    fontColor: '#495057',
+                    fontStyle: 'bold'
+                }
+
+                var mode = 'index'
+                var intersect = true
+
+                var $salesChart = $('#sales-chart')
+                // eslint-disable-next-line no-unused-vars
+
+                var salesChart = new Chart($salesChart, {
+                    type: 'bar',
+                    data: {
+                        labels: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'],
+                        datasets: [
+                            {
+                                label: 'Текущий год',
+                                backgroundColor: '#007bff',
+                                borderColor: '#007bff',
+                                data: {{ current_year_data }}
+                            },
+                            {
+                                label: 'Прошедший год',
+                                backgroundColor: '#da0bb8',
+                                borderColor: '#ced4da',
+                                data: {{ last_year_data }}
+                            }
+                        ]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            mode: mode,
+                            intersect: intersect
+                        },
+                        hover: {
+                            mode: mode,
+                            intersect: intersect
+                        },
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            yAxes: [{
+                                // display: false,
+                                gridLines: {
+                                    display: true,
+                                    lineWidth: '4px',
+                                    color: 'rgba(0, 0, 0, .2)',
+                                    zeroLineColor: 'transparent'
+                                },
+                                ticks: $.extend({
+                                    beginAtZero: true,
+
+                                    // Include a dollar sign in the ticks
+                                    callback: function (value) {
+                                        if (value >= 1000) {
+                                            value /= 1000
+                                            value += 'k'
+                                        }
+
+                                        return '$' + value
+                                    }
+                                }, ticksStyle)
+                            }],
+                            xAxes: [{
+                                display: true,
+                                gridLines: {
+                                    display: false
+                                },
+                                ticks: ticksStyle
+                            }]
+                        }
+                    }
+                })
+            })
+
+// lgtm [js/unused-local-variable]
+
+
         });
     </script>
 {% endblock %}

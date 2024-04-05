@@ -1,26 +1,23 @@
-from datetime import datetime
+import calendar
+from datetime import datetime, timedelta
 
-from celery import current_task
-from celery.result import AsyncResult
-from celery import uuid
-from django.core.cache import cache
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.forms import formset_factory
-from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Count, Sum
+from django.http import HttpResponse, HttpResponseNotAllowed, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views import View
 from django.views.generic import ListView
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 
-from adminpage.forms import GalleryImageForm, MovieForm, GalleryFormSet, CinemaForm, SeoForm, GalleryFormSetSecond, \
-    HallForm, EventsNewsPageForm, PagesForm, BannerTopFormset, BannerTopFormsetSecond, MainPageForm, \
-    ContanctPageFormset, ContanctPageForm, ContanctPageFormsetSecond, EmailTemplateForm
+from adminpage.forms import (BannerTopFormset, BannerTopFormsetSecond,
+                             CinemaForm, ContanctPageForm, ContanctPageFormset,
+                             ContanctPageFormsetSecond, EventsNewsPageForm,
+                             GalleryFormSet, GalleryFormSetSecond, HallForm,
+                             MainPageForm, MovieForm, PagesForm, SeoForm)
 from adminpage.models import EmailTemplate
 from authy.models import CustomUser
-from cinema.models import Gallery, GalleryImage, MovieCard, SeoBlock, Cinema, CinemaHall, NewsEvents, Pages, Banner, \
-    MainPage, Contacts
+from cinema.models import (Banner, Cinema, CinemaHall, Contacts, Gallery,
+                           GalleryImage, MainPage, MovieCard, NewsEvents,
+                           Pages, Reservation, SeoBlock)
 
 from .tasks import send_email_task
 
@@ -66,43 +63,98 @@ def films_page(request):
     return render(request, 'admin_page/films.html', context)
 
 
-def film_details(request, film_title, film_id):
-    GalleryImagesFormSet = formset_factory(GalleryImageForm, extra=1)
-    movie = get_object_or_404(MovieCard, id=film_id)
-    seo, created = SeoBlock.objects.get_or_create(url=movie.trailer_url, title=movie.title,
-                                                  keywords=movie.title,
-                                                  desc=movie.desc)
-    form = MovieForm(initial={'title': movie.title,
-                              'description': movie.desc,
-                              'trailer_link': movie.trailer_url,
-                              'main_image': movie.main_image,
-                              'seo_url': seo.url,
-                              'seo_title': seo.title,
-                              'seo_keywords': seo.keywords,
-                              'seo_description': seo.desc}
-                     )
+class FilmPage(View):
+    template_name = 'admin_page/film_detail.html'
 
-    gallery, created = Gallery.objects.get_or_create(title=movie.title)
-    images = GalleryImage.objects.filter(gallery=gallery)
+    def get(self, request, movie_id=None, *args, **kwargs):
+        film_instance = get_object_or_404(MovieCard, id=movie_id) if movie_id else None
 
-    if request.method == 'POST':
-        formset = GalleryImagesFormSet(request.POST, request.FILES, prefix='photo')
-        movie_form = MovieForm(request.POST, request.FILES)
+        if movie_id:
+            form = MovieForm(instance=film_instance)
+            seo_form = SeoForm(prefix='seo-form', instance=film_instance.seo_block)
+            formset = GalleryFormSetSecond(queryset=GalleryImage.objects.filter(gallery=film_instance.gallery),
+                                           prefix='gallery-formset')
+        else:
+            form = MovieForm()
+            seo_form = SeoForm(prefix='seo-form')
+            formset = GalleryFormSet(queryset=GalleryImage.objects.none(), prefix='gallery-formset')
 
-        if formset.is_valid() and movie_form.is_valid():
-            ...
-    else:
-        movie_form = MovieForm()
-        formset = GalleryImagesFormSet(prefix='photo')
+        context = {
+            'form': form,
+            'seo_form': seo_form,
+            'formset': formset,
+            'movie_id': movie_id
+        }
+        return render(request, self.template_name, context)
 
-    context = {
-        'form': form,
-        'formset': formset,
-        'movie': movie,
-        'images': images,
-    }
+    def post(self, request, movie_id=None, *args, **kwargs):
+        formset = GalleryFormSetSecond(request.POST, request.FILES, prefix='gallery-formset')
+        form = MovieForm(request.POST, request.FILES)
+        seo_form = SeoForm(request.POST, prefix='seo-form')
 
-    return render(request, 'admin_page/film_detail.html', context)
+        if form.is_valid() and seo_form.is_valid():
+            title = form.cleaned_data['title']
+            trailer_url = form.cleaned_data['trailer_url']
+            desc = form.cleaned_data['desc']
+            main_image = form.cleaned_data['main_image']
+            seo, created = SeoBlock.objects.get_or_create(url=seo_form.cleaned_data['url'],
+                                                          title=seo_form.cleaned_data['title'],
+                                                          desc=seo_form.cleaned_data['desc'],
+                                                          keywords=seo_form.cleaned_data['keywords'])
+
+            counter = 1
+            if movie_id:
+                page = get_object_or_404(MovieCard, id=movie_id)
+                if page.title != title:
+                    page.gallery.title = title
+                    page.gallery.save()
+                page.title = title
+                page.trailer_url = trailer_url
+                page.desc = desc
+                if main_image:
+                    page.main_image = main_image
+
+                for form in formset:
+                    if form.is_valid() and form.has_changed():
+                        gallery_image = form.save(commit=False)
+                        if form.cleaned_data.get('image_id_to_replace'):
+                            existing_image = GalleryImage.objects.get(id=form.cleaned_data['image_id_to_replace'])
+                            existing_image.title = gallery_image.title
+                            existing_image.image = gallery_image.image
+                            existing_image.save()
+                        else:
+                            form.instance.gallery = page.gallery
+                            form.save()
+
+                for form in formset.deleted_forms:
+                    if form.instance.id:
+                        form.instance.delete()
+
+                page.seo_block = seo
+                page.save()
+                return redirect('adminlte:films_page')
+            else:
+                if any(forms.has_changed() for forms in formset):
+                    gallery, created = Gallery.objects.get_or_create(title=title)
+
+                    for form in formset:
+                        if form.is_valid() and form.has_changed():
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = gallery
+                            gallery_image.save()
+
+                    for form in formset.deleted_forms:
+                        if form.instance.id:
+                            form.instance.delete()
+
+                    about_film = MovieCard.objects.create(title=title, trailer_url=trailer_url, desc=desc,
+                                                          main_image=main_image,
+                                                          seo_block=seo, gallery=gallery, data=datetime.now())
+
+                return redirect('adminlte:films_page')
+
+        else:
+            return redirect('adminlte:films_page')
 
 
 class CinemaListView(ListView):
@@ -144,11 +196,10 @@ class CinemaAddView(View):
         form = CinemaForm(request.POST, request.FILES)
         seo_form = SeoForm(request.POST, prefix='seo-form')
 
-        print(f"Formset errors: {formset.errors}")
-        print(f"Form errors: {form.errors}")
-        print(f"Seo form errors: {seo_form.errors}")
+        if form.is_valid() and seo_form.is_valid():
 
-        if form.is_valid() and formset.is_valid() and seo_form.is_valid():
+            # formset.save()
+
             title = form.cleaned_data['title']
             description = form.cleaned_data['desc']
             conditions = form.cleaned_data['conditions']
@@ -179,36 +230,47 @@ class CinemaAddView(View):
                     cinema.top_banner = top_banner
                 else:
                     cinema.top_banner = cinema.top_banner
-                gallery, created = Gallery.objects.get_or_create(title=title)
-                images = GalleryImage.objects.filter(gallery=gallery).last().title[-1]
-                counter += int(images)
 
+                for form in formset:
+                    if form.is_valid():
+                        if form.cleaned_data.get('DELETE', False):
+                            continue
+                        else:
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = cinema.gallery
+                            gallery_image.save()
+
+                print('----------------------------------------')
+                print(formset.deleted_forms)
                 for form in formset.deleted_forms:
-                    form.instance.delete()
+                    print(formset.deleted_forms)
+                    if form.instance.id:
+                        form.instance.delete()
 
-                for form in formset.extra_forms:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{title} {counter}'
-                    GalleryImage.objects.create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
-                cinema.gallery = gallery
                 cinema.seo_block = seo_cinema
                 cinema.save()
                 return redirect('adminlte:cinema_list')
             else:
-                gallery, created = Gallery.objects.get_or_create(title=title)
-                for form in formset:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{title} {counter}'
-                    GalleryImage.objects.create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
+                if any(forms.has_changed() for forms in formset):
+                    gallery, created = Gallery.objects.get_or_create(title=title)
 
-                Cinema.objects.create(title=title, desc=description, conditions=conditions, logo=logo,
-                                      top_banner=top_banner, gallery=gallery, seo_block=seo_cinema)
+                    for form in formset:
+                        if form.is_valid() and form.has_changed():
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = gallery
+                            gallery_image.save()
 
+                    for form in formset.deleted_forms:
+                        if form.instance.id:
+                            form.instance.delete()
+
+                    Cinema.objects.create(title=title, desc=description, conditions=conditions, logo=logo,
+                                          top_banner=top_banner, gallery=gallery, seo_block=seo_cinema)
                 return redirect('adminlte:cinema_list')
+        else:
+            return redirect('adminlte:cinema_list')
 
-        return render(request, self.template_name, {'formset': formset, 'form': form, 'seo_form': seo_form})
+        # return render(request, self.template_name, {'formset': formset, 'form': form, 'seo_form': seo_form})
 
 
 def delete_cinema(self, cinema_pk):
@@ -250,10 +312,8 @@ class CinemaHallView(View):
         form = HallForm(request.POST, request.FILES)
         formset = GalleryFormSet(request.POST, request.FILES, prefix='hall-formset')
         seo_form = SeoForm(request.POST, prefix='seo-form')
-        print(f"Formset errors: {formset.errors}")
-        print(f"Form errors: {form.errors}")
-        print(f"Seo form errors: {seo_form.errors}")
-        if form.is_valid() and seo_form.is_valid() and formset.is_valid():
+
+        if form.is_valid() and seo_form.is_valid():
             hall_number = form.cleaned_data['hall_number']
             desc = form.cleaned_data['desc']
             scheme = form.cleaned_data['scheme']
@@ -283,32 +343,43 @@ class CinemaHallView(View):
                     hall.top_banner = top_banner
                 else:
                     hall.top_banner = hall.top_banner
-                gallery, created = Gallery.objects.get_or_create(title=f'{cinema.title} - {hall_number}')
-                for form in formset.extra_forms:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{cinema.title}|{hall_number}-{counter}'
-                    GalleryImage.objects.create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
-                hall.gallery = gallery
+
+                for form in formset:
+                    if form.is_valid():
+                        if form.cleaned_data.get('DELETE', False):
+                            continue
+                        else:
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = hall.gallery
+                            gallery_image.save()
+
+                for form in formset.deleted_forms:
+                    if form.instance.id:
+                        form.instance.delete()
+
                 hall.seo_block = seo_hall
                 hall.save()
                 return redirect('adminlte:cinema_edit', cinema_id=cinema_id)
             else:
-                gallery, created = Gallery.objects.get_or_create(title=f'{cinema.title} - {hall_number}')
+                if any(forms.has_changed() for forms in formset):
+                    gallery, created = Gallery.objects.get_or_create(title=hall_number)
 
-                for form in formset:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{cinema.title}|{hall_number}-{counter}'
-                    GalleryImage.objects.create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
+                    for form in formset:
+                        if form.is_valid() and form.has_changed():
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = gallery
+                            gallery_image.save()
 
-                CinemaHall.objects.create(number=hall_number, desc=desc, scheme=scheme, top_banner=top_banner,
-                                          gallery=gallery, seo_block=seo_hall, cinema=cinema)
+                    for form in formset.deleted_forms:
+                        if form.instance.id:
+                            form.instance.delete()
+
+                    CinemaHall.objects.create(number=hall_number, desc=desc, scheme=scheme, top_banner=top_banner,
+                                              gallery=gallery, seo_block=seo_hall, cinema=cinema)
 
             return redirect("adminlte:cinema_edit", cinema_id=cinema_id)
 
-        return render(request, self.template_name,
-                      {'formset': formset, 'form': form, 'seo_form': seo_form, 'cinema_id': cinema_id})
+        return redirect("adminlte:cinema_edit", cinema_id=cinema_id)
 
 
 def delete_hall(self, hall_id, cinema_id):
@@ -357,7 +428,7 @@ class NewsView(View):
         print(f"Form errors: {form.errors}")
         print(f"Seo form errors: {seo_form.errors}")
 
-        if form.is_valid() and seo_form.is_valid() and formset.is_valid():
+        if form.is_valid() and seo_form.is_valid():
             title = form.cleaned_data['title']
             date = form.cleaned_data['date']
             status = form.cleaned_data['status']
@@ -386,36 +457,44 @@ class NewsView(View):
                 else:
                     new.main_image = new.main_image
                 new.url = url
-                gallery, created = Gallery.objects.get_or_create(title=title)
-                for form in formset.extra_forms:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{new.title}|-{counter}'
-                    GalleryImage.objects.create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
-                new.gallery = gallery
+
+                for form in formset:
+                    if form.is_valid():
+                        if form.cleaned_data.get('DELETE', False):
+                            continue
+                        else:
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = new.gallery
+                            gallery_image.save()
+
+                for form in formset.deleted_forms:
+                    if form.instance.id:
+                        form.instance.delete()
+
                 new.seo_block = seo_news
                 new.save()
                 return redirect('adminlte:news_list')
             else:
-                gallery, created = Gallery.objects.get_or_create(title=f'{title}')
-                for form in formset:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{title}-{counter}'
-                    GalleryImage.objects.create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
+                if any(forms.has_changed() for forms in formset):
+                    gallery, created = Gallery.objects.get_or_create(title=title)
 
-                news = NewsEvents.objects.create(title=title, desc=description, main_image=image, gallery=gallery,
-                                                 date=date, type='NEWS', url=url, status=status,
-                                                 cinema=Cinema.objects.first(), seo_block=seo_news)
+                    for form in formset:
+                        if form.is_valid() and form.has_changed():
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = gallery
+                            gallery_image.save()
+
+                    for form in formset.deleted_forms:
+                        if form.instance.id:
+                            form.instance.delete()
+
+                    news = NewsEvents.objects.create(title=title, desc=description, main_image=image, gallery=gallery,
+                                                     date=date, type='NEWS', url=url, status=status,
+                                                     cinema=Cinema.objects.first(), seo_block=seo_news)
 
                 return redirect("adminlte:news_list")
 
-        context = {
-            'form': form,
-            'seo_form': seo_form,
-            'formset': formset
-        }
-        return render(request, self.template_name, context)
+        return redirect("adminlte:news_list")
 
 
 def delete_news(request, news_id):
@@ -464,7 +543,7 @@ class EventView(View):
         print(f"Form errors: {form.errors}")
         print(f"Seo form errors: {seo_form.errors}")
 
-        if form.is_valid() and formset.is_valid() and seo_form.is_valid():
+        if form.is_valid() and seo_form.is_valid():
             title = form.cleaned_data['title']
             date = form.cleaned_data['date']
             status = form.cleaned_data['status']
@@ -494,36 +573,50 @@ class EventView(View):
                     event.main_image = event.main_image.url
                 event.url = url
                 gallery, created = Gallery.objects.get_or_create(title=title)
-                for form in formset.extra_forms:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{event.title} - {counter}'
-                    GalleryImage.objects.create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
-                event.gallery = gallery
+
+                for form in formset:
+                    if form.is_valid():
+                        if form.cleaned_data.get('DELETE', False):
+                            continue
+                        else:
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = event.gallery
+                            gallery_image.save()
+
+                for form in formset.deleted_forms:
+                    if form.instance.id:
+                        form.instance.delete()
+
                 event.seo_block = seo_news
                 event.save()
                 return redirect('adminlte:events_list')
             else:
-                gallery, created = Gallery.objects.get_or_create(title=title)
-                for form in formset:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{title} - {counter}'
-                    GalleryImage.objects.get_or_create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
+                if any(forms.has_changed() for forms in formset):
+                    gallery, created = Gallery.objects.get_or_create(title=title)
 
-                events = NewsEvents.objects.create(title=title, desc=description, main_image=image, gallery=gallery,
-                                                   date=date, type='EVENTS', url=url, status=status,
-                                                   cinema=Cinema.objects.first(), seo_block=seo_news)
+                    for form in formset:
+                        if form.is_valid() and form.has_changed():
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = gallery
+                            gallery_image.save()
+
+                    for form in formset.deleted_forms:
+                        if form.instance.id:
+                            form.instance.delete()
+
+                    events = NewsEvents.objects.create(title=title, desc=description, main_image=image, gallery=gallery,
+                                                       date=date, type='EVENTS', url=url, status=status,
+                                                       cinema=Cinema.objects.first(), seo_block=seo_news)
 
                 return redirect("adminlte:events_list")
 
-        context = {
-            'form': form,
-            'seo_form': seo_form,
-            'formset': formset
-        }
+        return redirect("adminlte:events_list")
 
-        return render(request, self.template_name, context)
+
+def delete_events(request, event_id):
+    event = NewsEvents.objects.get(id=event_id)
+    event.delete()
+    return redirect("adminlte:events_list")
 
 
 class PagesView(ListView):
@@ -535,15 +628,17 @@ class PagesView(ListView):
         pages_all = Pages.objects.filter(can_delete=True)
         pages_main = Pages.objects.filter(can_delete=False)
         main_page = MainPage.objects.first()
+        contact_page = Contacts.objects.first()
 
-        return pages_all, pages_main, main_page
+        return pages_all, pages_main, main_page, contact_page
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pages_all, pages_main, main_page = self.get_queryset()
+        pages_all, pages_main, main_page, contact_page = self.get_queryset()
         context['pages_all'] = pages_all
         context['pages_main'] = pages_main
         context['main_page'] = main_page
+        context['contact_page'] = contact_page
 
         return context
 
@@ -557,8 +652,8 @@ class PageView(View):
         if page_id:
             form = PagesForm(instance=page_instance)
             seo_form = SeoForm(prefix='seo-form', instance=page_instance.seo_block)
-            formset = GalleryFormSet(queryset=GalleryImage.objects.filter(gallery=page_instance.gallery),
-                                     prefix='gallery-formset')
+            formset = GalleryFormSetSecond(queryset=GalleryImage.objects.filter(gallery=page_instance.gallery),
+                                           prefix='gallery-formset')
         else:
             form = PagesForm()
             seo_form = SeoForm(prefix='seo-form')
@@ -577,11 +672,7 @@ class PageView(View):
         form = PagesForm(request.POST, request.FILES)
         seo_form = SeoForm(request.POST, prefix='seo-form')
 
-        print('forms error', form.errors)
-        print('formset error', formset.errors)
-        print('seo_forms error', seo_form.errors)
-
-        if form.is_valid() and seo_form.is_valid() and formset.is_valid():
+        if form.is_valid() and seo_form.is_valid():
             title = form.cleaned_data['title']
             status = form.cleaned_data['status']
             desc = form.cleaned_data['desc']
@@ -605,26 +696,40 @@ class PageView(View):
                 else:
                     page.main_image = page.main_image
                 gallery, _ = Gallery.objects.get_or_create(title=title)
-                for form in formset.extra_forms:
-                    gallery_image = form.cleaned_data['image']
-                    gallery_instance_title = f'{page.title} - {counter}'
-                    GalleryImage.objects.create(title=gallery_instance_title, gallery=gallery, image=gallery_image)
-                    counter += 1
-                page.gallery = gallery
+
+                for form in formset:
+                    if form.is_valid():
+                        if form.cleaned_data.get('DELETE', False):
+                            continue
+                        else:
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = page.gallery
+                            gallery_image.save()
+
+                for form in formset.deleted_forms:
+                    if form.instance.id:
+                        form.instance.delete()
+
                 page.seo_block = seo
                 page.save()
                 return redirect('adminlte:pages')
             else:
-                gallery, created = Gallery.objects.get_or_create(title=title)
-                for form in formset:
-                    gallery_images = form.cleaned_data['image']
-                    gallery_image_title = f'{title} - {counter}'
-                    GalleryImage.objects.create(title=gallery_image_title, image=gallery_images, gallery=gallery)
-                    counter += 1
+                if any(forms.has_changed() for forms in formset):
+                    gallery, created = Gallery.objects.get_or_create(title=title)
 
-                about_cinema = Pages.objects.create(title=title, status=status, desc=desc, main_image=main_image,
-                                                    type='CINEMA',
-                                                    seo_block=seo, gallery=gallery)
+                    for form in formset:
+                        if form.is_valid() and form.has_changed():
+                            gallery_image = form.save(commit=False)
+                            gallery_image.gallery = gallery
+                            gallery_image.save()
+
+                    for form in formset.deleted_forms:
+                        if form.instance.id:
+                            form.instance.delete()
+
+                    about_cinema = Pages.objects.create(title=title, status=status, desc=desc, main_image=main_image,
+                                                        type='CINEMA',
+                                                        seo_block=seo, gallery=gallery)
 
                 return redirect('adminlte:pages')
 
@@ -652,13 +757,16 @@ class BannerPageView(View):
 class TopBannerView(View):
     def post(self, request, *args, **kwargs):
         formset = BannerTopFormset(request.POST, request.FILES, prefix='top-banner-formset')
-        print(formset.errors)
 
-        if formset.is_valid():
-            for form in formset.extra_forms:
+        for form in formset.forms:
+            if form.is_valid() and form.has_changed():
                 form.save()
-            formset.save()
-            return redirect('adminlte:banner_page')
+
+        for form in formset.deleted_forms:
+            if form.instance.id:
+                print(f"Deleting form with id {form.instance.id}")
+                form.instance.delete()
+
         return redirect('adminlte:banner_page')
 
 
@@ -708,7 +816,7 @@ class ContactPageView(View):
 
         if contact_instance:
             form = ContanctPageForm(instance=contact_instance)
-            print(len(Contacts.objects.all()))
+            seo_block = SeoForm(instance=contact_instance.seo_block, prefix='seo_block')
             if len(Contacts.objects.all()) >= 2:
                 formset = ContanctPageFormsetSecond(prefix='contact-formset',
                                                     queryset=Contacts.objects.exclude(pk=contact_instance.pk))
@@ -718,28 +826,40 @@ class ContactPageView(View):
         else:
             form = ContanctPageForm()
             formset = ContanctPageFormset(prefix='contact-formset', queryset=Contacts.objects.none())
-        return render(request, self.template_name, {'formset': formset, 'form': form})
+            seo_block = SeoForm(prefix='seo_block')
+        return render(request, self.template_name, {'formset': formset, 'form': form, 'seo_form': seo_block})
 
     def post(self, request, *args, **kwargs):
         contact_instance = Contacts.objects.first()
         form = ContanctPageForm(request.POST, request.FILES, instance=contact_instance)
-
+        seo_form = SeoForm(request.POST, prefix='seo_block')
         formset = ContanctPageFormset(request.POST, request.FILES, prefix='contact-formset',
                                       queryset=Contacts.objects.all())
 
-        print('Ошибки в formset', formset.errors)
-        print('Ошибки в form', form.errors)
-
-        if formset.is_valid() and form.is_valid():
+        if formset.is_valid() and form.is_valid() and seo_form.is_valid():
             formset.save()
             form.save()
+
+            seo_block = contact_instance.seo_block
+            if seo_block:
+                seo_block.title = seo_form.cleaned_data['title']
+                seo_block.desc = seo_form.cleaned_data['desc']
+                seo_block.keywords = seo_form.cleaned_data['keywords']
+                seo_block.url = seo_form.cleaned_data['url']
+                seo_block.save()
+
             return redirect('adminlte:contact_page')
 
-        context = {
-            'formset': formset,
-            'form': form,
-        }
-        return render(request, self.template_name, context)
+        return redirect('adminlte:contact_page')
+
+
+def delete_contact(request, contact_id):
+    if request.method == 'DELETE':
+        c_object = Contacts.objects.filter(id=contact_id)
+        c_object.delete()
+        return HttpResponse(status=204)
+    else:
+        return HttpResponseNotAllowed(['DELETE'])
 
 
 class EmailSenderView(View):
@@ -788,7 +908,6 @@ def process_form(request):
         template_selection_id = request.POST.get('templateSelection')
         send_checkbox = request.POST.get('selectedUsers')
 
-        # Определяем содержимое шаблона
         template_content = None
         if template_selection_id:
             selected_template = EmailTemplate.objects.get(id=template_selection_id)
@@ -798,7 +917,6 @@ def process_form(request):
             uploaded_file = request.FILES.get('file')
             template_content = uploaded_file.read().decode('utf-8')
 
-        # Определяем, кому отправлять
         recipient_emails = []
         if photo_selection == 'all_users':
             recipient_emails = list(CustomUser.objects.values_list('email', flat=True))
@@ -808,7 +926,6 @@ def process_form(request):
                 recipient_emails = send_checkbox.split(',')
                 recipient_emails = [email.strip(' "[]') for email in recipient_emails]
 
-        # Вызываем задачу для отправки писем
         if recipient_emails:
             task = send_email_task.delay(recipient_emails, "Тема письма", template_content)
             send_email_task.delay(recipient_emails, "Тема письма", template_content)
@@ -817,3 +934,78 @@ def process_form(request):
             return JsonResponse({'success': False, 'error': 'No recipients specified'})
     else:
         return JsonResponse({'success': False, 'error': 'Only POST requests are allowed'})
+
+
+class StatsPage(View):
+    template_name = 'admin_page/stats_page.html'
+
+    def get(self, request, *args, **kwargs):
+        movies_with_ticket_count = MovieCard.objects.annotate(ticket_count=Count('movieses__reservations'))
+
+        today = timezone.now().date()
+
+        current_week_start = today - timedelta(days=today.weekday())
+        current_week_end = current_week_start + timedelta(days=6)
+
+        previous_week_start = current_week_start - timedelta(days=7)
+        previous_week_end = previous_week_start + timedelta(days=6)
+
+        def get_ticket_counts(start_date, end_date):
+            ticket_counts = {}
+            date = start_date
+            while date <= end_date:
+                tickets_sold = Reservation.objects.filter(session__time__date=date).count()
+                ticket_counts[date.strftime('%Y-%m-%d')] = tickets_sold
+                date += timedelta(days=1)
+            return ticket_counts
+
+        current_week_ticket_counts = get_ticket_counts(current_week_start, current_week_end)
+        previous_week_ticket_counts = get_ticket_counts(previous_week_start, previous_week_end)
+
+        all_users = CustomUser.objects.all().count()
+
+        current_year = timezone.now().year
+
+        current_year_income = Reservation.objects.filter(session__time__year=current_year) \
+            .values('session__time__month') \
+            .annotate(total_income=Sum('total_price'))
+
+        last_year = current_year - 1
+        last_year_income = Reservation.objects.filter(session__time__year=last_year) \
+            .values('session__time__month') \
+            .annotate(total_income=Sum('total_price'))
+
+        monthly_income_current_year = [0] * 12
+        monthly_income_last_year = [0] * 12
+
+        for item in current_year_income:
+            monthly_income_current_year[item['session__time__month'] - 1] = item['total_income']
+
+        for item in last_year_income:
+            monthly_income_last_year[item['session__time__month'] - 1] = item['total_income']
+
+        # current_year_labels = [calendar.month_abbr[i] for i in range(1, 13)]
+        # last_year_labels = [calendar.month_abbr[i] for i in range(1, 13)]
+
+        current_year_data = monthly_income_current_year
+        last_year_data = monthly_income_last_year
+
+        current_year_data = [float(item) if item is not None else 0 for item in current_year_data]
+        last_year_data = [float(item) if item is not None else 0 for item in last_year_data]
+
+        total_earnings = Reservation.objects.aggregate(total_earnings=Sum('total_price'))['total_earnings']
+
+        if total_earnings is not None:
+            formatted_total_income = '${:,.2f}'.format(total_earnings)
+        else:
+            formatted_total_income = '$0.00'
+
+        return render(request, self.template_name, context={
+            'movies_with_ticket_count': movies_with_ticket_count,
+            'all_users': all_users,
+            'current_week_ticket_counts': current_week_ticket_counts,
+            'previous_week_ticket_counts': previous_week_ticket_counts,
+            'current_year_data': current_year_data,
+            'last_year_data': last_year_data,
+            'formatted_total_income': formatted_total_income
+        })

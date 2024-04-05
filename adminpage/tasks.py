@@ -1,7 +1,6 @@
+from celery import shared_task
 from celery_progress.backend import ProgressRecorder
 from django.core.mail import EmailMultiAlternatives
-
-from celery import shared_task
 
 
 @shared_task(bind=True)

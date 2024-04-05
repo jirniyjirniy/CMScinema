@@ -7,7 +7,7 @@
             <div class="row">
                 {% for movie in films_now %}
                 <div class="col-sm-2">
-                    <a href="{% url 'adminpage:film_details' movie.title movie.id %}" data-toggle="lightbox"
+                    <a href="{% url 'adminpage:film_details' movie.id %}" data-toggle="lightbox"
                        data-title="sample 2 - black" data-gallery="gallery">
                         <img src="{{ movie.main_image.url }}" class="img-fluid mb-2"
                              alt="black sample"/>
@@ -15,13 +15,14 @@
                 </div>
                 {% endfor %}
             </div>
+            <a href="{% url 'adminlte:film_add' %}">Добавить фильм</a>
         </div>
         <h1 style="margin-left: 30%;">Список фильмов, которые скоро покажут</h1>
         <div class="card-body">
             <div class="row">
                 {% for movie in films_soon %}
                 <div class="col-sm-2">
-                    <a href="{{ movie.main_image.url }}" data-toggle="lightbox"
+                    <a href="{% url 'adminpage:film_details' movie.id %}" data-toggle="lightbox"
                        data-title="sample 2 - black" data-gallery="gallery">
                         <img src="{{ movie.main_image.url }}" class="img-fluid mb-2"
                              alt="black sample"/>

@@ -1,269 +1,204 @@
 {% extends 'admin_page/base.html' %}
-{% load static %}
 
 {% block content %}
     <div class="content-wrapper">
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
-                    <form enctype="multipart/form-data" action="{% url 'adminlte:film_details' movie.title movie.id %}">
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="exampleInputText">Название Фильма</label>
+                    {% if movie_id %}
+                        <form enctype="multipart/form-data" action="{% url 'adminlte:film_details' movie_id %}"
+                              method="post" novalidate>
+                        {% csrf_token %}
+                    {% else %}
+                        <form enctype="multipart/form-data" action="{% url 'adminlte:film_add' %}" method="post"
+                              novalidate>
+                        {% csrf_token %}
+                    {% endif %}
+                    {{ formset.management_form }}
+                    <div class="card-body">
+                        <div class="row form-group">
+                            <div class="col-md-4">
+                                <label for="exampleInputText1">Название акции</label>
                                 {{ form.title }}
                             </div>
-                            <div class="form-group">
-                                <label>Описание</label>
-                                {{ form.description }}
+                        </div>
+                        <div class="form-group">
+                            <label>Описание</label>
+                            {{ form.desc }}
+                        </div>
+                        <label>Главная картинка</label>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <img src="
+                                        
+                                        
+                                        
+                                        
+                                        {% if form.main_image.value %}{{ form.main_image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                     class="img-fluid mb-2"
+                                     alt="gray sample" style="width:100%;" id="mainImage"/>
                             </div>
-                            <label>Главная картинка</label>
-                            <div class="row">
-                                <div class="col-sm-1">
-                                    <a href="{{ movie.main_image.url }}" data-toggle="lightbox"
-                                       data-title="sample 2 - black" data-gallery="gallery">
-                                        <img src="{{ movie.main_image.url }}" class="img-fluid mb-2"
-                                             alt="black sample" style="width:100%;"/>
-                                    </a>
+                            {{ form.main_image }}
+                            {#                            <button type="button" class="btn btn-block btn-success"#}
+                            {#                                    style="width: 200px; height: 40px; margin-top: 50px; margin-right: 10px;"#}
+                            {#                                    onclick="document.getElementById('id_main_image').click();">Добавить#}
+                            {#                            </button>#}
+                        </div>
+                        <label for="exampleInputFile">Галлерея картинок</label>
+                        <div class="row" id="gallery-container">
+                            {% for gallery_form in formset %}
+                                <div class="col-md-2" id="gallery-form">
+                                    <img id="top-image-{{ forloop.counter0 }}-image" src="
+                                            
+                                            {% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                         class="img-fluid mb-2" alt="black sample" style="width:100%;"/>
+                                    {{ gallery_form.image }}
+                                    {{ gallery_form.id }}
+                                    {{ gallery_form.DELETE }}
+                                    <button class="delete-image-button">Удалить</button>
                                 </div>
-                                {{ form.main_image }}
-                            </div>
-                            <label for="exampleInputFile">Галлерея картинок</label>
-                            <div class="row">
-                                {% for image in images %}
-                                    <div id="added-container"
-                                         style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
-                                        <label style="cursor: pointer;">
-                                            <img src="{{ image.image.url }}"
-                                                 style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;">
-                                        </label>
-                                        <h1>{{ image.title }}</h1>
-                                        <a class="btn btn-danger" href="{% url 'adminlte:delete-form' image.id %}">Удалить</a>
-                                    </div>
-                                {% endfor %}
-                                <div class="form-container"
-                                     style="margin-right:10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
-                                    <label for="id_image" style="cursor: pointer;">
-                                        <img id="previewImage"
-                                             src="https://static.vecteezy.com/system/resources/previews/005/337/799/non_2x/icon-image-not-found-free-vector.jpg"
-                                             alt="Картинка с крестиком"
-                                             style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;">
-                                    </label>
-
-                                    {% for form in formset %}
-                                        {{ form.image }}
-                                        {{ form.text }}
-                                    {% endfor %}
-                                </div>
-                                <td>
-                                    <button type="button" class="btn btn-block btn-success"
-                                            style="width: 200px; height: 40px; margin-top: 180px; margin-right: 10px;">
-                                        Добавить
-                                    </button>
-                                </td>
-                            </div>
-                            <br>
-                            <div class="form-group">
-                                <label for="exampleInputText">Ссылка на трейлер</label>
-                                {{ form.trailer_link }}
-                            </div>
-                            {#                            <div class="form-group">#}
-                            {#                                <label for="exampleInputText">Тип кино</label>#}
-                            {#                                <br>#}
-                            {#                                <div class="btn-group btn-group-toggle" data-toggle="buttons">#}
-                            {#                                    {% for radio in form.movie_type %}#}
-                            {#                                        <label class="btn bg-secondary active">#}
-                            {#                                            {{ radio.tag }}#}
-                            {#                                        {{ radio.choice_label }}#}
-                            {#                                        </label>#}
-                            {#                                    {% endfor %}#}
-                            {#                                </div>#}
-                            {#                            </div>#}
-                            <label for="exampleInputText">SEO блок:</label>
-                            <div class="container">
-                                <div class="row justify-content-center">
-                                    <div class="col-md-6">
-                                        <div class="form-group text-center">
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">URL</span>
-                                                </div>
-                                                {{ form.seo_url }}
+                            {% endfor %}
+                            <button type="button" class="btn btn-block btn-success"
+                                    style="width: 200px; height: 40px; margin-top: 50px; margin-right: 10px;"
+                                    id="add-gallery-form">Добавить
+                            </button>
+                        </div>
+                        <br>
+                        <div class="form-group">
+                            <label for="exampleInputText">Ссылка на видео</label>
+                            {{ form.trailer_url }}
+                        </div>
+                        <label for="exampleInputText">SEO блок:</label>
+                        <div class="container">
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    <div class="form-group text-center">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">URL</span>
                                             </div>
-                                            <br>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">Title</span>
-                                                </div>
-                                                {{ form.seo_title }}
+                                            {{ seo_form.url }}
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Title</span>
                                             </div>
-                                            <br>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">Key words</span>
-                                                </div>
-                                                {{ form.seo_keywords }}
+                                            {{ seo_form.title }}
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Key words</span>
                                             </div>
-                                            <br>
-                                            <div class="input-group">
-                                                <div class="input-group-prepend">
-                                                    <span class="input-group-text">Description</span>
-                                                </div>
-                                                {{ form.seo_description }}
+                                            {{ seo_form.keywords }}
+                                        </div>
+                                        <br>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">Description</span>
                                             </div>
+                                            {{ seo_form.desc }}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-                        <!-- /.card-body -->
 
-                        <div class="card-footer text-center">
-                            <button type="submit" class="btn btn-primary" style="width: 400px; height: 40px;">
-                                Сохранить
-                            </button>
-                        </div>
+                    </div>
+                    <!-- /.card-body -->
+
+                    <div class="card-footer text-center">
+                        <button type="submit" class="btn btn-primary"
+                                style="width: 400px; height: 40px;">Сохранить
+                        </button>
+                    </div>
                     </form>
                 </div>
             </div>
         </section>
     </div>
 {% endblock %}
-
 {% block script %}
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
+            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
 
     <script>
         $(document).ready(function () {
-            function addForm(event, formId) {
-                event.preventDefault();
-
-                let totalForms = parseInt($('#' + formId + ' #id_form-TOTAL_FORMS').val());
-
-                let newForm = $('#' + formId + ' #form-container').clone();
-
-                let newFormId = 'form-container-' + totalForms;
-                let previewId = 'previewImage_' + formId + '_' + totalForms;
-                let inputId = 'id_image_' + formId + '_' + totalForms;
-
-                newForm.attr('id', newFormId);
-                newForm.find('input, select, textarea').each(function () {
-                    let name = $(this).attr('name').replace('-' + (totalForms - 1) + '-', '-' + totalForms + '-');
-                    let id = 'id_' + name;
-                    $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
-                });
-
-                newForm.find('#previewImage').attr({'id': previewId, 'src': '{% static "img/200.jpeg" %}'});
-                newForm.find('label').attr('for', inputId);
-                newForm.find('input[type="file"]').attr({'id': inputId});
-
-                totalForms++;
-                $('#' + formId + ' #id_form-TOTAL_FORMS').val(totalForms);
-
-                $('#' + formId + ' #add-form').before(newForm);
-
-                $('#' + formId + ' #' + newFormId + ' #previewImage').on('click', function () {
-                    $('#' + formId + ' #' + newFormId + ' #' + inputId).click();
-                });
-
-                $('#' + formId + ' #' + newFormId + ' #' + inputId).on('change', function () {
-                    updatePreview(this, previewId);
-                });
-            }
-
-            function updatePreview(input, previewId) {
-                if (input.files && input.files[0]) {
-                    let reader = new FileReader();
-
-                    reader.onload = function (e) {
-                        $('#' + previewId).attr('src', e.target.result);
-                    };
-
-                    reader.readAsDataURL(input.files[0]);
-                }
-            }
-
-            $(document).on('change', 'input[type="file"]', function () {
-                let previewId = $(this).siblings('label').find('img').attr('id');
-                updatePreview(this, previewId);
-            });
-
-            $(document).on('click', '#add-form', function (event) {
-                let formId = $(this).closest('form').attr('id');
-                addForm(event, formId);
-            });
-
-            let csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
-
-            function handleRotationSpeedChange(rotationSpeedElement, formId) {
-                let timeDelayValue = rotationSpeedElement.val();
-
-                $.ajax({
-                    url: '{% url "adminlte:update_rotation_speed" %}',
-                    type: 'POST',
-                    data: {
-                        'form_id': formId,
-                        'time_delay': timeDelayValue
-                    },
-                    headers: {
-                        'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val()
-                    },
-                    success: function (response) {
-                        console.log('Rotation speed updated successfully:', response);
-                    },
-                    error: function (error) {
-                        console.error('Error updating rotation speed:', error);
-                    }
-                });
-            }
-
-            $('#form-first #rotation-speed').on('change', function () {
-                handleRotationSpeedChange($(this), 'form-first');
-            });
-
-            $('#form-second #rotation-speed2').on('change', function () {
-                handleRotationSpeedChange($(this), 'form-second');
-            });
-
-            $(document).on('submit', 'form[id^="form-"]', function (e) {
-                e.preventDefault();
-
-                let formId = $(this).attr('id');
-                let form_data = new FormData($('#' + formId)[0]);
-
-                form_data.append('from_id', formId)
-
-                console.log(form_data, formId)
-
-                $.ajax({
-                    url: '{% url "adminlte:banner_page" %}',
-                    type: 'POST',
-                    data: form_data,
-                    contentType: false,
-                    processData: false,
-                    headers: {
-                        'X-CSRFToken': csrf_token
-                    },
-                    success: function (response) {
-                        console.log('Server response:' + response)
-                        if (response.success) {
-                            console.log('Form submitted successfully');
-                            window.location.replace('{% url 'adminlte:banner_page' %}')
-                        } else {
-                            let errorsHtml = '<ul>';
-                            for (let i = 0; i < response.errors.length; i++) {
-                                errorsHtml += '<div class="alert alert-danger" role="alert">' + response.errors[i] + '</div>';
-                            }
-                            errorsHtml += '</ul>';
-
-                            $('#' + formId + ' #error-container').html(errorsHtml);
-                        }
-                    },
-                    error: function (error) {
-                        console.error('Error submitting form:', error);
-                    },
-                });
+            $('input[name$="-DELETE"]').each(function () {
+                $(this).hide()
             });
         });
+
+        function handlePreview(input, previewId) {
+            var preview = document.getElementById(previewId);
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        document.getElementById('id_main_image').addEventListener('change', function () {
+            handlePreview(this, 'mainImage');
+        });
+
+        document.querySelectorAll('[id^="id_gallery-formset-"]').forEach(function (input) {
+            input.addEventListener('change', function () {
+                var previewId = this.id.replace('id_gallery-formset-', 'top-image-').replace('-image', '-image');
+                handlePreview(this, previewId);
+            });
+        });
+
+        let galleryForm = document.querySelectorAll('#gallery-form');
+        let totalForms = document.querySelector("#id_gallery-formset-TOTAL_FORMS");
+        let addButton = document.querySelector("#add-gallery-form");
+        let container = document.querySelector('#gallery-container');
+
+        let formNum = galleryForm.length - 1;
+        addButton.addEventListener('click', addGalleryCard)
+
+        function addGalleryCard(e) {
+            e.preventDefault();
+
+            let newForm = galleryForm[0].cloneNode(true);
+            let formRegex = RegExp(`gallery-formset-(\\d){1}-`, 'i');
+
+            formNum++;
+            newForm.innerHTML = newForm.innerHTML.replace(formRegex, `gallery-formset-${formNum}-`);
+
+            let image = newForm.querySelector(`#id_gallery-formset-0-image`);
+            let newId = `id_gallery-formset-${formNum}-image`;
+            image.id = newId;
+
+            let photo = newForm.querySelector(`#top-image-0-image`);
+            let newPhotoId = `top-image-${formNum}-image`;
+            photo.id = newPhotoId;
+            photo.src = 'https://via.placeholder.com/300.png?text=No+Image'
+
+
+            image.addEventListener('change', function () {
+                handlePreview(this, newPhotoId);
+            });
+
+            container.insertBefore(newForm, addButton);
+
+            totalForms.value = formNum + 1;
+        }
+
+        $(document).on('click', '.delete-image-button', function (event) {
+            event.preventDefault();
+
+            const $card = $(this).closest('#gallery-form');
+            const $checkbox = $card.find('input[name^="gallery-formset"][name$="-DELETE"]');
+            $checkbox.prop('checked', true);
+            $card.hide();
+        })
     </script>
+
 {% endblock %}

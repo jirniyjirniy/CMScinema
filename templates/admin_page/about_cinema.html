@@ -39,7 +39,14 @@
                         <label>Главная картинка</label>
                         <div class="row">
                             <div class="col-md-2">
-                                <img id="mainImage" src="{% if form.main_image.value %}{{ form.main_image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                <img id="mainImage" src="
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        {% if form.main_image.value %}{{ form.main_image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
                                      class="img-fluid mb-2"
                                      alt="black sample" style="width:100%;"/>
                             </div>
@@ -53,11 +60,16 @@
                         <div class="row" id="gallery-container">
                             {% for gallery_form in formset %}
                                 <div class="col-md-2" id="gallery-form">
-                                    <img id="gallery-preview" src="{% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                    <img id="top-image-{{ forloop.counter0 }}-image" src="
+                                            
+                                            
+                                            {% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
                                          class="img-fluid mb-2"
                                          alt="black sample" style="width:100%;"/>
                                     {{ gallery_form.image }}
                                     {{ gallery_form.id }}
+                                    {{ gallery_form.DELETE }}
+                                    <button class="delete-image-button">Удалить</button>
                                 </div>
                             {% endfor %}
                             <button type="button" class="btn btn-block btn-success"
@@ -122,25 +134,36 @@
     <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
             integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
     <script>
+        $(document).ready(function () {
+            $('input[name$="-DELETE"]').each(function () {
+                $(this).hide()
+            });
+        });
+
         function handlePreview(input, previewId) {
             var preview = document.getElementById(previewId);
 
-            var reader = new FileReader();
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
 
-            reader.onload = function (e) {
-                preview.src = e.target.result;
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                }
+
+                reader.readAsDataURL(input.files[0]);
             }
-
-            reader.readAsDataURL(input.files[0]);
         }
 
         document.getElementById('id_main_image').addEventListener('change', function () {
             handlePreview(this, 'mainImage');
         });
 
-        document.getElementById('galleryPreview').addEventListener('change', function () {
-            handlePreview(this, 'gallery-preview')
-        })
+        document.querySelectorAll('[id^="id_gallery-formset-"]').forEach(function (input) {
+            input.addEventListener('change', function () {
+                var previewId = this.id.replace('id_gallery-formset-', 'top-image-').replace('-image', '-image');
+                handlePreview(this, previewId);
+            });
+        });
 
         let galleryForm = document.querySelectorAll('#gallery-form');
         let totalForms = document.querySelector("#id_gallery-formset-TOTAL_FORMS");
@@ -154,17 +177,17 @@
             e.preventDefault();
 
             let newForm = galleryForm[0].cloneNode(true);
-            let formRegex = RegExp(`gallery-formset-(\\d){1}-`, 'i');
+            let formRegex = RegExp(`gallery-formset-(\\d){1}-`, 'g');
 
             formNum++;
             newForm.innerHTML = newForm.innerHTML.replace(formRegex, `gallery-formset-${formNum}-`);
 
-            let image = newForm.querySelector('#galleryPreview');
-            let newId = `galleryPreview${formNum}`;
+            let image = newForm.querySelector(`#id_gallery-formset-${formNum}-image`);
+            let newId = `id_gallery-formset-${formNum}-image`;
             image.id = newId;
 
-            let photo = newForm.querySelector('#gallery-preview');
-            let newPhotoId = `gallery-preview${formNum}`;
+            let photo = newForm.querySelector(`#top-image-0-image`);
+            let newPhotoId = `top-image-${formNum}-image`;
             photo.id = newPhotoId;
             photo.src = 'https://via.placeholder.com/300.png?text=No+Image'
 
@@ -201,6 +224,15 @@
                     button.classList.add('active');
                 });
             });
+        });
+
+        $(document).on('click', '.delete-image-button', function (event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение кнопки
+
+            const $card = $(this).closest('#gallery-form'); // Исправляем селектор, чтобы найти ближайшую форму галереи
+            const $checkbox = $card.find('input[name^="gallery-formset"][name$="-DELETE"]');
+            $checkbox.prop('checked', true); // Устанавливаем значение чекбокса в true
+            $card.hide(); // Скрываем форму галереи
         });
     </script>
 {% endblock %}

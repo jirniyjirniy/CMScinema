@@ -2,7 +2,9 @@ from django import forms
 from django.forms import formset_factory, modelformset_factory
 
 from adminpage.models import EmailTemplate
-from cinema.models import GalleryImage, Cinema, Gallery, SeoBlock, NewsEvents, Pages, Banner, MainPage, Contacts
+from cinema.models import (BackgroundBanner, Banner, Cinema, CinemaHall,
+                           Contacts, Gallery, GalleryImage, MainPage,
+                           MovieCard, NewsEvents, Pages, SeoBlock)
 
 
 class GalleryImageForm(forms.ModelForm):
@@ -26,31 +28,16 @@ class GalleryImageForm(forms.ModelForm):
     )
 
 
-class MovieForm(forms.Form):
-    title = forms.CharField(label='Название Фильма',
-                            widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
-    description = forms.CharField(label='Описание', widget=forms.Textarea(
-        attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Писать сюда...'}))
-    main_image = forms.ImageField(label='Главная картинка', required=False, widget=forms.FileInput(
-        attrs={'type': 'file', 'id': 'fileInput', 'class': 'form-control'}))
-    gallery_images = forms.FileField(label='Галлерея картинок',
-                                     widget=forms.ClearableFileInput(), required=False)
-    trailer_link = forms.CharField(label='Ссылка на трейлер', widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
-    movie_type = forms.ChoiceField(label='Тип кино', choices=[('3D', '3D'), ('2D', '2D'), ('IMAX', 'IMAX')],
-                                   widget=forms.RadioSelect(
-                                       attrs={'class': 'btn-group-toggle', 'data-toggle': 'buttons'}))
-
-    seo_url = forms.CharField(label='URL',
-                              widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
-    seo_title = forms.CharField(label='Title', widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
-    seo_keywords = forms.CharField(label='Key words', widget=forms.TextInput(
-        attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
-    seo_description = forms.CharField(label='Description',
-                                      widget=forms.Textarea(
-                                          attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Писать сюда...'}))
-
+class MovieForm(forms.ModelForm):
+    class Meta:
+        model = MovieCard
+        fields = ['title', 'desc', 'main_image', 'trailer_url']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}),
+            'desc': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Писать сюда...'}),
+            'main_image': forms.FileInput(attrs={'type': 'file', 'class': 'form-control'}),
+            'trailer_url': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}),
+        }
 
 class CinemaForm(forms.ModelForm):
     class Meta:
@@ -71,7 +58,7 @@ class GalleryForm(forms.ModelForm):
         model = GalleryImage
         fields = ['image', ]
         widgets = {
-            'image': forms.FileInput(attrs={'class': 'form-control', 'id': 'galleryPreview'})}
+            'image': forms.FileInput(attrs={'class': 'form-control'})}
 
 
 GalleryFormSet = modelformset_factory(GalleryImage, form=GalleryForm, extra=1, can_delete=True)
@@ -175,7 +162,7 @@ class BannerForm(forms.ModelForm):
             'image': forms.ClearableFileInput(attrs={
                 'class': 'form-control',
                 'type': 'file',
-                'id': 'topPreview'
+                # 'id': 'topPreview'
             }),
             'url': forms.TextInput(attrs={
                 'type': 'text',
@@ -189,8 +176,8 @@ class BannerForm(forms.ModelForm):
         }
 
 
-BannerTopFormset = modelformset_factory(Banner, form=BannerForm, extra=1)
-BannerTopFormsetSecond = modelformset_factory(Banner, form=BannerForm, extra=0)
+BannerTopFormset = modelformset_factory(Banner, form=BannerForm, extra=1, can_delete=True)
+BannerTopFormsetSecond = modelformset_factory(Banner, form=BannerForm, extra=0, can_delete=True)
 
 
 class MainPageForm(forms.ModelForm):
@@ -239,7 +226,6 @@ class ContanctPageForm(forms.ModelForm):
             'logo': forms.ClearableFileInput(attrs={
                 # 'class': 'form-control',
                 'type': 'file',
-                'id': 'topPreview',
                 'class': 'form-control',
                 'style': 'width: 50%;'
             }),
@@ -257,3 +243,16 @@ class EmailTemplateForm(forms.ModelForm):
     class Meta:
         model = EmailTemplate
         fields = ['name', 'file']
+
+
+class BackBanner(forms.ModelForm):
+    class Meta:
+        model = BackgroundBanner
+        fields = [
+            'image'
+        ]
+
+        widgets = {
+            'type': 'file',
+            'style': 'display: none;'
+        }

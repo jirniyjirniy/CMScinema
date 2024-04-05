@@ -1,12 +1,12 @@
-from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.views.generic import View
-from django.contrib import messages
 
+from .forms import LoginAjaxForm, RegisterForm
 from .models import CustomUser
-from .forms import RegisterForm, LoginAjaxForm
 
 
 class RegisterAjaxView(View):

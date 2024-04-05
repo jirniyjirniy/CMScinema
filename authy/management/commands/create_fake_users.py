@@ -1,8 +1,11 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from faker import Faker
-from datetime import datetime
+
 from authy.models import CustomUser  # Import your CustomUser model
+
 
 class Command(BaseCommand):
     help = 'Generate fake users and save them to the database'

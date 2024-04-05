@@ -49,14 +49,17 @@
                                 <div class="col-md-2" id="gallery-form">
                                     <a href="https://via.placeholder.com/300.png?text=No+Image"
                                        data-toggle="lightbox" data-title="sample 2 - black" data-gallery="gallery">
-                                        <img id="gallery-preview" src="
+                                        <img id="top-image-{{ forloop.counter0 }}-image" src="
                                                 
-                                                    
+                                                
+                                                
                                                 {% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
                                              class="img-fluid mb-2" alt="black sample" style="width:100%;"/>
                                     </a>
                                     {{ gallery_form.image }}
                                     {{ gallery_form.id }}
+                                    {{ gallery_form.DELETE }}
+                                    <button class="delete-image-button">Удалить</button>
                                 </div>
                             {% endfor %}
                             <button type="button" class="btn btn-block btn-success"
@@ -120,16 +123,24 @@
             integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
 
     <script>
+        $(document).ready(function () {
+            $('input[name$="-DELETE"]').each(function () {
+                $(this).hide()
+            });
+        });
+
         function handlePreview(input, previewId) {
             var preview = document.getElementById(previewId);
 
-            var reader = new FileReader();
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
 
-            reader.onload = function (e) {
-                preview.src = e.target.result;
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                }
+
+                reader.readAsDataURL(input.files[0]);
             }
-
-            reader.readAsDataURL(input.files[0]);
         }
 
         document.getElementById('id_scheme').addEventListener('change', function () {
@@ -140,9 +151,12 @@
             handlePreview(this, 'topBannerPreview');
         });
 
-        document.getElementById('galleryPreview').addEventListener('change', function () {
-            handlePreview(this, 'gallery-preview')
-        })
+        document.querySelectorAll('[id^="id_hall-formset-"]').forEach(function (input) {
+            input.addEventListener('change', function () {
+                var previewId = this.id.replace('id_hall-formset-', 'top-image-').replace('-image', '-image');
+                handlePreview(this, previewId);
+            });
+        });
 
         let galleryForm = document.querySelectorAll('#gallery-form');
         let totalForms = document.querySelector("#id_hall-formset-TOTAL_FORMS");
@@ -161,12 +175,12 @@
             formNum++;
             newForm.innerHTML = newForm.innerHTML.replace(formRegex, `hall-formset-${formNum}-`);
 
-            let image = newForm.querySelector('#galleryPreview');
-            let newId = `galleryPreview${formNum}`;
+            let image = newForm.querySelector(`#id_hall-formset-${formNum}-image`);
+            let newId = `id_hall-formset-${formNum}-image`;
             image.id = newId;
 
-            let photo = newForm.querySelector('#gallery-preview');
-            let newPhotoId = `gallery-preview${formNum}`;
+            let photo = newForm.querySelector(`#top-image-0-image`);
+            let newPhotoId = `top-image-${formNum}-image`;
             photo.id = newPhotoId;
             photo.src = 'https://via.placeholder.com/300.png?text=No+Image'
 
@@ -180,17 +194,13 @@
             totalForms.value = formNum + 1;
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            let galleryForms = document.querySelectorAll('#gallery-container .col-md-2');
+        $(document).on('click', '.delete-image-button', function (event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение кнопки
 
-            galleryForms.forEach(function (form, index) {
-                let galleryInput = form.querySelector('#galleryPreview');
-                let fileInput = form.querySelector('[name^="formset-' + index + '-image"]');
-
-                galleryInput.addEventListener('change', function () {
-                    fileInput.value = galleryInput.src;
-                });
-            });
+            const $card = $(this).closest('#gallery-form'); // Исправляем селектор, чтобы найти ближайшую форму галереи
+            const $checkbox = $card.find('input[name^="hall-formset"][name$="-DELETE"]');
+            $checkbox.prop('checked', true); // Устанавливаем значение чекбокса в true
+            $card.hide(); // Скрываем форму галереи
         });
 
     </script>

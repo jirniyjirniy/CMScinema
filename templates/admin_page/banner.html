@@ -13,15 +13,19 @@
                     <div id="gallery-form"
                          style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
                         <img src="
+                                
                                 {% if form.image.value %}{{ form.image.value.url }}{% else %}'https://via.placeholder.com/300.png?text=No+Image'{% endif %}"
                              alt="Картинка с крестиком"
-                             style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="top-image">
+                             style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;"
+                             id="top-image-{{ forloop.counter0 }}-image">
                         {% for hidden in form.hidden_fields %}
                             {{ hidden }}
                         {% endfor %}
                         {{ form.image }}
                         {{ form.url }}
                         {{ form.text }}
+                        {{ gallery_form.DELETE }}
+                        <button class="delete-advertisement-banner-button">Удалить</button>
                     </div>
                 {% endfor %}
                 <button
@@ -30,8 +34,6 @@
                     Добавить
                     фото
                 </button>
-
-
                 <div style="margin-right: 10px; max-width: 300px; text-align: center; margin-bottom: 20px;">
                     <label for="rotation-speed">Скорость вращения:</label>
                     <select id="rotation-speed"
@@ -58,19 +60,24 @@
              style="border: 1px solid #000; border-radius: 30px; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
             <div class="radio-buttons" style="display: flex; flex-direction: column;">
                 <label style="margin-bottom: 10px; display: block;">
-                    <input type="radio" name="photoSelection"> Фото на фон
+                    <input type="radio" name="photoSelection" value="background"> Фото на фон
                 </label>
                 <label style="display: block;">
-                    <input type="radio" name="photoSelection"> Просто
+                    <input type="radio" name="photoSelection" value="plain"> Просто
                 </label>
             </div>
             <div class="content">
                 <img src="{% static 'img/200.jpeg' %}" alt="Картинка с крестиком"
+                     id="background-image"
                      style="width: 260px; height: 200px; cursor: pointer; margin-right: 20px;">
-                <button style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;">
+                <input type="file" id="photoFile" style="display: none;">
+                <button id="add-photo"
+                        style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;"
+                        onclick="document.getElementById('photoFile').click();">
                     Добавить фото
                 </button>
-                <button style="background-color: red; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;">
+                <button id="remove-photo"
+                        style="background-color: red; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;">
                     Удалить фото
                 </button>
             </div>
@@ -118,21 +125,35 @@
     </div>
 {% endblock %}
 {% block script %}
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
+            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
     <script>
+        $(document).ready(function () {
+            $('input[name$="-DELETE"]').each(function () {
+                $(this).hide()
+            });
+        });
+
         function handlePreview(input, previewId) {
             var preview = document.getElementById(previewId);
 
-            var reader = new FileReader();
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
 
-            reader.onload = function (e) {
-                preview.src = e.target.result;
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                }
+
+                reader.readAsDataURL(input.files[0]);
             }
-
-            reader.readAsDataURL(input.files[0]);
         }
 
-        document.getElementById('topPreview').addEventListener('change', function () {
-            handlePreview(this, 'top-image');
+
+        document.querySelectorAll('[id^="id_top-banner-formset-"]').forEach(function (input) {
+            input.addEventListener('change', function () {
+                var previewId = this.id.replace('id_top-banner-formset-', 'top-image-').replace('-image', '-image');
+                handlePreview(this, previewId);
+            });
         });
 
         let galleryForm = document.querySelectorAll('#gallery-form');
@@ -148,17 +169,15 @@
         function addGalleryCard(e) {
             e.preventDefault();
 
-            {#let newForm = galleryForm[0].cloneNode(true);#}
-            
             let tempElement =
-            `<div id="gallery-form" style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
-                <img src="" alt="Картинка с крестиком" style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="top-image">
+                `<div id="gallery-form" style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
+                <img src="" alt="Картинка с крестиком" style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="id_top-image-0-image">
                 <input type="hidden" name="top-banner-formset-0-id" value="" id="id_top-banner-formset-0-id">
-                <input type="file" name="top-banner-formset-0-image" class="form-control" id="topPreview" accept="image/*">
+                <input type="file" name="top-banner-formset-0-image" class="form-control" id="id_top-banner-formset-0-image" accept="image/*">
                 <input type="text" name="top-banner-formset-0-url" value="" style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box" placeholder="Ссылка на картинку" maxlength="250" id="id_top-banner-formset-0-url">
                 <textarea name="top-banner-formset-0-text" cols="40" rows="10" style="margin: 10px 0; width: 100%; height: 80px; padding: 8px; box-sizing: border-box" placeholder="Введите текст" id="id_top-banner-formset-0-text"></textarea>
             </div>`
-            
+
             let newForm = document.createElement('div');
             newForm.innerHTML = tempElement;
 
@@ -173,12 +192,12 @@
             newForm.innerHTML = newForm.innerHTML.replace(formUrlRegex, `top-banner-formset-${formNum}-url`);
             newForm.innerHTML = newForm.innerHTML.replace(formTextRegex, `top-banner-formset-${formNum}-text`);
 
-            let image = newForm.querySelector('#topPreview');
-            let newId = `topPreview${formNum}`;
+            let image = newForm.querySelector('#id_top-banner-formset-0-image');
+            let newId = `id_top-banner-formset-${formNum}-image`;
             image.id = newId;
 
-            let photo = newForm.querySelector('#top-image');
-            let newPhotoId = `top-image${formNum}`;
+            let photo = newForm.querySelector('#id_top-image-0-image');
+            let newPhotoId = `top-image-${formNum}-image`;
             photo.id = newPhotoId;
             photo.src = 'https://via.placeholder.com/300.png?text=No+Image'
 
@@ -192,18 +211,15 @@
             totalForms.value = formNum + 1;
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            let galleryForms = document.querySelectorAll('#gallery-container .col-md-2');
+        $(document).on('click', '.delete-advertisement-banner-button', function (event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение кнопки
 
-            galleryForms.forEach(function (form, index) {
-                let galleryInput = form.querySelector('#topPreview');
-                let fileInput = form.querySelector('[name^="formset-' + index + '-image"]');
-
-                galleryInput.addEventListener('change', function () {
-                    fileInput.value = galleryInput.src;
-                });
-            });
+            const $card = $(this).closest('#gallery-form'); // Исправляем селектор, чтобы найти ближайшую форму галереи
+            const $checkbox = $card.find('input[name^="top-banner-formset"][name$="-DELETE"]'); // Находим чекбокс удаления
+            $checkbox.prop('checked', true); // Устанавливаем значение чекбокса в true
+            $card.hide(); // Скрываем форму галереи
         });
+
 
     </script>
 {% endblock %}

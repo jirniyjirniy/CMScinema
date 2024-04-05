@@ -1,9 +1,10 @@
 from django.urls import path
 
-from .views import about_cinema, afisha, bar_page, cinema_card, cinema_contacts, cinemas, event_card, events, \
-    movie_detail, \
-    hall_card, index, news, schedule, soon, ticket_booking, user_page, MovieSessionsAjaxView, IndexSearch, news_card,\
-    reserve_seats, ScheduleAjaxFilter
+from .views import (MovieSessionsAjaxView, ScheduleAjaxFilter, about_cinema,
+                    afisha, bar_page, cinema_card, cinema_contacts, cinemas,
+                    event_card, events, hall_card, index, movie_detail, news,
+                    news_card, reserve_seats, schedule, soon, ticket_booking,
+                    user_page)
 
 app_name = 'cinema'
 
@@ -28,6 +29,5 @@ urlpatterns = [
          name='ticket_booking'),
     path('user_page/', user_page, name='user_page'),
     path('movie/sessions/ajax/', MovieSessionsAjaxView.as_view(), name='movie_sessions_ajax'),
-    path('search/', IndexSearch.as_view(), name='index_search'),
     path('reserve_seats/', reserve_seats, name='reserve_seats'),
 ]

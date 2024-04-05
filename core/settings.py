@@ -41,7 +41,8 @@ INSTALLED_APPS = [
 
     'mathfilters',
     'django_celery_results',
-    'celery_progress'
+    'celery_progress',
+    'debug_toolbar'
 
 ]
 
@@ -54,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -135,7 +138,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGOUT_REDIRECT_URL = 'cinema:index'
 
-
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
@@ -143,10 +145,12 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'faceit.kawai@gmail.com'
 EMAIL_HOST_PASSWORD = 'wbxl gubi ohjg jcsz'
 
-
 CELERY_BROKER_URL = 'redis://0.0.0.0:6379/0'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

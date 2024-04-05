@@ -51,7 +51,8 @@
                                     <div class="product-shoe-info editContent text-center mt-lg-4"
                                          style="background-color: whitesmoke;">
                                         <div class="men-thumb-item">
-                                            <img src="{% if movie.main_image %}{{ movie.main_image.url }}{% else %}https://s3.vcdn.biz/static/f/5768112441/image.jpg/pt/r375x0x4{% endif %}"
+                                            <img src="
+                                                    {% if movie.main_image %}{{ movie.main_image.url }}{% else %}https://s3.vcdn.biz/static/f/5768112441/image.jpg/pt/r375x0x4{% endif %}"
                                                  class="img-fluid" alt="">
                                         </div>
                                         <div class="item-info-product">
@@ -100,30 +101,4 @@
             </div>
         </div>
     </section>
-{% endblock %}
-{% block script %}
-    <script>
-        $(document).ready(function () {
-            $('#search_form').submit(function (e) {
-                e.preventDefault();
-
-                $.ajax({
-                    type: this.method,
-                    url: this.action,
-                    data: $(this).serialize(),
-                    dataType: 'json',
-                    success: function (response) {
-                        if (currentURL !== '{% url 'cinema:index' %}') {
-                            window.location.replace('{% url 'cinema:index' %}')
-                        } else {
-                            $('#search_part').html(response.html);
-                        }
-                    },
-                    error: function (response) {
-                        $('#search_part').html(response.html);
-                    }
-                })
-            })
-        })
-    </script>
 {% endblock %}

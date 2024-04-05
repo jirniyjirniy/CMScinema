@@ -1,10 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 
-from .models import MovieCard, Gallery, GalleryImage, Cinema, CinemaHall, MovieSes, Pages, \
-    NewsEvents, MainPage, Contacts, Genre, CinemaCity, Reservation, SeoBlock, Banner, BannerSettings
-
 from adminpage.models import EmailTemplate
+
+from .models import (BackgroundBanner, Banner, BannerSettings, Cinema,
+                     CinemaCity, CinemaHall, Contacts, Gallery, GalleryImage,
+                     Genre, MainPage, MovieCard, MovieSes, NewsEvents, Pages,
+                     Reservation, SeoBlock)
 
 admin.site.register(MovieCard)
 admin.site.register(Gallery)
@@ -23,4 +25,5 @@ admin.site.register(SeoBlock)
 admin.site.register(Banner)
 admin.site.register(BannerSettings)
 admin.site.register(EmailTemplate)
+admin.site.register(BackgroundBanner)
 

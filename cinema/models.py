@@ -22,6 +22,7 @@ class MovieCard(models.Model):
     artist = models.CharField(max_length=250)
     screenwriter = models.CharField(max_length=250)
     status = models.BooleanField(default=False)
+    seo_block = models.ForeignKey('SeoBlock', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -52,7 +53,7 @@ class GalleryImage(models.Model):
     gallery = models.ForeignKey('Gallery', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.title
+        return self.image.name
 
 
 class Cinema(models.Model):
@@ -177,6 +178,7 @@ class Contacts(models.Model):
     coords = models.CharField(max_length=200)
     logo = models.ImageField(upload_to='cinema_image/main_images/contacts/%Y/%m/%d/', blank=True)
     status = models.BooleanField(default=True)
+    seo_block = models.ForeignKey('SeoBlock', on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.title} - {self.address}'
@@ -224,3 +226,15 @@ class BannerSettings(models.Model):
 
     def __str__(self):
         return self.banner.type
+
+
+class BackgroundBanner(models.Model):
+    class Type(models.TextChoices):
+        PHOTO = 'PHOTO', 'Photo'
+        JUST = 'JUST', "Just"
+
+    type = models.CharField(max_length=5, choices=Type.choices, default=Type.PHOTO)
+    image = models.ImageField(upload_to='cinema_image/main_images/background_banner/%Y/%m/%d/')
+
+    def __str__(self):
+        return f'Background banner {self.type}'

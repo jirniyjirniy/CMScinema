@@ -78,7 +78,7 @@
                                 </li>
                             </ul>
                             <label style="margin-right: 10px;" for="">+380(630)-111-111</label>
-                            <form class="d-flex" role="search" id="search_form" action="{% url 'cinema:index_search' %}"
+                            <form class="d-flex" role="search" id="search_form" action="{% url "cinema:index" %}"
                                   method="get">
                                 {% csrf_token %}
                                 <input class="form-control me-2" type="search" placeholder="Поиск"
