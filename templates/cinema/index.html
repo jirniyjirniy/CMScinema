@@ -1,45 +1,60 @@
 {% extends 'cinema/base.html' %}
 {% load static %}
 
-{% block title %}Main Page{% endblock %}
-{% block body_style %}style="background-image:
-    url(https://m.media-amazon.com/images/M/MV5BOGE4NzU1YTAtNzA3Mi00ZTA2LTg2YmYtMDJmMThiMjlkYjg2XkEyXkFqcGdeQXVyNTgzMDMzMTg@._V1_FMjpg_UX1000_.jpg);"{% endblock %}
+{% block title %}{{ seo_block.title }}{% endblock %}
+{% block body_style %}
+    {% if back_ground_image.type == 'JUST' %}
+    {% else %}
+        style="background-image: url('{{ back_ground_image.image.url }}')"
+    {% endif %}
+{% endblock %}
+
+{% block seo_block %}
+    <meta name="description" content="{{ seo_block.desc }}">
+    <meta name="keywords" content="{{ seo_block.keywords }}">
+{% endblock %}
+
 {% block content %}
     <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
         <div class="container-fluid">
-            <div class="col-md-8" style="margin-left: 18%;">
-                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-                    <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            {% for image in gallery_images %}
-                                <div class="carousel-item active" data-bs-interval="2000">
-                                    <img src="{{ image.image.url }}" class="d-block w-100" alt="...">
-                                </div>
-                            {% endfor %}
+            {% if galley_rotation_status == True %}
+                <div class="col-md-8" style="margin-left: 18%;">
+                    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                        <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for image in gallery_images %}
+                                    <div class="carousel-item active" data-bs-interval="{{ galley_rotation_speed }}">
+                                        <img src="{{ image.image.url }}" class="d-block w-100" alt="...">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#carouselExampleInterval"
+                                    data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button"
+                                    data-bs-target="#carouselExampleInterval"
+                                    data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
                                 data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval"
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
                                 data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
-                            data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
-                            data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
                 </div>
-            </div>
+            {% else %}
+            {% endif %}
             <div class="row" style="margin-left: 20%;">
                 <div class="left-ads-display col-lg-9" style="width: 1500px;">
                     <div class="left-ads-display col-lg-10">
@@ -51,7 +66,7 @@
                                     <div class="product-shoe-info editContent text-center mt-lg-4"
                                          style="background-color: whitesmoke;">
                                         <div class="men-thumb-item">
-                                            <img src="
+                                            <img src=" 
                                                     {% if movie.main_image %}{{ movie.main_image.url }}{% else %}https://s3.vcdn.biz/static/f/5768112441/image.jpg/pt/r375x0x4{% endif %}"
                                                  class="img-fluid" alt="">
                                         </div>
@@ -99,6 +114,45 @@
                     </div>
                 </div>
             </div>
+            {% if events_rotation_status == True %}
+                <div class="col-md-8" style="margin-left: 18%;">
+                    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                        <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for image in events_news_gallery %}
+                                    <div class="carousel-item active" data-bs-interval="{{ events_rotation_speed }}">
+                                        <img src="{{ image.image.url }}" class="d-block w-100" alt="...">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#carouselExampleInterval"
+                                    data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button"
+                                    data-bs-target="#carouselExampleInterval"
+                                    data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+            {% else %}
+            {% endif %}
+        {{ seo_information.seo_text }}
         </div>
     </section>
 {% endblock %}

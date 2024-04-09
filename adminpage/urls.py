@@ -6,7 +6,8 @@ from .views import (BannerPageView, CinemaAddView, CinemaHallView,
                     NewsView, PagesView, PageView, StatsPage, TopBannerView,
                     delete_cinema, delete_contact, delete_events, delete_hall,
                     delete_news, delete_template, delete_user, films_page,
-                    process_form, upload_template, user_page, user_save_data)
+                    process_form, upload_template, user_page, user_save_data,
+                    NewsEventsBanner, update_rotation_speed, MiddleBanner, delete_middle_image, update_status)
 
 app_name = 'adminlte'
 
@@ -35,6 +36,11 @@ urlpatterns = [
     path('events/delete/<int:event_id>/', delete_events, name='delete_event'),
     path('page-detail/<int:page_id>/', PageView.as_view(), name='page_detail'),
     path('top_banner/', TopBannerView.as_view(), name='top_banner'),
+    path('middle_banner', MiddleBanner.as_view(), name='middle_banner'),
+    path('delete_middle_image/', delete_middle_image, name='delete_middle_image'),
+    path('bot_banner/', NewsEventsBanner.as_view(), name='bot_banner'),
+    path('banner_settings/', update_rotation_speed, name='update_rotation_speed'),
+    path('banner_status/', update_status, name='update_status'),
     path('pages/', PagesView.as_view(), name='pages'),
     path('page-add/', PageView.as_view(), name='page_add'),
     path('page/main-page/', MainPageView.as_view(), name='main_page'),
@@ -44,5 +50,5 @@ urlpatterns = [
     path('delete_template/<int:template_id>', delete_template, name='delete_template'),
     path('test/', process_form, name='process_form'),
     path('stats/', StatsPage.as_view(), name='stats_page'),
-    path('delete_contact/<int:contact_id>/', delete_contact, name='delete_contact')
+    path('delete_contact/<int:contact_id>/', delete_contact, name='delete_contact'),
 ]

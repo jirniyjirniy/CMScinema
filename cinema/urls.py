@@ -4,7 +4,7 @@ from .views import (MovieSessionsAjaxView, ScheduleAjaxFilter, about_cinema,
                     afisha, bar_page, cinema_card, cinema_contacts, cinemas,
                     event_card, events, hall_card, index, movie_detail, news,
                     news_card, reserve_seats, schedule, soon, ticket_booking,
-                    user_page)
+                    user_page, PagesView)
 
 app_name = 'cinema'
 
@@ -30,4 +30,5 @@ urlpatterns = [
     path('user_page/', user_page, name='user_page'),
     path('movie/sessions/ajax/', MovieSessionsAjaxView.as_view(), name='movie_sessions_ajax'),
     path('reserve_seats/', reserve_seats, name='reserve_seats'),
+    path('page/<str:url>/', PagesView.as_view(), name='pages'),
 ]

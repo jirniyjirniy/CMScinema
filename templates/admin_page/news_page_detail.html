@@ -10,6 +10,14 @@
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
+                    <ul class="nav nav-tabs mb-2">
+                        <li class="nav-item ml-auto">
+                            <a class="nav-link active" id="tab-en">English</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab-uk">Українська</a>
+                        </li>
+                    </ul>
                     {% if new_id %}
                         <form enctype="multipart/form-data" action="{% url 'adminlte:news_edit' new_id %}"
                               method="post" novalidate>
@@ -22,9 +30,13 @@
                     {{ formset.management_form }}
                     <div class="card-body">
                         <div class="row form-group">
-                            <div class="col-md-4">
-                                <label for="exampleInputText1">Название новости</label>
-                                {{ form.title }}
+                            <div class="col-md-4 uk">
+                                <label for="exampleInputText1">New title in Ukrainian</label>
+                                {{ form.title_uk }}
+                            </div>
+                            <div class="col-md-4 en">
+                                <label for="exampleInputText1">New title in English</label>
+                                {{ form.title_en }}
                             </div>
                             <div class="col-md-4">
                                 <label for="exampleInputText2">Дата</label>
@@ -41,18 +53,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Описание</label>
-                            {{ form.desc }}
+                        <div class="form-group uk">
+                            <label>Description in Ukrainian</label>
+                            {{ form.desc_uk }}
+                        </div>
+                        <div class="form-group en">
+                            <label>Description in English</label>
+                            {{ form.desc_en }}
                         </div>
                         <label>Главная картинка</label>
                         <div class="row">
                             <div class="col-md-2">
                                 <img src="
-                                        
-                                        
-                                        
-                                        
                                         {% if form.main_image.value %}{{ form.main_image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
                                      class="img-fluid mb-2"
                                      alt="gray sample" style="width:100%;" id="mainImage"/>
@@ -70,11 +82,6 @@
                                     <a href="https://via.placeholder.com/300.png?text=No+Image"
                                        data-toggle="lightbox" data-title="sample 2 - black" data-gallery="gallery">
                                         <img id="top-image-{{ forloop.counter0 }}-image" src="
-                                                    
-                                                
-                                                
-                                                
-                                                
                                                 {% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
                                              class="img-fluid mb-2" alt="black sample" style="width:100%;"/>
                                     </a>
@@ -225,6 +232,23 @@
             $checkbox.prop('checked', true);
             $card.hide();
         })
+
+        $('.uk').hide();
+
+        $('.row .nav-link').click(function () {
+            const clickedTabId = $(this).attr('id');
+
+            $('.row .nav-link').removeClass('active');
+            $(this).addClass('active');
+
+            if (clickedTabId === 'tab-en') {
+                $('.uk').hide();
+                $('.en').show();
+            } else {
+                $('.uk').show();
+                $('.en').hide();
+            }
+        });
 
     </script>
 

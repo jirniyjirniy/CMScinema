@@ -2,6 +2,13 @@
 {% load static %}
 {% block content %}
     <div class="content-wrapper" style="background-color: white;">
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
         <h1 style="margin-left: 40%;"> На главной верх </h1>
         <form action="{% url 'adminlte:top_banner' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -9,12 +16,29 @@
             <div class="row"
                  style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;"
                  id="gallery-container">
+                <div class="col-md-2">
+                    <label for="exampleInputText1">Статус</label>
+                    <div class="d-flex col-md-2">
+                        <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
+                        <div class="form-check form-switch">
+                            {% if top_banner_settings.status == True %}
+                                <input type="checkbox" name="status" class="form-check-input" role="switch"
+                                       id="top_banner" checked="">
+                            {% else %}
+                                <input type="checkbox" name="status" class="form-check-input" role="switch"
+                                       id="top_banner">
+                            {% endif %}
+                        </div>
+                        <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
+                    </div>
+                </div>
                 {% for form in top_formset %}
                     <div id="gallery-form"
                          style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
                         <img src="
                                 
-                                {% if form.image.value %}{{ form.image.value.url }}{% else %}'https://via.placeholder.com/300.png?text=No+Image'{% endif %}"
+                                
+                                {% if form.image.value %}{{ form.image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
                              alt="Картинка с крестиком"
                              style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;"
                              id="top-image-{{ forloop.counter0 }}-image">
@@ -24,7 +48,7 @@
                         {{ form.image }}
                         {{ form.url }}
                         {{ form.text }}
-                        {{ gallery_form.DELETE }}
+                        {{ form.DELETE }}
                         <button class="delete-advertisement-banner-button">Удалить</button>
                     </div>
                 {% endfor %}
@@ -36,11 +60,20 @@
                 </button>
                 <div style="margin-right: 10px; max-width: 300px; text-align: center; margin-bottom: 20px;">
                     <label for="rotation-speed">Скорость вращения:</label>
-                    <select id="rotation-speed"
+                    <select id="top-rotation-speed"
                             style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box;">
-                        <option value="1sec">1sec</option>
-                        <option value="2sec">2sec</option>
-                        <option value="3sec">3sec</option>
+                        <option value="{{ top_banner_settings.rotation_speed }}">
+                            {% if top_banner_settings.rotation_speed == 1000 %}
+                                1sec
+                            {% elif top_banner_settings.rotation_speed == 2000 %}
+                                2sec
+                            {% elif top_banner_settings.rotation_speed == 3000 %}
+                                3sec
+                            {% endif %}
+                        </option>
+                        <option value="1000">1sec</option>
+                        <option value="2000">2sec</option>
+                        <option value="3000">3sec</option>
                     </select>
                 </div>
 
@@ -56,72 +89,111 @@
             </div>
         </form>
         <h1 style="margin-left: 40%;">Сквозной банер на заднем фоне</h1>
-        <div class="row"
-             style="border: 1px solid #000; border-radius: 30px; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
-            <div class="radio-buttons" style="display: flex; flex-direction: column;">
-                <label style="margin-bottom: 10px; display: block;">
-                    <input type="radio" name="photoSelection" value="background"> Фото на фон
-                </label>
-                <label style="display: block;">
-                    <input type="radio" name="photoSelection" value="plain"> Просто
-                </label>
-            </div>
-            <div class="content">
-                <img src="{% static 'img/200.jpeg' %}" alt="Картинка с крестиком"
-                     id="background-image"
-                     style="width: 260px; height: 200px; cursor: pointer; margin-right: 20px;">
-                <input type="file" id="photoFile" style="display: none;">
-                <button id="add-photo"
-                        style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;"
-                        onclick="document.getElementById('photoFile').click();">
-                    Добавить фото
+        <form action="{% url 'adminlte:middle_banner' %}" enctype="multipart/form-data" method="post">
+            {% csrf_token %}
+            <div class="row"
+                 style="border: 1px solid #000; border-radius: 30px; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
+                <div class="radio-buttons" style="display: flex; flex-direction: column;">
+                    {{ back_banner.type }}
+                </div>
+                <div class="content">
+                    {{ back_banner.image }}
+                    <img src="{{ back_banner.image.value.url }}" alt="Картинка с крестиком"
+                         id="background-image"
+                         style="width: 260px; height: 200px; cursor: pointer; margin-right: 20px;">
+                    <button type="button" id="add-photo"
+                            style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;"
+                            onclick="document.getElementById('photoFile').click();">
+                        Добавить фото
+                    </button>
+                    <a href="{% url 'adminlte:delete_middle_image' %}" id="remove-photo"
+                       style="background-color: red; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;">
+                        Удалить фото
+                    </a>
+                </div>
+                <button type="submit"
+                        class="btn btn-success">
+                    Сохранить
                 </button>
-                <button id="remove-photo"
-                        style="background-color: red; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;">
-                    Удалить фото
-                </button>
             </div>
-        </div>
+        </form>
         <h1 style="margin-left: 40%;"> На главной Новости Акции </h1>
-        <div class="row"
-             style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;">
-            <div
-                    style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
-                <img src="{% static 'img/200.jpeg' %}" alt="Картинка с крестиком"
-                     style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;">
-                <input type="text" style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box;"
-                       placeholder="Ссылка на картинку">
-                <textarea style="margin: 10px 0; width: 100%; height: 80px; padding: 8px; box-sizing: border-box;"
-                          placeholder="Введите текст"></textarea>
+        <form action="{% url 'adminlte:bot_banner' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ bot_formset.management_form }}
+            <div class="row"
+                 style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;"
+                 id="bot-gallery-container">
+                <div class="col-md-2">
+                    <label for="exampleInputText1">Статус</label>
+                    <div class="d-flex col-md-2">
+                        <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
+                        <div class="form-check form-switch">
+                            {% if bot_banner_settings.status == True %}
+                                <input type="checkbox" name="status" class="form-check-input" role="switch"
+                                       id="bot_banner" checked="">
+                            {% else %}
+                                <input type="checkbox" name="status" class="form-check-input" role="switch"
+                                       id="bot_banner">
+                            {% endif %}
+                        </div>
+                        <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
+                    </div>
+                </div>
+                {% for form in bot_formset %}
+                    <div id="bot-gallery-form"
+                         style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
+                        <img src="{% if form.image.value %}{{ form.image.value.url }}
+{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                             alt="Картинка с крестиком"
+                             style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;"
+                             id="bot-image-{{ forloop.counter0 }}-image">
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                        {{ form.image }}
+                        {{ form.url }}
+                        {{ form.text }}
+                        {{ form.DELETE }}
+                        <button class="delete-bot-banner-button">Удалить</button>
+                    </div>
+                {% endfor %}
                 <button
-                        style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 100%;">
+                        style="margin-top: 240px; background-color: #2ecc71; color: white; padding: 5px; border: none; cursor: pointer; width: 305px; height: 55px;"
+                        type="button" id="add-bot-gallery-form">
                     Добавить
                     фото
                 </button>
-            </div>
-            <button
-                    style="margin-top: 240px; background-color: #2ecc71; color: white; padding: 5px; border: none; cursor: pointer; width: 305px; height: 55px;">
-                Добавить
-                фото
-            </button>
-            <div style="margin-right: 10px; max-width: 300px; text-align: center; margin-bottom: 20px;">
-                <label for="rotation-speed">Скорость вращения:</label>
-                <select id="rotation-speed" style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box;">
-                    <option value="1sec">1sec</option>
-                    <option value="2sec">2sec</option>
-                    <option value="3sec">3sec</option>
-                </select>
-            </div>
+                <div style="margin-right: 10px; max-width: 300px; text-align: center; margin-bottom: 20px;">
+                    <label for="rotation-speed">Скорость вращения:</label>
+                    <select id="bot-rotation-speed"
+                            style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box;">
+                        <option value="{{ bot_banner_settings.rotation_speed }}">
+                            {% if bot_banner_settings.rotation_speed == 1000 %}
+                                1sec
+                            {% elif bot_banner_settings.rotation_speed == 2000 %}
+                                2sec
+                            {% elif bot_banner_settings.rotation_speed == 3000 %}
+                                3sec
+                            {% endif %}
+                        </option>
+                        <option value="1000">1sec</option>
+                        <option value="2000">2sec</option>
+                        <option value="3000">3sec</option>
+                    </select>
+                </div>
 
-            <div
-                    style="max-width: 500px; text-align: center; margin-bottom: 20px; margin-top: 40px; margin-left: 100px;">
-                <button
-                        style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 100%;">
-                    Сохранить
-                    все
-                </button>
+                <div
+                        style="max-width: 500px; text-align: center; margin-bottom: 20px; margin-top: 40px; margin-left: 100px;">
+                    <button
+                            style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 100%;"
+                            type="submit">
+                        Сохранить
+                        все
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 {% endblock %}
 {% block script %}
@@ -156,12 +228,17 @@
             });
         });
 
+        document.querySelectorAll('[id^="id_bot-banner-formset-"]').forEach(function (input) {
+            input.addEventListener('change', function () {
+                var previewId = this.id.replace('id_bot-banner-formset-', 'bot-image-').replace('-image', '-image');
+                handlePreview(this, previewId);
+            });
+        });
+
         let galleryForm = document.querySelectorAll('#gallery-form');
         let totalForms = document.querySelector("#id_top-banner-formset-TOTAL_FORMS");
         let addButton = document.querySelector("#add-gallery-form");
         let container = document.querySelector('#gallery-container');
-
-        let emptyForm = document.querySelectorAll('#empty-form');
 
         let formNum = galleryForm.length - 1;
         addButton.addEventListener('click', addGalleryCard)
@@ -170,27 +247,30 @@
             e.preventDefault();
 
             let tempElement =
-                `<div id="gallery-form" style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
-                <img src="" alt="Картинка с крестиком" style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="id_top-image-0-image">
+                `<img src="" alt="Картинка с крестиком" style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="id_top-image-0-image">
                 <input type="hidden" name="top-banner-formset-0-id" value="" id="id_top-banner-formset-0-id">
                 <input type="file" name="top-banner-formset-0-image" class="form-control" id="id_top-banner-formset-0-image" accept="image/*">
                 <input type="text" name="top-banner-formset-0-url" value="" style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box" placeholder="Ссылка на картинку" maxlength="250" id="id_top-banner-formset-0-url">
                 <textarea name="top-banner-formset-0-text" cols="40" rows="10" style="margin: 10px 0; width: 100%; height: 80px; padding: 8px; box-sizing: border-box" placeholder="Введите текст" id="id_top-banner-formset-0-text"></textarea>
-            </div>`
+                <input type="checkbox" name="top-banner-formset-0-DELETE" id="id_top-banner-formset-0-DELETE" style="display: none;">
+                <button class="delete-advertisement-banner-button">Удалить</button>`
 
-            let newForm = document.createElement('div');
+            {#let newForm = document.createElement('div');#}
+            let newForm = galleryForm[0].cloneNode(true);
             newForm.innerHTML = tempElement;
 
             let formImageRegex = RegExp(`top-banner-formset-(\\d+)-image`, 'i');
             let formIdRegex = RegExp(`top-banner-formset-(\\d+)-id`, 'i');
             let formUrlRegex = RegExp(`top-banner-formset-(\\d+)-url`, 'i');
             let formTextRegex = RegExp(`top-banner-formset-(\\d+)-text`, 'i');
+            let formButtonRegex = RegExp(`top-banner-formset-(\\d+)-DELETE`, 'i');
 
             formNum++;
             newForm.innerHTML = newForm.innerHTML.replace(formIdRegex, `top-banner-formset-${formNum}-id`);
             newForm.innerHTML = newForm.innerHTML.replace(formImageRegex, `top-banner-formset-${formNum}-image`);
             newForm.innerHTML = newForm.innerHTML.replace(formUrlRegex, `top-banner-formset-${formNum}-url`);
             newForm.innerHTML = newForm.innerHTML.replace(formTextRegex, `top-banner-formset-${formNum}-text`);
+            newForm.innerHTML = newForm.innerHTML.replace(formButtonRegex, `top-banner-formset-${formNum}-DELETE`);
 
             let image = newForm.querySelector('#id_top-banner-formset-0-image');
             let newId = `id_top-banner-formset-${formNum}-image`;
@@ -211,15 +291,195 @@
             totalForms.value = formNum + 1;
         }
 
-        $(document).on('click', '.delete-advertisement-banner-button', function (event) {
-            event.preventDefault(); // Предотвращаем стандартное поведение кнопки
 
-            const $card = $(this).closest('#gallery-form'); // Исправляем селектор, чтобы найти ближайшую форму галереи
-            const $checkbox = $card.find('input[name^="top-banner-formset"][name$="-DELETE"]'); // Находим чекбокс удаления
-            $checkbox.prop('checked', true); // Устанавливаем значение чекбокса в true
-            $card.hide(); // Скрываем форму галереи
+        let botGalleryForm = document.querySelectorAll('#bot-gallery-form');
+        let botTotalForms = document.querySelector("#id_bot-banner-formset-TOTAL_FORMS");
+        let botAddButton = document.querySelector("#add-bot-gallery-form");
+        let botContainer = document.querySelector('#bot-gallery-container');
+
+        let formBotNum = botGalleryForm.length - 1;
+        botAddButton.addEventListener('click', addBotGalleryCard)
+
+        function addBotGalleryCard(e) {
+            e.preventDefault();
+
+            let tempElement =
+                `<img src="" alt="Картинка с крестиком" style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="id_bot-image-0-image">
+                <input type="hidden" name="bot-banner-formset-0-id" value="" id="id_bot-banner-formset-0-id">
+                <input type="file" name="bot-banner-formset-0-image" class="form-control" id="id_bot-banner-formset-0-image" accept="image/*">
+                <input type="text" name="bot-banner-formset-0-url" value="" style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box" placeholder="Ссылка на картинку" maxlength="250" id="id_bot-banner-formset-0-url">
+                <textarea name="bot-banner-formset-0-text" cols="40" rows="10" style="margin: 10px 0; width: 100%; height: 80px; padding: 8px; box-sizing: border-box" placeholder="Введите текст" id="id_bot-banner-formset-0-text"></textarea>
+                <input type="checkbox" name="bot-banner-formset-0-DELETE" id="id_bot-banner-formset-0-DELETE" style="display: none;">
+                <button class="delete-bot-banner-button">Удалить</button>`
+
+            {#let newForm = document.createElement('div');#}
+            let newForm = galleryForm[0].cloneNode(true);
+            newForm.innerHTML = tempElement;
+
+            let formImageRegex = RegExp(`bot-banner-formset-(\\d+)-image`, 'i');
+            let formIdRegex = RegExp(`bot-banner-formset-(\\d+)-id`, 'i');
+            let formUrlRegex = RegExp(`bot-banner-formset-(\\d+)-url`, 'i');
+            let formTextRegex = RegExp(`bot-banner-formset-(\\d+)-text`, 'i');
+            let formButtonRegex = RegExp(`bot-banner-formset-(\\d+)-DELETE`, 'i');
+
+            formBotNum++;
+            newForm.innerHTML = newForm.innerHTML.replace(formIdRegex, `bot-banner-formset-${formBotNum}-id`);
+            newForm.innerHTML = newForm.innerHTML.replace(formImageRegex, `bot-banner-formset-${formBotNum}-image`);
+            newForm.innerHTML = newForm.innerHTML.replace(formUrlRegex, `bot-banner-formset-${formBotNum}-url`);
+            newForm.innerHTML = newForm.innerHTML.replace(formTextRegex, `bot-banner-formset-${formBotNum}-text`);
+            newForm.innerHTML = newForm.innerHTML.replace(formButtonRegex, `bot-banner-formset-${formBotNum}-DELETE`);
+
+            let image = newForm.querySelector('#id_bot-banner-formset-0-image');
+            let newId = `id_bot-banner-formset-${formBotNum}-image`;
+            image.id = newId;
+
+            let photo = newForm.querySelector('#id_bot-image-0-image');
+            let newPhotoId = `bot-image-${formBotNum}-image`;
+            photo.id = newPhotoId;
+            photo.src = 'https://via.placeholder.com/300.png?text=No+Image'
+
+
+            image.addEventListener('change', function () {
+                handlePreview(this, newPhotoId);
+            });
+
+            botContainer.insertBefore(newForm, botAddButton);
+
+            botTotalForms.value = formBotNum + 1;
+        }
+
+
+        $(document).on('click', '.delete-advertisement-banner-button', function (event) {
+            event.preventDefault();
+
+            const $card = $(this).closest('#gallery-form');
+            const $checkbox = $card.find('input[name^="top-banner-formset"][name$="-DELETE"]');
+            $checkbox.prop('checked', true);
+            $card.hide();
         });
 
+        $(document).on('click', '.delete-bot-banner-button', function (event) {
+            event.preventDefault();
+
+            const $card = $(this).closest('#bot-gallery-form');
+            const $checkbox = $card.find('input[name^="bot-banner-formset"][name$="-DELETE"]');
+            $checkbox.prop('checked', true);
+            $card.hide();
+        });
+
+        $(document).ready(function () {
+            $('#top-rotation-speed').change(function () {
+                var rotationSpeed = $(this).val();
+                console.log(rotationSpeed)
+
+                var csrftoken = getCookie('csrftoken');
+
+                $.ajax({
+                    url: "{% url 'adminlte:update_rotation_speed' %}",
+                    type: "POST",
+                    data: JSON.stringify({'rotation_speed': rotationSpeed, 'banner_type': 'TOP'}),
+                    processData: false,
+                    contentType: "application/json",
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    },
+                    success: function (response) {
+
+                    },
+                    error: function (xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText);
+                    }
+                });
+
+            });
+
+            $('#bot-rotation-speed').change(function () {
+                var rotationSpeed = $(this).val();
+                console.log(rotationSpeed)
+
+                var csrftoken = getCookie('csrftoken');
+
+                $.ajax({
+                    url: "{% url 'adminlte:update_rotation_speed' %}",
+                    type: "POST",
+                    data: JSON.stringify({'rotation_speed': rotationSpeed, 'banner_type': 'BOT'}),
+                    processData: false,
+                    contentType: "application/json",
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    },
+                    success: function (response) {
+
+                    },
+                    error: function (xhr, errmsg, err) {
+                        window.alert('Сначала добавьте карточку')
+                    }
+                });
+
+            });
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            $(document).ready(function () {
+                $('#top_banner').change(function () {
+                    var status = this.checked ? 'ВКЛ' : 'ВЫКЛ';
+                    var csrftoken = getCookie('csrftoken');
+
+                    $.ajax({
+                        url: "{% url 'adminlte:update_status' %}",
+                        type: "POST",
+                        data: JSON.stringify({'status': status, 'banner_type': 'top'}),
+                        processData: false,
+                        contentType: "application/json",
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        },
+                        success: function (response) {
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log(xhr.status + ": " + xhr.responseText);
+                        }
+                    });
+                });
+            });
+
+            $(document).ready(function () {
+                $('#bot_banner').change(function () {
+                    var status = this.checked ? 'ВКЛ' : 'ВЫКЛ';
+                    var csrftoken = getCookie('csrftoken');
+
+                    $.ajax({
+                        url: "{% url 'adminlte:update_status' %}",
+                        type: "POST",
+                        data: JSON.stringify({'status': status, 'banner_type': 'bot'}),
+                        processData: false,
+                        contentType: "application/json",
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        },
+                        success: function (response) {
+                        },
+                        error: function (xhr, errmsg, err) {
+                            console.log(xhr.status + ": " + xhr.responseText);
+                        }
+                    });
+                });
+            });
+
+        });
 
     </script>
 {% endblock %}

@@ -1,7 +1,13 @@
 import calendar
+import json
+import os
 from datetime import datetime, timedelta
 
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.staticfiles import finders
 from django.db.models import Count, Sum
+from django.db.models.fields.related import ForeignKey, OneToOneField
 from django.http import HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -12,12 +18,13 @@ from adminpage.forms import (BannerTopFormset, BannerTopFormsetSecond,
                              CinemaForm, ContanctPageForm, ContanctPageFormset,
                              ContanctPageFormsetSecond, EventsNewsPageForm,
                              GalleryFormSet, GalleryFormSetSecond, HallForm,
-                             MainPageForm, MovieForm, PagesForm, SeoForm)
+                             MainPageForm, MovieForm, PagesForm, SeoForm, BannerNewsEventsFormset,
+                             BannerNewsEventsFormsetSecond, BackBanner)
 from adminpage.models import EmailTemplate
 from authy.models import CustomUser
 from cinema.models import (Banner, Cinema, CinemaHall, Contacts, Gallery,
                            GalleryImage, MainPage, MovieCard, NewsEvents,
-                           Pages, Reservation, SeoBlock)
+                           Pages, Reservation, SeoBlock, BannerSettings, BackgroundBanner)
 
 from .tasks import send_email_task
 
@@ -93,9 +100,11 @@ class FilmPage(View):
         seo_form = SeoForm(request.POST, prefix='seo-form')
 
         if form.is_valid() and seo_form.is_valid():
-            title = form.cleaned_data['title']
+            title = form.cleaned_data['title_uk']
+            title_en = form.cleaned_data['title_en']
+            desc = form.cleaned_data['desc_uk']
+            desc_en = form.cleaned_data['desc_en']
             trailer_url = form.cleaned_data['trailer_url']
-            desc = form.cleaned_data['desc']
             main_image = form.cleaned_data['main_image']
             seo, created = SeoBlock.objects.get_or_create(url=seo_form.cleaned_data['url'],
                                                           title=seo_form.cleaned_data['title'],
@@ -108,9 +117,11 @@ class FilmPage(View):
                 if page.title != title:
                     page.gallery.title = title
                     page.gallery.save()
-                page.title = title
+                page.title_uk = title
+                page.title_en = title_en
                 page.trailer_url = trailer_url
-                page.desc = desc
+                page.desc_uk = desc
+                page.desc_en = desc_en
                 if main_image:
                     page.main_image = main_image
 
@@ -135,7 +146,11 @@ class FilmPage(View):
                 return redirect('adminlte:films_page')
             else:
                 if any(forms.has_changed() for forms in formset):
-                    gallery, created = Gallery.objects.get_or_create(title=title)
+                    gallery = Gallery.objects.filter(title=title_en).first()
+
+                    if not gallery:
+                        # Если галереи с указанным заголовком не существует, создаем новую галерею
+                        gallery, created = Gallery.objects.create(title=title_en)
 
                     for form in formset:
                         if form.is_valid() and form.has_changed():
@@ -147,9 +162,23 @@ class FilmPage(View):
                         if form.instance.id:
                             form.instance.delete()
 
-                    about_film = MovieCard.objects.create(title=title, trailer_url=trailer_url, desc=desc,
-                                                          main_image=main_image,
-                                                          seo_block=seo, gallery=gallery, data=datetime.now())
+                    movie_args = {
+                        'title_en': title_en,
+                        'desc_en': desc_en,
+                        'trailer_url': trailer_url,
+                        'main_image': main_image,
+                        'seo_block': seo,
+                        'gallery': gallery,
+                        'data': datetime.now(),
+                        'url': "-".join(seo.url.split()).lower()
+                    }
+
+                    if title:
+                        movie_args['title_uk'] = title
+                    if desc:
+                        movie_args['desc_uk'] = desc
+
+                    about_film = MovieCard.objects.create(**movie_args)
 
                 return redirect('adminlte:films_page')
 
@@ -200,9 +229,12 @@ class CinemaAddView(View):
 
             # formset.save()
 
-            title = form.cleaned_data['title']
-            description = form.cleaned_data['desc']
-            conditions = form.cleaned_data['conditions']
+            title = form.cleaned_data['title_uk']
+            title_en = form.cleaned_data['title_en']
+            description = form.cleaned_data['desc_uk']
+            description_en = form.cleaned_data['desc_en']
+            conditions = form.cleaned_data['conditions_uk']
+            conditions_en = form.cleaned_data['conditions_en']
             logo = form.cleaned_data['logo']
             top_banner = form.cleaned_data['top_banner']
             seo_url = seo_form.cleaned_data['url']
@@ -217,11 +249,14 @@ class CinemaAddView(View):
             if cinema_id:
                 cinema = get_object_or_404(Cinema, id=cinema_id)
                 if cinema.title != title:
-                    cinema.gallery.title = title
+                    cinema.gallery.title = title_en
                     cinema.gallery.save()
-                cinema.title = title
-                cinema.desc = description
-                cinema.conditions = conditions
+                cinema.title_uk = title
+                cinema.desc_uk = description
+                cinema.conditions_uk = conditions
+                cinema.title_en = title_en
+                cinema.desc_en = description_en
+                cinema.conditions_en = conditions_en
                 if logo:
                     cinema.logo = logo
                 else:
@@ -252,7 +287,7 @@ class CinemaAddView(View):
                 return redirect('adminlte:cinema_list')
             else:
                 if any(forms.has_changed() for forms in formset):
-                    gallery, created = Gallery.objects.get_or_create(title=title)
+                    gallery, created = Gallery.objects.get_or_create(title=title_en)
 
                     for form in formset:
                         if form.is_valid() and form.has_changed():
@@ -264,8 +299,19 @@ class CinemaAddView(View):
                         if form.instance.id:
                             form.instance.delete()
 
-                    Cinema.objects.create(title=title, desc=description, conditions=conditions, logo=logo,
-                                          top_banner=top_banner, gallery=gallery, seo_block=seo_cinema)
+                    cinema_args = {
+                        'title_en': title_en,
+                        'desc_en': description_en,
+                        'conditions_en': conditions_en
+                    }
+
+                    if title:
+                        cinema_args['title_uk'] = title
+                    if description:
+                        cinema_args['desc_uk'] = description
+
+                    Cinema.objects.create(conditions=conditions, logo=logo,
+                                          top_banner=top_banner, gallery=gallery, seo_block=seo_cinema, **cinema_args)
                 return redirect('adminlte:cinema_list')
         else:
             return redirect('adminlte:cinema_list')
@@ -287,8 +333,7 @@ class CinemaHallView(View):
 
         if hall_id:
             seo_block_instance = hall_instance.seo_block
-            form = HallForm(initial={'hall_number': hall_instance.number, 'desc': hall_instance.desc,
-                                     'scheme': hall_instance.scheme, 'top_banner': hall_instance.top_banner})
+            form = HallForm(instance=hall_instance)
             formset = GalleryFormSetSecond(prefix='hall-formset',
                                            queryset=GalleryImage.objects.filter(gallery=hall_instance.gallery))
             seo_form = SeoForm(prefix='seo-form', instance=seo_block_instance)
@@ -314,8 +359,9 @@ class CinemaHallView(View):
         seo_form = SeoForm(request.POST, prefix='seo-form')
 
         if form.is_valid() and seo_form.is_valid():
-            hall_number = form.cleaned_data['hall_number']
-            desc = form.cleaned_data['desc']
+            hall_number = form.cleaned_data['number']
+            desc = form.cleaned_data['desc_uk']
+            desc_en = form.cleaned_data['desc_en']
             scheme = form.cleaned_data['scheme']
             top_banner = form.cleaned_data['top_banner']
             seo_url = seo_form.cleaned_data['url']
@@ -334,7 +380,10 @@ class CinemaHallView(View):
                     hall.gallery.title = f'{cinema.title} - {hall_number}'
                     hall.gallery.save()
                 hall.number = hall_number
-                hall.desc = desc
+                hall.desc_uk = desc
+                print(hall.desc_uk)
+                hall.desc_en = desc_en
+                print(hall.desc_en)
                 if scheme:
                     hall.scheme = scheme
                 else:
@@ -374,7 +423,8 @@ class CinemaHallView(View):
                         if form.instance.id:
                             form.instance.delete()
 
-                    CinemaHall.objects.create(number=hall_number, desc=desc, scheme=scheme, top_banner=top_banner,
+                    CinemaHall.objects.create(number=hall_number, desc_en=desc_en, desc_uk=desc if desc else None,
+                                              scheme=scheme, top_banner=top_banner,
                                               gallery=gallery, seo_block=seo_hall, cinema=cinema)
 
             return redirect("adminlte:cinema_edit", cinema_id=cinema_id)
@@ -429,10 +479,12 @@ class NewsView(View):
         print(f"Seo form errors: {seo_form.errors}")
 
         if form.is_valid() and seo_form.is_valid():
-            title = form.cleaned_data['title']
+            title = form.cleaned_data['title_uk']
+            title_en = form.cleaned_data['title_en']
             date = form.cleaned_data['date']
             status = form.cleaned_data['status']
-            description = form.cleaned_data['desc']
+            description = form.cleaned_data['desc_uk']
+            description_en = form.cleaned_data['desc_en']
             image = form.cleaned_data['main_image']
             url = form.cleaned_data['url']
             seo_url = seo_form.cleaned_data['url']
@@ -446,12 +498,14 @@ class NewsView(View):
             if new_id:
                 new = get_object_or_404(NewsEvents, id=new_id)
                 if new.title != title:
-                    new.gallery.title = title
+                    new.gallery.title = title_en
                     new.gallery.save()
-                new.title = title
+                new.title_uk = title
+                new.title_en = title_en
                 new.date = date
                 new.status = status
-                new.desc = description
+                new.desc_uk = description
+                new.desc_en = description_en
                 if image:
                     new.main_image = image
                 else:
@@ -476,7 +530,7 @@ class NewsView(View):
                 return redirect('adminlte:news_list')
             else:
                 if any(forms.has_changed() for forms in formset):
-                    gallery, created = Gallery.objects.get_or_create(title=title)
+                    gallery, created = Gallery.objects.get_or_create(title=title_en)
 
                     for form in formset:
                         if form.is_valid() and form.has_changed():
@@ -488,7 +542,10 @@ class NewsView(View):
                         if form.instance.id:
                             form.instance.delete()
 
-                    news = NewsEvents.objects.create(title=title, desc=description, main_image=image, gallery=gallery,
+                    news = NewsEvents.objects.create(title_en=title_en, title_uk=title if title else None,
+                                                     desc_en=description_en,
+                                                     desc_uk=description if description else None,
+                                                     main_image=image, gallery=gallery,
                                                      date=date, type='NEWS', url=url, status=status,
                                                      cinema=Cinema.objects.first(), seo_block=seo_news)
 
@@ -498,9 +555,17 @@ class NewsView(View):
 
 
 def delete_news(request, news_id):
-    new = NewsEvents.objects.get(id=news_id)
+    new = get_object_or_404(NewsEvents, id=news_id)
+
     new.delete()
-    return redirect("adminlte:news_list")
+
+    if new.gallery:
+        new.gallery.delete()
+
+    if new.seo_block:
+        new.seo_block.delete()
+
+    return redirect("adminlte:events_list")
 
 
 class EventListView(ListView):
@@ -544,10 +609,12 @@ class EventView(View):
         print(f"Seo form errors: {seo_form.errors}")
 
         if form.is_valid() and seo_form.is_valid():
-            title = form.cleaned_data['title']
+            title = form.cleaned_data['title_uk']
+            title_en = form.cleaned_data['title_en']
             date = form.cleaned_data['date']
             status = form.cleaned_data['status']
-            description = form.cleaned_data['desc']
+            description = form.cleaned_data['desc_uk']
+            description_en = form.cleaned_data['desc_en']
             image = form.cleaned_data['main_image']
             url = form.cleaned_data['url']
             seo_url = seo_form.cleaned_data['url']
@@ -561,18 +628,20 @@ class EventView(View):
             if event_id:
                 event = get_object_or_404(NewsEvents, id=event_id)
                 if event.title != title:
-                    event.gallery.title = title
+                    event.gallery.title = title_en
                     event.gallery.save()
-                event.title = title
+                event.title_uk = title
+                event.title_en = title_en
                 event.date = date
                 event.status = status
-                event.desc = description
+                event.desc_uk = description
+                event.desc_en = description_en
                 if image:
                     event.main_image = image
                 else:
-                    event.main_image = event.main_image.url
+                    event.main_image = event.main_image
                 event.url = url
-                gallery, created = Gallery.objects.get_or_create(title=title)
+                gallery, created = Gallery.objects.get_or_create(title=title_en)
 
                 for form in formset:
                     if form.is_valid():
@@ -592,7 +661,7 @@ class EventView(View):
                 return redirect('adminlte:events_list')
             else:
                 if any(forms.has_changed() for forms in formset):
-                    gallery, created = Gallery.objects.get_or_create(title=title)
+                    gallery, created = Gallery.objects.get_or_create(title=title_en)
 
                     for form in formset:
                         if form.is_valid() and form.has_changed():
@@ -604,7 +673,10 @@ class EventView(View):
                         if form.instance.id:
                             form.instance.delete()
 
-                    events = NewsEvents.objects.create(title=title, desc=description, main_image=image, gallery=gallery,
+                    events = NewsEvents.objects.create(title_en=title_en, desc_en=description_en,
+                                                       title_uk=title if title else None,
+                                                       desc_uk=description if description else None,
+                                                       main_image=image, gallery=gallery,
                                                        date=date, type='EVENTS', url=url, status=status,
                                                        cinema=Cinema.objects.first(), seo_block=seo_news)
 
@@ -614,8 +686,16 @@ class EventView(View):
 
 
 def delete_events(request, event_id):
-    event = NewsEvents.objects.get(id=event_id)
+    event = get_object_or_404(NewsEvents, id=event_id)
+
     event.delete()
+
+    if event.gallery:
+        event.gallery.delete()
+
+    if event.seo_block:
+        event.seo_block.delete()
+
     return redirect("adminlte:events_list")
 
 
@@ -746,21 +826,35 @@ class BannerPageView(View):
     template_name = 'admin_page/banner.html'
 
     def get(self, request, *args, **kwargs):
-        if Banner.objects.all():
-            top_formset = BannerTopFormsetSecond(prefix='top-banner-formset',
-                                                 queryset=Banner.objects.filter(type="TOP"))
-        else:
-            top_formset = BannerTopFormset(prefix='top-banner-formset')
-        return render(request, self.template_name, {'top_formset': top_formset})
+        top_formset = BannerTopFormset(prefix='top-banner-formset',
+                                       queryset=Banner.objects.filter(type="TOP"))
+        top_banner_settings = BannerSettings.objects.filter(banner__type='TOP').first()
+
+        bot_formset = BannerNewsEventsFormset(prefix='bot-banner-formset',
+                                              queryset=Banner.objects.filter(type='MAIN_NEWS'))
+        bot_banner_settings = BannerSettings.objects.filter(banner__type='MAIN_NEWS').first()
+
+        back_banner = BackBanner(instance=BackgroundBanner.objects.first())
+
+        return render(request, self.template_name, {'top_formset': top_formset, 'bot_formset': bot_formset,
+                                                    'top_banner_settings': top_banner_settings,
+                                                    'bot_banner_settings': bot_banner_settings,
+                                                    'back_banner': back_banner})
 
 
 class TopBannerView(View):
     def post(self, request, *args, **kwargs):
         formset = BannerTopFormset(request.POST, request.FILES, prefix='top-banner-formset')
+        top_banner_settings = BannerSettings.objects.filter(banner__type='TOP').first()
 
         for form in formset.forms:
             if form.is_valid() and form.has_changed():
-                form.save()
+                if top_banner_settings:
+                    banner = form.save()
+                    BannerSettings.objects.create(banner=banner, rotation_speed=top_banner_settings.rotation_speed)
+                else:
+                    banner = form.save()
+                    BannerSettings.objects.create(banner=banner, rotation_speed=1000)
 
         for form in formset.deleted_forms:
             if form.instance.id:
@@ -768,6 +862,126 @@ class TopBannerView(View):
                 form.instance.delete()
 
         return redirect('adminlte:banner_page')
+
+
+class MiddleBanner(View):
+    def post(self, request, *args, **kwargs):
+        back_banner = get_object_or_404(BackgroundBanner, pk=1)
+
+        form = BackBanner(request.POST, request.FILES, instance=back_banner)
+        if form.is_valid():
+            form.save()
+            return redirect('adminlte:banner_page')
+
+        type_data = request.POST.get('type')
+        if type_data:
+            back_banner.type = type_data
+            back_banner.save()
+            return redirect('adminlte:banner_page')
+
+        image_data = request.FILES.get('image')
+        if image_data:
+            back_banner.image = image_data
+            back_banner.save()
+            return redirect('adminlte:banner_page')
+
+        messages.error(request, 'Не было передано данных для обновления')
+        return redirect('adminlte:banner_page')
+
+
+def delete_middle_image(request):
+    back_banner = get_object_or_404(BackgroundBanner, pk=1)
+    default_image_path = 'images/icon-image-not-found-free-vector.jpg'
+    back_banner.image = default_image_path
+    back_banner.type = 'JUST'
+    back_banner.save()
+    return redirect('adminlte:banner_page')
+
+
+class NewsEventsBanner(View):
+    def post(self, request, *args, **kwargs):
+        formset = BannerNewsEventsFormset(request.POST, request.FILES, prefix='bot-banner-formset')
+        bot_banner_settings = BannerSettings.objects.filter(banner__type='MAIN_NEWS').first()
+
+        for form in formset.forms:
+            if form.is_valid() and form.has_changed():
+                form.instance.type = Banner.Types.MAIN_NEWS
+                if bot_banner_settings:
+                    banner = form.save()
+                    BannerSettings.objects.create(banner=banner, rotation_speed=bot_banner_settings.rotation_speed)
+                else:
+                    banner = form.save()
+                    BannerSettings.objects.create(banner=banner, rotation_speed=1000)
+
+        for form in formset.deleted_forms:
+            if form.instance.id:
+                form.instance.delete()
+
+        return redirect('adminlte:banner_page')
+
+
+def update_rotation_speed(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        rotation_speed = data.get('rotation_speed')
+        banner_type = data.get('banner_type')
+
+        if rotation_speed and banner_type:
+            if banner_type == 'TOP':
+                top_banners = Banner.objects.filter(type='TOP')
+                if top_banners.exists():
+                    for banner in top_banners:
+                        banner_settings, created = BannerSettings.objects.get_or_create(banner=banner, defaults={
+                            'rotation_speed': rotation_speed})
+                        if not created:
+                            banner_settings.rotation_speed = rotation_speed
+                            banner_settings.save()
+                    return JsonResponse({"success": True})
+                else:
+                    return JsonResponse({'success': False, 'error': 'No top banners found'})
+            elif banner_type == 'BOT':
+                bot_banners = Banner.objects.filter(type='MAIN_NEWS')
+                if bot_banners.exists():
+                    for banner in bot_banners:
+                        banner_settings, created = BannerSettings.objects.get_or_create(banner=banner, defaults={
+                            'rotation_speed': rotation_speed})
+                        if not created:
+                            banner_settings.rotation_speed = rotation_speed
+                            banner_settings.save()
+                    return JsonResponse({"success": True})
+                else:
+                    return JsonResponse({'success': False, 'error': 'No bot banners found'})
+            else:
+                return JsonResponse({'success': False, 'error': 'Invalid banner type'})
+        else:
+            return JsonResponse({'success': False, 'error': 'Invalid request parameters'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def update_status(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        status = data.get('status')
+        banner_type = data.get('banner_type')
+        top_banner_settings = BannerSettings.objects.filter(banner__type='TOP')[0]
+        bot_banner_settings = BannerSettings.objects.filter(banner__type='MAIN_NEWS')[0]
+
+        if status is not None:
+            if status == 'ВКЛ':
+                for banner in [bot_banner_settings if banner_type == 'bot' else top_banner_settings]:
+                    banner.status = True
+                    banner.save()
+            else:
+                for banner in [bot_banner_settings if banner_type == 'bot' else top_banner_settings]:
+                    banner.status = False
+                    banner.save()
+
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({'success': False, 'error': 'Invalid request parameters'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
 class MainPageView(View):
@@ -983,9 +1197,6 @@ class StatsPage(View):
 
         for item in last_year_income:
             monthly_income_last_year[item['session__time__month'] - 1] = item['total_income']
-
-        # current_year_labels = [calendar.month_abbr[i] for i in range(1, 13)]
-        # last_year_labels = [calendar.month_abbr[i] for i in range(1, 13)]
 
         current_year_data = monthly_income_current_year
         last_year_data = monthly_income_last_year

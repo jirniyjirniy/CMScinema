@@ -5,6 +5,14 @@
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
+                    <ul class="nav nav-tabs mb-2">
+                        <li class="nav-item ml-auto">
+                            <a class="nav-link active" id="tab-en">English</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab-uk">Українська</a>
+                        </li>
+                    </ul>
                     {% if hall_id %}
                         <form action="{% url 'adminlte:hall_card' cinema_id hall_id %}" enctype="multipart/form-data"
                               method="post">
@@ -18,11 +26,15 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="exampleInputText">Номер зала</label>
-                            {{ form.hall_number }}
+                            {{ form.number }}
                         </div>
-                        <div class="form-group">
-                            <label>Описание зала</label>
-                            {{ form.desc }}
+                        <div class="form-group uk">
+                            <label>Description in Ukrainian</label>
+                            {{ form.desc_uk }}
+                        </div>
+                        <div class="form-group en">
+                            <label>Description in English</label>
+                            {{ form.desc_en }}
                         </div>
                         <label>Схема зала</label>
                         <div class="row">
@@ -50,6 +62,7 @@
                                     <a href="https://via.placeholder.com/300.png?text=No+Image"
                                        data-toggle="lightbox" data-title="sample 2 - black" data-gallery="gallery">
                                         <img id="top-image-{{ forloop.counter0 }}-image" src="
+                                                
                                                 
                                                 
                                                 
@@ -201,6 +214,23 @@
             const $checkbox = $card.find('input[name^="hall-formset"][name$="-DELETE"]');
             $checkbox.prop('checked', true); // Устанавливаем значение чекбокса в true
             $card.hide(); // Скрываем форму галереи
+        });
+
+        $('.uk').hide();
+
+        $('.row .nav-link').click(function () {
+            const clickedTabId = $(this).attr('id');
+
+            $('.row .nav-link').removeClass('active');
+            $(this).addClass('active');
+
+            if (clickedTabId === 'tab-en') {
+                $('.uk').hide();
+                $('.en').show();
+            } else {
+                $('.uk').show();
+                $('.en').hide();
+            }
         });
 
     </script>

@@ -1,16 +1,56 @@
 {% extends 'cinema/base.html' %}
 {% load static %}
 
-{% block title %}Event Card{% endblock %}
+
+{% block title %}{% for event in events %}{{ event.seo_block.title }}{% endfor %}{% endblock %}
+
+
+{% block seo_block %}
+    {% for event in events %}
+        <meta name="description" content="{{ event.seo_block.desc }}">
+        <meta name="keywords" content="{{ event.seo_block.keywords }}">
+    {% endfor %}
+{% endblock %}
 
 {% block content %}
     <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
         {% for event in events %}
             <div class="container-fluid py-md-3">
-                {% for image in gallery_images %}
-                    <img src="{{ image.image.url }}" alt=""
-                         style="height: 400px; width: 2200px; margin-left: -100px;">
-                {% endfor %}
+                <div class="col-md-8" style="margin-left: 18%;">
+                    <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                        <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for image in gallery_images %}
+                                    <div class="carousel-item active" data-bs-interval="3000">
+                                        <img src="{{ image.image.url }}" class="d-block w-100" alt="...">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#carouselExampleInterval"
+                                    data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button"
+                                    data-bs-target="#carouselExampleInterval"
+                                    data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
                 <h1>
                     {{ event.title }}
                 </h1>

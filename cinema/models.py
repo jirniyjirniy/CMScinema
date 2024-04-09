@@ -230,8 +230,8 @@ class BannerSettings(models.Model):
 
 class BackgroundBanner(models.Model):
     class Type(models.TextChoices):
-        PHOTO = 'PHOTO', 'Photo'
-        JUST = 'JUST', "Just"
+        PHOTO = 'PHOTO', 'Фото на фон'
+        JUST = 'JUST', "Просто фон"
 
     type = models.CharField(max_length=5, choices=Type.choices, default=Type.PHOTO)
     image = models.ImageField(upload_to='cinema_image/main_images/background_banner/%Y/%m/%d/')

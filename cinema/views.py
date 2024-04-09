@@ -5,12 +5,14 @@ from itertools import groupby
 from django.db.models import DateField
 from django.db.models.functions import Cast
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from django.views import View
+from django.views.generic import ListView
 
 from .models import (Cinema, CinemaCity, CinemaHall, Gallery, GalleryImage,
-                     MovieCard, MovieSes, NewsEvents, Reservation)
+                     MovieCard, MovieSes, NewsEvents, Reservation, Banner, BannerSettings, BackgroundBanner, Pages,
+                     SeoBlock, MainPage)
 
 
 class MovieSessionsAjaxView(View):
@@ -51,7 +53,19 @@ def index(request):
     query = request.GET.get('q')
     movies_now = MovieCard.objects.filter(status=True)
     movies_soon = MovieCard.objects.filter(status=False)
-    galley = GalleryImage.objects.filter(gallery__title='На главной вверх')
+
+    galley = Banner.objects.filter(type='TOP')
+    galley_rotation_speed = BannerSettings.objects.get(banner=galley[0]).rotation_speed
+    galley_rotation_status = BannerSettings.objects.get(banner=galley[0]).status
+
+    events_news_gallery = Banner.objects.filter(type='MAIN_NEWS')
+    events_rotation_speed = BannerSettings.objects.get(banner=events_news_gallery[0]).rotation_speed
+    events_rotation_status = BannerSettings.objects.get(banner=events_news_gallery[0]).status
+
+    back_ground_image = BackgroundBanner.objects.all()[0]
+
+    page = MainPage.objects.first()
+    seo_block = page.seo_block
 
     if query:
         movies_now = movies_now.filter(title__icontains=query)
@@ -61,7 +75,14 @@ def index(request):
         'movies_now': movies_now,
         'movies_soon': movies_soon,
         'gallery_images': galley,
-        'query': query
+        'query': query,
+        'galley_rotation_speed': galley_rotation_speed,
+        'galley_rotation_status': galley_rotation_status,
+        'events_news_gallery': events_news_gallery,
+        'events_rotation_speed': events_rotation_speed,
+        'events_rotation_status': events_rotation_status,
+        'back_ground_image': back_ground_image,
+        'seo_block': seo_block
     }
     return render(request, 'cinema/index.html', context)
 
@@ -92,12 +113,16 @@ def cinema_card(request, cinema_id):
     end_of_today = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
     sessions_today = MovieSes.objects.filter(time__gte=now, time__lt=end_of_today, cinema_hall__cinema__id=cinema_id)
 
+    seo_block = cinema.seo_block
+
+
     context = {
         'cinema': cinema,
         'halls': halls,
         'halls_count': halls.count(),
         'sessions_today': sessions_today,
         'gallery_images': gallery_images,
+        'seo_block': seo_block,
     }
     return render(request, 'cinema/cinema_car.html', context)
 
@@ -115,7 +140,12 @@ def event_card(request, event_id, event_slug):
     events = NewsEvents.objects.filter(id=event_id, url=event_slug)
     gallery = get_object_or_404(Gallery, newsevents=event_id)
     gallery_images = gallery.galleryimage_set.all()
-    return render(request, 'cinema/event_card.html', {'events': events, 'gallery_images': gallery_images})
+
+    # seo_block = events.seo_block
+
+    return render(request, 'cinema/event_card.html', {'events': events,
+                                                      'gallery_images': gallery_images,
+                                                      })
 
 
 def events(request):
@@ -132,6 +162,8 @@ def movie_detail(request, movie_id, slug):
     gallery_images = movie_gallery.galleryimage_set.all()
     first_session = sessions_today.first()
     city = CinemaCity.objects.all()
+
+    seo_block = movie.seo_block
 
     grouped_sessions = {}
     for session in sessions_today:
@@ -156,6 +188,7 @@ def movie_detail(request, movie_id, slug):
         'grouped_sessions': grouped_sessions,
         'first_session': first_session,
         'genres': genres,
+        'seo_block': seo_block
     }
     return render(request, 'cinema/film_card.html', context)
 
@@ -249,7 +282,8 @@ def schedule(request):
         time__gte=now.date(),
     ).order_by('time')
 
-    unique_dates = (MovieSes.objects.filter(movie__in=movie_list).annotate(date=Cast('time', DateField()))
+    unique_dates = (MovieSes.objects.filter(movie__in=movie_list, time__date__gte=now.date()).annotate(
+        date=Cast('time', DateField()))
                     .values_list('date', flat=True)
                     .distinct()
                     .order_by('date')
@@ -332,3 +366,14 @@ def user_tickets(request):
     user = request.user
     reservations = Reservation.objects.filter(user=user)
     return render(request, 'cinema/user_tickets.html', {'reservations': reservations})
+
+
+class PagesView(View):
+    template_name = 'cinema/pages.html'
+
+    def get(self, request, url):
+        seo_block = SeoBlock.objects.get(url=url)
+        current_page = Pages.objects.get(seo_block=seo_block)
+        gallery = GalleryImage.objects.filter(gallery__pages=current_page)
+
+        return render(self.request, self.template_name, context={'current_page': current_page, 'gallery': gallery})

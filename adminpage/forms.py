@@ -4,7 +4,7 @@ from django.forms import formset_factory, modelformset_factory
 from adminpage.models import EmailTemplate
 from cinema.models import (BackgroundBanner, Banner, Cinema, CinemaHall,
                            Contacts, Gallery, GalleryImage, MainPage,
-                           MovieCard, NewsEvents, Pages, SeoBlock)
+                           MovieCard, NewsEvents, Pages, SeoBlock, BannerSettings)
 
 
 class GalleryImageForm(forms.ModelForm):
@@ -31,23 +31,45 @@ class GalleryImageForm(forms.ModelForm):
 class MovieForm(forms.ModelForm):
     class Meta:
         model = MovieCard
-        fields = ['title', 'desc', 'main_image', 'trailer_url']
+        fields = [
+            'title_uk',
+            'title_en',
+            'desc_uk',
+            'desc_en',
+            'main_image',
+            'trailer_url'
+        ]
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}),
-            'desc': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Писать сюда...'}),
+            'title_uk': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}),
+            'title_en': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Write here...'}),
+            'desc_uk': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Писать сюда...'}),
+            'desc_en': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Write here...'}),
             'main_image': forms.FileInput(attrs={'type': 'file', 'class': 'form-control'}),
-            'trailer_url': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}),
+            'trailer_url': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Write here...'}),
         }
+
 
 class CinemaForm(forms.ModelForm):
     class Meta:
         model = Cinema
-        fields = ['title', 'desc', 'conditions', 'logo', 'top_banner']
+        fields = [
+            'title_uk',
+            'title_en',
+            'desc_uk',
+            'desc_en',
+            'conditions_uk',
+            'conditions_en',
+            'logo',
+            'top_banner'
+        ]
 
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда'}),
-            'desc': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Писать сюда'}),
-            'conditions': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Писать сюда'}),
+            'title_uk': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда'}),
+            'title_en': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Write here...'}),
+            'desc_uk': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Писать сюда'}),
+            'desc_en': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write here...'}),
+            'conditions_uk': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Писать сюда'}),
+            'conditions_en': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write here...'}),
             'logo': forms.ClearableFileInput(attrs={'class': 'form-control', 'style': 'width: 50%;'}),
             'top_banner': forms.ClearableFileInput(attrs={'class': 'form-control', 'style': 'width:50%'})
         }
@@ -77,32 +99,60 @@ class SeoForm(forms.ModelForm):
         }
 
 
-class HallForm(forms.Form):
-    hall_number = forms.CharField(label='Номер зала',
-                                  widget=forms.TextInput(
-                                      attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
-    desc = forms.CharField(label='Описание',
-                           widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
-    scheme = forms.ImageField(label='Схема зала',
-                              widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'style': 'width: 50%;'}),
-                              required=False)
-    top_banner = forms.ImageField(label='Фото верхнего баннера', widget=forms.ClearableFileInput(
-        attrs={'class': 'form-control', 'style': 'width: 50%;'}), required=False)
+# class HallForm(forms.Form):
+#     hall_number = forms.CharField(label='Номер зала',
+#                                   widget=forms.TextInput(
+#                                       attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
+#     desc_uk = forms.CharField(label='Описание',
+#                            widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}))
+#     desc_en = forms.CharField(label='Описание',
+#                            widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write here...'}))
+#     scheme = forms.ImageField(label='Схема зала',
+#                               widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'style': 'width: 50%;'}),
+#                               required=False)
+#     top_banner = forms.ImageField(label='Фото верхнего баннера', widget=forms.ClearableFileInput(
+#         attrs={'class': 'form-control', 'style': 'width: 50%;'}), required=False)
+
+class HallForm(forms.ModelForm):
+    class Meta:
+        model = CinemaHall  # Указываем модель, с которой связана форма
+        fields = ['number', 'desc_uk', 'desc_en', 'scheme', 'top_banner']  # Указываем поля, которые хотим включить в форму
+
+        labels = {
+            'number': 'Номер зала',
+            'desc_uk': 'Описание (українською)',
+            'desc_en': 'Описание (англійською)',
+            'scheme': 'Схема зала',
+            'top_banner': 'Фото верхнього банера',
+        }
+
+        widgets = {
+            'number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}),
+            'desc_uk': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Писать сюда...'}),
+            'desc_en': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write here...'}),
+            'scheme': forms.ClearableFileInput(attrs={'class': 'form-control', 'style': 'width: 50%;'}),
+            'top_banner': forms.ClearableFileInput(attrs={'class': 'form-control', 'style': 'width: 50%;'}),
+        }
 
 
 class EventsNewsPageForm(forms.ModelForm):
     class Meta:
         model = NewsEvents
-        fields = ['status', 'title', 'date', 'desc', 'main_image', 'url']
+        fields = ['status', 'title_uk', 'title_en', 'date', 'desc_uk', 'desc_en', 'main_image', 'url']
 
         widgets = {
             'status': forms.CheckboxInput(
                 attrs={'class': 'form-check-input', 'type': 'checkbox', 'role': 'switch',
                        'id': 'flexSwitchCheckDefault'}),
 
-            'title': forms.TextInput(attrs={
+            'title_uk': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Писать сюда...',
+                'type': 'text',
+            }),
+            'title_en': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Write here...',
                 'type': 'text',
             }),
             'date': forms.TextInput(attrs={
@@ -110,10 +160,15 @@ class EventsNewsPageForm(forms.ModelForm):
                 'type': 'date',
                 'placeholder': 'Писать сюда...'
             }),
-            'desc': forms.Textarea(attrs={
+            'desc_uk': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Писать сюда...'
+            }),
+            'desc_en': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Write here...'
             }),
             'main_image': forms.ClearableFileInput(attrs={
                 'type': 'file',
@@ -178,6 +233,9 @@ class BannerForm(forms.ModelForm):
 
 BannerTopFormset = modelformset_factory(Banner, form=BannerForm, extra=1, can_delete=True)
 BannerTopFormsetSecond = modelformset_factory(Banner, form=BannerForm, extra=0, can_delete=True)
+
+BannerNewsEventsFormset = modelformset_factory(Banner, form=BannerForm, extra=1, can_delete=True)
+BannerNewsEventsFormsetSecond = modelformset_factory(Banner, form=BannerForm, extra=0, can_delete=True)
 
 
 class MainPageForm(forms.ModelForm):
@@ -249,10 +307,28 @@ class BackBanner(forms.ModelForm):
     class Meta:
         model = BackgroundBanner
         fields = [
-            'image'
+            'image',
+            'type',
         ]
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'id': 'photoFile',
+                'style': 'display: none;'
+            }),
+            'type': forms.RadioSelect(attrs={
+                'id': 'photoSelection',
+                'class': 'radio-buttons',
+            }),
+        }
+
+
+class BannerSettings(forms.ModelForm):
+    class Meta:
+        model = BannerSettings
+        fields = ['status', ]
 
         widgets = {
-            'type': 'file',
-            'style': 'display: none;'
+            'status': forms.CheckboxInput(
+                attrs={'class': 'form-check-input', 'type': 'checkbox', 'role': 'switch',
+                       'id': 'flexSwitchCheckDefault'}),
         }

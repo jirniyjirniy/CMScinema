@@ -2,7 +2,10 @@
 {% load static %}
 
 {% block title %}Afisha{% endblock %}
-
+{% block seo_block %}
+{#    <meta name="description" content="{{ seo_block.desc }}">#}
+{#    <meta name="keywords" content="{{ seo_block.keywords }}">#}
+{% endblock %}
 {% block content %}
     <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
         <div class="container-fluid py-md-3">
