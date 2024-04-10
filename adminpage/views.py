@@ -753,9 +753,11 @@ class PageView(View):
         seo_form = SeoForm(request.POST, prefix='seo-form')
 
         if form.is_valid() and seo_form.is_valid():
-            title = form.cleaned_data['title']
+            title = form.cleaned_data['title_uk']
+            title_en = form.cleaned_data['title_en']
             status = form.cleaned_data['status']
-            desc = form.cleaned_data['desc']
+            desc = form.cleaned_data['desc_uk']
+            desc_en = form.cleaned_data['desc_en']
             main_image = form.cleaned_data['main_image']
             seo, created = SeoBlock.objects.get_or_create(url=seo_form.cleaned_data['url'],
                                                           title=seo_form.cleaned_data['title'],
@@ -765,17 +767,19 @@ class PageView(View):
             counter = 1
             if page_id:
                 page = get_object_or_404(Pages, id=page_id)
-                if page.title != title:
-                    page.gallery.title = title
+                if page.title != title_en:
+                    page.gallery.title = title_en
                     page.gallery.save()
-                page.title = title
+                page.title_uk = title
+                page.title_en = title_en
                 page.status = status
-                page.desc = desc
+                page.desc_uk = desc
+                page.desc_en = desc_en
                 if main_image:
                     page.main_image = main_image
                 else:
                     page.main_image = page.main_image
-                gallery, _ = Gallery.objects.get_or_create(title=title)
+                gallery, _ = Gallery.objects.get_or_create(title=title_en)
 
                 for form in formset:
                     if form.is_valid():
@@ -795,7 +799,7 @@ class PageView(View):
                 return redirect('adminlte:pages')
             else:
                 if any(forms.has_changed() for forms in formset):
-                    gallery, created = Gallery.objects.get_or_create(title=title)
+                    gallery, created = Gallery.objects.get_or_create(title=title_en)
 
                     for form in formset:
                         if form.is_valid() and form.has_changed():
@@ -807,7 +811,9 @@ class PageView(View):
                         if form.instance.id:
                             form.instance.delete()
 
-                    about_cinema = Pages.objects.create(title=title, status=status, desc=desc, main_image=main_image,
+                    about_cinema = Pages.objects.create(title_en=title_en, title_uk=title if title else None,
+                                                        status=status, desc_en=desc_en, desc_uk=desc if desc else None,
+                                                        main_image=main_image,
                                                         type='CINEMA',
                                                         seo_block=seo, gallery=gallery)
 
@@ -820,6 +826,18 @@ class PageView(View):
         }
 
         return render(request, self.template_name, context)
+
+
+def delete_page(request, page_id):
+    page = get_object_or_404(Pages, id=page_id)
+    page.delete()
+
+    if page.gallery:
+        page.gallery.delete()
+    if page.seo_block:
+        page.seo_block.delete()
+
+    return redirect('adminlte:pages')
 
 
 class BannerPageView(View):
@@ -1051,10 +1069,13 @@ class ContactPageView(View):
                                       queryset=Contacts.objects.all())
 
         if formset.is_valid() and form.is_valid() and seo_form.is_valid():
+            seo_block = contact_instance.seo_block
+
+            for form in formset.forms:
+                form.instance.seo_block = seo_block
             formset.save()
             form.save()
 
-            seo_block = contact_instance.seo_block
             if seo_block:
                 seo_block.title = seo_form.cleaned_data['title']
                 seo_block.desc = seo_form.cleaned_data['desc']

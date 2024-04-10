@@ -124,7 +124,7 @@ class Pages(models.Model):
         ADS = 'ADS', 'Ads'
         CINEMA = 'CINEMA', 'About Cinema'
 
-    title = models.CharField(max_length=150)
+    title = models.CharField(max_length=200)
     desc = models.TextField()
     main_image = models.ImageField(upload_to='cinema_image/main_images/pages/%Y/%m/%d/', blank=True)
     gallery = models.OneToOneField('Gallery', on_delete=models.CASCADE)

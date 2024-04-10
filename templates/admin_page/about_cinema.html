@@ -6,6 +6,14 @@
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
+                    <ul class="nav nav-tabs mb-2">
+                        <li class="nav-item ml-auto">
+                            <a class="nav-link active" id="tab-en">English</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab-uk">Українська</a>
+                        </li>
+                    </ul>
                     {% if page_id %}
                         <form method="post" action="{% url 'adminlte:page_detail' page_id %}"
                               enctype="multipart/form-data">
@@ -17,9 +25,13 @@
                     {{ formset.management_form }}
                     <div class="card-body">
                         <div class="row form-group">
-                            <div class="col-md-6">
+                            <div class="col-md-6 uk">
                                 <label for="exampleInputText1">Название</label>
-                                {{ form.title }}
+                                {{ form.title_uk }}
+                            </div>
+                            <div class="col-md-6 en">
+                                <label for="exampleInputText1">Название</label>
+                                {{ form.title_en }}
                             </div>
                             <div class="col-md-2">
                                 <label for="exampleInputText1">Статус</label>
@@ -32,21 +44,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group uk">
                             <label>Описание</label>
-                            {{ form.desc }}
+                            {{ form.desc_uk }}
+                        </div>
+                        <div class="form-group en">
+                            <label>Описание</label>
+                            {{ form.desc_en }}
                         </div>
                         <label>Главная картинка</label>
                         <div class="row">
                             <div class="col-md-2">
-                                <img id="mainImage" src="
-                                        
-                                        
-                                        
-                                        
-                                        
-                                        
-                                        {% if form.main_image.value %}{{ form.main_image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                <img id="mainImage" src="{% if form.main_image.value %}{{ form.main_image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
                                      class="img-fluid mb-2"
                                      alt="black sample" style="width:100%;"/>
                             </div>
@@ -233,6 +242,23 @@
             const $checkbox = $card.find('input[name^="gallery-formset"][name$="-DELETE"]');
             $checkbox.prop('checked', true); // Устанавливаем значение чекбокса в true
             $card.hide(); // Скрываем форму галереи
+        });
+        
+        $('.uk').hide();
+
+        $('.row .nav-link').click(function () {
+            const clickedTabId = $(this).attr('id');
+
+            $('.row .nav-link').removeClass('active');
+            $(this).addClass('active');
+
+            if (clickedTabId === 'tab-en') {
+                $('.uk').hide();
+                $('.en').show();
+            } else {
+                $('.uk').show();
+                $('.en').hide();
+            }
         });
     </script>
 {% endblock %}

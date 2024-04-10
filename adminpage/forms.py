@@ -185,18 +185,28 @@ class EventsNewsPageForm(forms.ModelForm):
 class PagesForm(forms.ModelForm):
     class Meta:
         model = Pages
-        fields = ['status', 'title', 'desc', 'main_image']
+        fields = ['status', 'title_uk', 'title_en', 'desc_uk', 'desc_en', 'main_image']
 
         widgets = {
             'status': forms.CheckboxInput(
                 attrs={'class': 'form-check-input', 'type': 'checkbox', 'role': 'switch',
                        'id': 'flexSwitchCheckDefault'}),
-            'title': forms.TextInput(attrs={
+            'title_uk': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Писать сюда...',
                 'type': 'text',
             }),
-            'desc': forms.Textarea(attrs={
+            'title_en': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Писать сюда...',
+                'type': 'text',
+            }),
+            'desc_uk': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Писать сюда...'
+            }),
+            'desc_en': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Писать сюда...'
@@ -241,7 +251,7 @@ BannerNewsEventsFormsetSecond = modelformset_factory(Banner, form=BannerForm, ex
 class MainPageForm(forms.ModelForm):
     class Meta:
         model = MainPage
-        fields = ['phone_number', 'seo_text', 'status']
+        fields = ['phone_number', 'seo_text_uk', 'seo_text_en', 'status']
 
         widgets = {
             'status': forms.CheckboxInput(
@@ -252,7 +262,12 @@ class MainPageForm(forms.ModelForm):
                 'placeholder': 'Писать сюда...',
                 'type': 'text',
             }),
-            'seo_text': forms.Textarea(attrs={
+            'seo_text_uk': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Писать сюда...'
+            }),
+            'seo_text_en': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Писать сюда...'

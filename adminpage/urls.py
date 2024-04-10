@@ -7,7 +7,8 @@ from .views import (BannerPageView, CinemaAddView, CinemaHallView,
                     delete_cinema, delete_contact, delete_events, delete_hall,
                     delete_news, delete_template, delete_user, films_page,
                     process_form, upload_template, user_page, user_save_data,
-                    NewsEventsBanner, update_rotation_speed, MiddleBanner, delete_middle_image, update_status)
+                    NewsEventsBanner, update_rotation_speed, MiddleBanner, delete_middle_image, update_status,
+                    delete_page)
 
 app_name = 'adminlte'
 
@@ -43,6 +44,7 @@ urlpatterns = [
     path('banner_status/', update_status, name='update_status'),
     path('pages/', PagesView.as_view(), name='pages'),
     path('page-add/', PageView.as_view(), name='page_add'),
+    path('page-delete/<int:page_id>', delete_page, name='page_delete'),
     path('page/main-page/', MainPageView.as_view(), name='main_page'),
     path('page/contacts/', ContactPageView.as_view(), name='contact_page'),
     path('sender/', EmailSenderView.as_view(), name='sender'),
