@@ -15,9 +15,14 @@ run:
 	$(MANAGE) runserver 127.0.0.1:8000
 
 gunicorn-run:
+	gunicorn core.wsgi:application -b 0.0.0.0:8000 --reload
+
+migrations:
 	$(MANAGE) makemigrations --no-input
 	$(MANAGE) migrate --no-input
-	cd .. && PYTHONPATH=`pwd` gunicorn core.wsgi:application -b 0.0.0.0:8000 --reload
+	$(MANAGE) flush --no-input
+	python seed/seed_script.py
+	$(MANAGE) collectstatic --no-input
 
 
 gen-users:
@@ -49,7 +54,7 @@ freeze:
 # Celery
 
 worker:
-	cd $(PROJECT_DIR)&& celery -A $(MAIN) worker --autoscale=4,2 -l info
+	cd $(PROJECT_DIR) && celery -A $(MAIN) worker --autoscale=4,2 -l info
 
 beat:
 	cd $(SOURCE)/&& celery -A $(MAIN) beat -l info

@@ -1,3 +1,4 @@
+.env
 # Django #
 prod_settings.py
 *.log
