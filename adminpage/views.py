@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.staticfiles import finders
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.db.models.fields.related import ForeignKey, OneToOneField
 from django.http import HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -224,9 +224,10 @@ class CinemaAddView(View):
         formset = GalleryFormSet(request.POST, request.FILES, prefix='gallery-formset')
         form = CinemaForm(request.POST, request.FILES)
         seo_form = SeoForm(request.POST, prefix='seo-form')
+        print(form.errors)
 
         if form.is_valid() and seo_form.is_valid():
-
+            print('Done')
             # formset.save()
 
             title = form.cleaned_data['title_uk']
@@ -275,8 +276,6 @@ class CinemaAddView(View):
                             gallery_image.gallery = cinema.gallery
                             gallery_image.save()
 
-                print('----------------------------------------')
-                print(formset.deleted_forms)
                 for form in formset.deleted_forms:
                     print(formset.deleted_forms)
                     if form.instance.id:
@@ -755,6 +754,7 @@ class PageView(View):
         if form.is_valid() and seo_form.is_valid():
             title = form.cleaned_data['title_uk']
             title_en = form.cleaned_data['title_en']
+            print(title_en)
             status = form.cleaned_data['status']
             desc = form.cleaned_data['desc_uk']
             desc_en = form.cleaned_data['desc_en']
@@ -779,7 +779,7 @@ class PageView(View):
                     page.main_image = main_image
                 else:
                     page.main_image = page.main_image
-                gallery, _ = Gallery.objects.get_or_create(title=title_en)
+                gallery, _ = Gallery.objects.get_or_create(title=title)
 
                 for form in formset:
                     if form.is_valid():
@@ -1179,6 +1179,9 @@ class StatsPage(View):
 
         today = timezone.now().date()
 
+        start_of_month = today.replace(day=1)
+        end_of_month = start_of_month.replace(day=1, month=start_of_month.month + 1) - timedelta(days=1)
+
         current_week_start = today - timedelta(days=today.weekday())
         current_week_end = current_week_start + timedelta(days=6)
 
@@ -1232,6 +1235,14 @@ class StatsPage(View):
         else:
             formatted_total_income = '$0.00'
 
+        all_top_users = CustomUser.objects.all()
+
+        user_visits_this_month = []
+        for custom_user in all_top_users:
+            reservations_count = Reservation.objects.filter(user=custom_user.user,
+                                                            session__time__range=[start_of_month, end_of_month]).count()
+            user_visits_this_month.append({'user': custom_user.nickname, 'visits_count': reservations_count})
+
         return render(request, self.template_name, context={
             'movies_with_ticket_count': movies_with_ticket_count,
             'all_users': all_users,
@@ -1239,5 +1250,6 @@ class StatsPage(View):
             'previous_week_ticket_counts': previous_week_ticket_counts,
             'current_year_data': current_year_data,
             'last_year_data': last_year_data,
-            'formatted_total_income': formatted_total_income
+            'formatted_total_income': formatted_total_income,
+            'user_visits_this_month': user_visits_this_month,
         })

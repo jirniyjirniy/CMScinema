@@ -12,7 +12,7 @@ from .models import (BackgroundBanner, Banner, BannerSettings, Cinema,
 
 @admin.register(MovieCard)
 class MovieCardAdmin(TranslationAdmin):
-    list_display = ('title', 'budget')
+    list_display = ('title', 'budget', 'status')
 
 
 admin.site.register(Gallery)

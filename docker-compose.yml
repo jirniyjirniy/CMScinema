@@ -1,0 +1,73 @@
+version: '3.10'
+
+x-environment-defaults: &environment-defaults
+  DB_HOST: 'postgres-db'
+  DB_NAME: 'cinema'
+  DB_USER: 'nikita'
+  DB_PASSWORD: 'sonya2013'
+  DB_POST: 5432
+  DEBUG: 'False'
+  CELERY_BROKER_URL: 'redis://redis:6379/0'
+  CELERY_RESULT_BACKEND: 'django-db'
+
+services:
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_PASSWORD: sonya2013
+      POSTGRES_USER: nikita
+      POSTGRES_DB: cinema
+    ports:
+      - "5434:5432"
+
+  web:
+    build:
+      context: .
+    container_name: cinema
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres-db
+    environment:
+      <<: *environment-defaults
+    volumes:
+      - static_volume:/usr/src/app/static/
+      - media_volume:/usr/src/app/media/
+
+  nginx:
+    build:
+      context: ./docker/nginx/.
+    container_name: nginx
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/usr/src/app/static/
+      - media_volume:/usr/src/app/media/
+    ports:
+      - '80:80'
+    depends_on:
+      - web
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - '6380:6379'
+
+  celery:
+    restart: always
+    build:
+      context: .
+    command: make worker
+    depends_on:
+      - web
+      - redis
+      - postgres-db
+    environment:
+      <<: *environment-defaults
+    ports:
+      - "587:587"
+
+
+volumes:
+  static_volume:
+  media_volume:

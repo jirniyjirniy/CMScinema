@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from itertools import groupby
 
-from django.db.models import DateField
+from django.db.models import DateField, Q
 from django.db.models.functions import Cast
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -68,8 +68,8 @@ def index(request):
     seo_block = page.seo_block
 
     if query:
-        movies_now = movies_now.filter(title__icontains=query)
-        movies_soon = movies_soon.filter(title__icontains=query)
+        movies_now = movies_now.filter(Q(title__icontains=query) | Q(title_uk__icontains=query))
+        movies_soon = movies_soon.filter(Q(title__icontains=query) | Q(title_uk__icontains=query))
 
     context = {
         'movies_now': movies_now,

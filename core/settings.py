@@ -22,9 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-sft4uy0xrevvkf+ihs5uxgv%v25elm&rw0o(zoq8fcbs@3#6or'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost',]
+
 
 # Application definition
 
@@ -90,23 +91,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cinema',
-        'USER': 'nikita',
-        'PASSWORD': 'sonya2013',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get("DB_NAME"),
+        'USER': os.environ.get("DB_USER"),
+        'PASSWORD': os.environ.get("DB_PASSWORD"),
+        'HOST': os.environ.get("DB_HOST"),
+        'PORT': os.environ.get("DB_PORT"),
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -146,8 +138,8 @@ LANGUAGES = (
 
 # settings.py
 
-STATIC_URL = 'static/'
-STATIC_ROOT = 'static'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -166,7 +158,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'faceit.kawai@gmail.com'
 EMAIL_HOST_PASSWORD = 'wbxl gubi ohjg jcsz'
 
-CELERY_BROKER_URL = 'redis://0.0.0.0:6379/0'
+CELERY_BROKER_URL = 'redis://localhost:6380/0'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -175,3 +167,4 @@ CELERY_TASK_SERIALIZER = 'json'
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+

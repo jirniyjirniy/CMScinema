@@ -1,5 +1,6 @@
 import os
 import random
+import sys
 from datetime import timedelta
 from random import randrange
 
@@ -7,6 +8,7 @@ import django
 from django.utils import timezone
 from faker import Faker
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
@@ -59,7 +61,7 @@ def create_fake_movies(num):
             title=fake.name(),
             data=fake.date_this_decade(),
             desc=fake.text(),
-            main_image='images/image.jpeg',
+            main_image='images/image.png',
             gallery=random_gallery,
             trailer_url=fake.words(),
             url=fake.slug(),
@@ -76,7 +78,7 @@ def create_fake_movies(num):
 
         GalleryImage.objects.create(
             title=fake.word(),
-            image='images/image.jpeg',
+            image='images/image.png',
             gallery=random_gallery
         )
 
@@ -91,10 +93,10 @@ def create_fake_cinemas(num):
         if created:
             cinema = Cinema.objects.create(
                 title=fake.company(),
-                desc=fake.text(max_nb_chars=5000),
-                conditions=fake.text(max_nb_chars=5000),
-                logo='images/image.jpeg',
-                top_banner='images/image.jpeg',
+                desc=fake.text(max_nb_chars=4000),
+                conditions=fake.text(max_nb_chars=4000),
+                logo='images/image.png',
+                top_banner='images/image.png',
                 gallery=random_gallery
             )
         else:
@@ -118,8 +120,8 @@ def create_fake_cinema_halls(num):
                 number=randrange(1, 50),
                 cinema=random_cinema,
                 desc=fake.text(max_nb_chars=5000),
-                scheme='images/image.jpeg',
-                top_banner='images/image.jpeg',
+                scheme='images/image.png',
+                top_banner='images/image.png',
                 gallery=Gallery.objects.create(title=fake.word(), time_delay=10000)
             )
             seo_block = SeoBlock.objects.create(url=fake.word(), title=fake.sentence(nb_words=3),
@@ -167,17 +169,18 @@ def create_fake_main_pages(num):
         page = Pages.objects.create(
             title=page_type,
             desc=fake.text(),
-            main_image='images/image.jpeg',
+            main_image='images/image.png',
             gallery=gallery,
             type='CINEMA',
             seo_block=seo_block,
             created_at=fake.date_time_this_year(),
+            status=random.choice([True, False]),
             can_delete=False
         )
 
         GalleryImage.objects.create(
             title=fake.word(),
-            image='images/image.jpeg',
+            image='images/image.png',
             gallery=gallery
         )
 
@@ -190,16 +193,17 @@ def create_fake_pages(num):
         page = Pages.objects.create(
             title=fake.sentence(nb_words=3),
             desc=fake.text(),
-            main_image='images/image.jpeg',
+            main_image='images/image.png',
             gallery=gallery,
             type=fake.random_element(elements=('VIP', 'CHILD', 'ADS', 'CINEMA')),
             seo_block=seo_block,
+            status=random.choice([True, False]),
             created_at=fake.date_time_this_year(),
         )
 
         GalleryImage.objects.create(
             title=fake.word(),
-            image='images/image.jpeg',
+            image='images/image.png',
             gallery=gallery
         )
 
@@ -218,10 +222,10 @@ def create_fake_news_events(num):
 
         news_event = NewsEvents.objects.create(
             title=fake.sentence(),
-            main_image='images/image.jpeg',
+            main_image='images/image.png',
             desc=fake.text(),
             url=fake.word(),
-            status=True,
+            status=random.choice([True, False]),
             type=fake.random_element(elements=("NEWS", "EVENTS")),
             date=timezone.now(),
             gallery=gallery,
@@ -231,7 +235,7 @@ def create_fake_news_events(num):
 
         GalleryImage.objects.create(
             title=fake.word(),
-            image='images/image.jpeg',
+            image='images/image.png',
             gallery=gallery
         )
 
@@ -253,7 +257,7 @@ def create_fake_contacts(num):
                                             desc=fake.text())
         contacts = Contacts.objects.create(
             title=fake.company(),
-            logo='images/image.jpeg',
+            logo='images/image.png',
             address=fake.address(),
             coords=f"{fake.latitude()}, {fake.longitude()}",
             seo_block=seo_block,
@@ -281,7 +285,7 @@ def create_fake_banners(num):
     for _ in range(num):
         banner = Banner.objects.create(
             url=fake.word(),
-            image='images/image.jpeg',
+            image='images/image.png',
             text=fake.text(),
             type=fake.random_element(elements=('TOP', 'MAIN_NEWS')),
         )
@@ -295,7 +299,7 @@ def create_fake_background_banners(num):
     for _ in range(num):
         BackgroundBanner.objects.create(
             type=fake.random_element(elements=('PHOTO', 'JUST')),
-            image='images/image.jpeg',
+            image='images/image.png',
         )
 
 
@@ -305,7 +309,7 @@ def create_fake_gallery_images(num):
         if random_gallery:
             gallery_image = GalleryImage.objects.create(
                 title=fake.word(),
-                image='images/image.jpeg',
+                image='images/image.png',
                 gallery=random_gallery
             )
 

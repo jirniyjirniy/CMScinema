@@ -7,10 +7,10 @@
                 <div class="row">
                     <ul class="nav nav-tabs mb-2">
                         <li class="nav-item ml-auto">
-                            <a class="nav-link active" id="tab-en">English</a>
+                            <a class="nav-link" id="tab-en">English</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="tab-uk">Українська</a>
+                            <a class="nav-link active" id="tab-uk">Українська</a>
                         </li>
                     </ul>
                     {% if event_id %}
@@ -233,7 +233,7 @@
             $card.hide(); // Скрываем форму галереи
         });
 
-        $('.uk').hide();
+        $('.en').hide();
 
         $('.row .nav-link').click(function () {
             const clickedTabId = $(this).attr('id');
