@@ -4,32 +4,25 @@
 {% block title %}Cinemas{% endblock %}
 
 {% block content %}
-    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
-        <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
-             style="height: 400px; width: 2200px; margin-left: -100px;">
-        <div class="container-fluid py-md-3">
-            <div class="left-ads-display col-lg-9" style="width: 1500px;">
-                <!-- <div class="text-center col-lg-10"> -->
-                <h1 class="text-center" style="margin-left: 40%;">Наши кинотеатры</h1>
-                <div class="row" style="margin-left: 20%;">
-                    <div class="col-md-11">
-                        <div class="row">
-                            {% for c in cinema %}
-                                <div class="col-md-6">
-                                    <img src="{{ c.logo.url }}"
-                                         alt="" style="width: 400px; height: 400px;">
-                                    <h3><a href="{{ c.get_absolute_url }}" style="text-decoration: none;">{{ c.title }}</a></h3>
-                                </div>
-                            {% endfor %}
-                        </div>
+    <div class="embed-responsive embed-responsive-16by9">
+        <img class="embed-responsive-item"
+             src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt="">
+    </div>
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <h1 class="text-center">Наши кинотеатры</h1>
+            <div class="row col">
+                {% for c in cinema %}
+                    <div class="col-md-5">
+                        <img class="img-fluid" src="{{ c.logo.url }}"
+                             alt="">
+                        <h3><a href="{{ c.get_absolute_url }}" style="text-decoration: none;">{{ c.title }}</a>
+                        </h3>
                     </div>
-                    <div class="col-md-1">
-                        <img class="rounded float-start" src="https://wallpaperaccess.com/full/370260.jpg" alt=""
-                             style="width: 200px; height: 1000px;">
-                    </div>
-                </div>
-                <!-- </div> -->
+                {% endfor %}
             </div>
+            <img class="rounded float-start" src="https://wallpaperaccess.com/full/370260.jpg" alt=""
+                 style="width: 200px; height: 1000px;">
         </div>
-    </section>
+    </div>
 {% endblock %}

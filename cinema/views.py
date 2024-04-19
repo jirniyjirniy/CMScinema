@@ -163,6 +163,10 @@ def movie_detail(request, movie_id, slug):
     first_session = sessions_today.first()
     city = CinemaCity.objects.all()
 
+    all_sessions = MovieSes.objects.filter(movie_id=movie_id)
+    sorted_sessions = all_sessions.order_by('time')
+    nearest_session = sorted_sessions.first()
+
     seo_block = movie.seo_block
 
     grouped_sessions = {}
@@ -186,7 +190,7 @@ def movie_detail(request, movie_id, slug):
         'gallery_images': gallery_images,
         'cities': city,
         'grouped_sessions': grouped_sessions,
-        'first_session': first_session,
+        'first_session': nearest_session,
         'genres': genres,
         'seo_block': seo_block
     }

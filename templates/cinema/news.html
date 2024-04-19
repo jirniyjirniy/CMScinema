@@ -4,36 +4,36 @@
 {% block title %}Events{% endblock %}
 
 {% block content %}
-    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
-        <div class="container-fluid py-md-3">
-            <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
-                 style="height: 400px; width: 2200px; margin-left: -100px;">
-            <div class="col-md-12">
-                <div class="row">
-                    {% for new in news %}
-                        <div class="col-md-4 product-men">
-                            <div class="product-shoe-info editContent text-center mt-lg-4">
-                                <div class="men-thumb-item">
-                                    <img src="{{ new.main_image.url }}"
-                                         class="img-fluid" alt="">
-                                </div>
-                                <div class="item-info-product">
+    <div class="container-fluid py-md-3">
+        <div class="embed-responsive embed-responsive-16by9">
+        <img class="embed-responsive-item"
+             src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt="">
+    </div>
+        <div class="col-md-12">
+            <div class="row">
+                {% for new in news %}
+                    <div class="col-md-4 product-men">
+                        <div class="product-shoe-info editContent text-center mt-lg-4">
+                            <div class="men-thumb-item">
+                                <img src="{{ new.main_image.url }}"
+                                     class="img-fluid" alt="">
+                            </div>
+                            <div class="item-info-product">
                                     <span class="badge rounded-pill text-bg-secondary"
                                           style="width: auto; margin-top: 5px;">{{ new.date|date:'d.m.Y' }}</span>
-                                    <span class="badge rounded-pill text-bg-danger"
-                                          style="width: auto; margin-top: 5px;">{{ new.cinema }}</span>
-                                    <h4 class="">
-                                        <a href="{{  new.get_absolute_url }}" class="editContent">{{ new.title }}</a>
-                                    </h4>
-                                </div>
-                                <p>
-                                    {{ new.desc|truncatewords:60 }}
-                                </p>
+                                <span class="badge rounded-pill text-bg-danger"
+                                      style="width: auto; margin-top: 5px;">{{ new.cinema }}</span>
+                                <h4 class="">
+                                    <a href="{{ new.get_absolute_url }}" class="editContent">{{ new.title }}</a>
+                                </h4>
                             </div>
+                            <p>
+                                {{ new.desc|truncatewords:60 }}
+                            </p>
                         </div>
-                    {% endfor %}
-                </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
-    </section>
+    </div>
 {% endblock %}

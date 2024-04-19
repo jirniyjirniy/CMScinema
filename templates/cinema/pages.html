@@ -9,69 +9,68 @@
 {% endblock %}
 
 {% block content %}
-    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
-        <div class="container-fluid py-md-3">
-            <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
-                 style="height: 400px; width: 2200px; margin-left: -100px;">
-            <h1>
-                {{ current_page.title }}
-            </h1>
-            <span class="badge rounded-pill text-bg-secondary"
-                  style="width: auto; margin-top: 5px;">{{ current_page.created_at }}</span>
-            {#            <span class="badge rounded-pill text-bg-danger" style="width: auto; margin-top: 5px;">Multiplex</span>#}
-            <div class="row">
-                <div class="col-md-10" style="margin-top: 50px;">
-                    <div class="row">
-                        <p style="width: auto;">{{ current_page.desc }}
-                        </p>
-                        <img src="{{ current_page.main_image.url }}"
-                             alt="" style="height: auto; width: auto;">
-                        <h1 class="text-center">Оборудование</h1>
-                        <div class="col-md-8" style="margin-left: 18%;">
-                            <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-                                <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
-                                    <div class="carousel-inner">
-                                        {% for image in gallery %}
-                                            <div class="carousel-item active"
-                                                 data-bs-interval="3000">
-                                                <img src="{{ image.image.url }}" class="d-block w-100" alt="...">
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                    <button class="carousel-control-prev" type="button"
-                                            data-bs-target="#carouselExampleInterval"
-                                            data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Previous</span>
-                                    </button>
-                                    <button class="carousel-control-next" type="button"
-                                            data-bs-target="#carouselExampleInterval"
-                                            data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Next</span>
-                                    </button>
+    <div class="embed-responsive embed-responsive-16by9">
+        <img class="embed-responsive-item"
+             src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt="">
+    </div>
+    <div class="container">
+        <h1>
+            {{ current_page.title }}
+        </h1>
+        <span class="badge rounded-pill text-bg-secondary"
+              style="width: auto; margin-top: 5px;">{{ current_page.created_at }}</span>
+        <div class="row justify-content-md-center">
+            <div class="col-md-10 mb-4">
+                <div class="row">
+                    <p style="width: auto;">{{ current_page.desc }}
+                    </p>
+                    <img src="{{ current_page.main_image.url }}"
+                         alt="" style="height: auto; width: auto;">
+                    <h1 class="text-center">Оборудование</h1>
+                    <div class="row justify-content-md-center">
+                        <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                            <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner">
+                                    {% for image in gallery %}
+                                        <div class="carousel-item active"
+                                             data-bs-interval="3000">
+                                            <img src="{{ image.image.url }}" class="d-block w-100" alt="...">
+                                        </div>
+                                    {% endfor %}
                                 </div>
                                 <button class="carousel-control-prev" type="button"
-                                        data-bs-target="#carouselExampleControls"
+                                        data-bs-target="#carouselExampleInterval"
                                         data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Previous</span>
                                 </button>
                                 <button class="carousel-control-next" type="button"
-                                        data-bs-target="#carouselExampleControls"
+                                        data-bs-target="#carouselExampleInterval"
                                         data-bs-slide="next">
                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Next</span>
                                 </button>
                             </div>
+                            <button class="carousel-control-prev" type="button"
+                                    data-bs-target="#carouselExampleControls"
+                                    data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button"
+                                    data-bs-target="#carouselExampleControls"
+                                    data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
-                         style="height: 1000px; width: 200px;">
-                </div>
+            </div>
+            <div class="col-md-2">
+                <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
+                     style="height: 1000px; width: 200px;" class="img-fluid">
             </div>
         </div>
-    </section>
+    </div>
 {% endblock %}
