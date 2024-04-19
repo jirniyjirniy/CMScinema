@@ -4,7 +4,7 @@
 <html lang="ru">
 
 <head>
-<title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% block seo_block %}{% endblock %}
@@ -25,93 +25,93 @@
 </head>
 
 <body {% block body_style %}{% endblock %}>
-
 <div id="page" class="page"><!-- mian-content -->
-    <div class="" id="home" style="background-color: rgba(0, 0, 0, 0); margin-top: 0px;">
-        <!-- header -->
-        <header class="header">
-            <div class="container-fluid px-lg-5">
-                <!-- nav -->
-                <nav class="navbar navbar-expand-lg bg-body-tertiary" style="width: 1800px; margin-left: 10%;">
-                    <div class="container-fluid">
-                        <a class="navbar-brand" href="{% url 'cinema:index' %}"><img
-                                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/768px-LEGO_logo.svg.png"
-                                alt="Bootstrap" width="30"
-                                height="24"></a>
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                                aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'cinema:afisha' %}">Афиша</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'cinema:schedule' %}">Расписание</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'cinema:soon' %}">Скоро</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'cinema:cinemas' %}">Кинотеатры</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'cinema:events' %}">Акции</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="{% url 'cinema:about_cinema' %}"
-                                       role="button"
-                                       data-bs-toggle="dropdown" aria-expanded="false">
-                                        О кинотеатре
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{% url 'cinema:news' %}">Новости</a></li>
-                                        {% for p in pages %}
-                                            <li><a class="dropdown-item"
-                                                   href="{% url 'cinema:pages' p.seo_block.url %}">{{ p.title }}</a>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
+    <header class="header">
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'cinema:index' %}"><img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/768px-LEGO_logo.svg.png"
+                        alt="Bootstrap" width="30"
+                        height="24"></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cinema:afisha' %}">Афиша</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cinema:schedule' %}">Расписание</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cinema:soon' %}">Скоро</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cinema:cinemas' %}">Кинотеатры</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cinema:events' %}">Акции</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="{% url 'cinema:about_cinema' %}"
+                               role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                О кинотеатре
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'cinema:news' %}">Новости</a></li>
+                                {% for p in pages %}
+                                    <li><a class="dropdown-item"
+                                           href="{% url 'cinema:pages' p.seo_block.url %}">{{ p.title }}</a>
+                                    </li>
+                                {% endfor %}
                             </ul>
-                            <label style="margin-right: 10px;" for="">{{ seo_information.phone_number }}</label>
-                            <form class="d-flex" role="search" id="search_form" action="{% url "cinema:index" %}"
-                                  method="get">
-                                {% csrf_token %}
-                                <input class="form-control me-2" type="search" placeholder="Поиск"
-                                       aria-label="Поиск" name="q">
-                                <button class="btn btn-outline-success" type="submit">Поиск</button>
-                            </form>
-                            {% if user.is_authenticated %}
-                                <a href="#" type="button" class="btn btn-outline-warning mx-2">{{ request.user }}</a>
-                                {% if request.user.is_staff or request.user.is_superuser %}
-                                    <a href="{% url 'adminlte:stats_page' %}" type="button" class="btn btn-outline-info mx-2">Admin Panel</a>
-                                {% endif %}
-                                <form method="post" action="{% url 'user:logout' %}" id="logout-form">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">Logout</button>
-                                </form>
-                            {% else %}
-                                <a href="" type="button" class="btn btn-success d-table mx-4" data-bs-toggle="modal"
-                                   data-bs-target="#login_ajax">
-                                    Log-In
-                                </a>
-                                OR
-                                <a href="{% url 'user:register_ajax' %}" type="button"
-                                   class="btn btn-success d-table mx-4">
-                                    Register
-                                </a>
+                        </li>
+                    </ul>
+                    <label for="">{{ seo_information.phone_number }}</label>
+                    <form class="d-flex" role="search" id="search_form" action="{% url "cinema:index" %}"
+                          method="get">
+                        {% csrf_token %}
+                        <input class="form-control me-2" type="search" placeholder="Поиск"
+                               aria-label="Поиск" name="q">
+                        <button class="btn btn-outline-success" type="submit">Поиск</button>
+                    </form>
+                    {% if user.is_authenticated %}
+                        <div class="d-flex">
+                            <a href="#" type="button" class="btn btn-outline-warning mx-2">{{ request.user }}</a>
+                            {% if request.user.is_staff or request.user.is_superuser %}
+                                <a href="{% url 'adminlte:stats_page' %}" type="button"
+                                   class="btn btn-outline-info mx-2">Admin
+                                    Panel</a>
                             {% endif %}
                         </div>
-                    </div>
-                    <!-- End Example Code -->
-                </nav>
-                <!-- //nav -->
+                        <br>
+                        <form method="post" action="{% url 'user:logout' %}" id="logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Logout</button>
+                        </form>
+                    {% else %}
+                        <div class="d-flex">
+                            <a href="" type="button" class="btn btn-success d-table mx-4" data-bs-toggle="modal"
+                               data-bs-target="#login_ajax">
+                                Log-In
+                            </a>
+                            <a href="{% url 'user:register_ajax' %}" type="button"
+                               class="btn btn-success d-table mx-4">
+                                Register
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        </header>
-    </div>
+            <!-- End Example Code -->
+        </nav>
+        <!-- //nav -->
+    </header>
+    {#    </div>#}
     {% include 'user/login.html' %}
     {% block content %}{% endblock %}
     <!-- //contact -->

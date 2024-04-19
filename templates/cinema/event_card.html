@@ -13,10 +13,10 @@
 {% endblock %}
 
 {% block content %}
-    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
-        {% for event in events %}
-            <div class="container-fluid py-md-3">
-                <div class="col-md-8" style="margin-left: 18%;">
+    {% for event in events %}
+        <div class="container">
+            <div class="row justify-content-around">
+                <div class="col-md-7">
                     <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
                         <div id="carouselExampleInterval" class="carousel slide" data-bs-ride="carousel">
                             <div class="carousel-inner">
@@ -51,22 +51,26 @@
                         </button>
                     </div>
                 </div>
-                <h1>
-                    {{ event.title }}
-                </h1>
-                <span class="badge rounded-pill text-bg-secondary"
-                      style="width: auto; margin-top: 5px;">{{ event.date|date:'d.m.Y' }}</span>
-                <span class="badge rounded-pill text-bg-danger"
-                      style="width: auto; margin-top: 5px;">{{ event.cinema }}</span>
-                <div class="col-md-12" style="margin-top: 50px;">
-                    <div class="row">
-                        <img src="{{ event.main_image.url }}" alt=""
-                             style="height: 400px; width: 400px;">
-                        <p style="width: 1500px;">{{ event.desc }}
-                        </p>
+                <div class="col">
+                    <h1>
+                        {{ event.title }}
+                    </h1>
+                    <span class="badge rounded-pill text-bg-secondary"
+                          style="width: auto; margin-top: 5px;">{{ event.date|date:'d.m.Y' }}</span>
+                    <span class="badge rounded-pill text-bg-danger"
+                          style="width: auto; margin-top: 5px;">{{ event.cinema }}</span>
+                    <div class="col-md-12" style="margin-top: 50px;">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <img src="{{ event.main_image.url }}" alt=""
+                                     class="img-fluid">
+                            </div>
+                            <p style="width: 1500px;">{{ event.desc }}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        {% endfor %}
-    </section>
+        </div>
+    {% endfor %}
 {% endblock %}
