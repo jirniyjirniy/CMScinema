@@ -4,37 +4,43 @@
 {% block title %}Cinema Contacts{% endblock %}
 
 {% block content %}
-    <section class="ab-info-main py-md-5 py-4 editContent" style="padding-left: 3rem; padding-right: 3rem;">
+    <div class="embed-responsive embed-responsive-16by9">
+        <img class="embed-responsive-item"
+             src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt="">
+    </div>
     <div class="container-fluid py-md-3">
-        <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
-             style="height: 400px; width: 2200px; margin-left: -100px;">
         <div class="row">
             <div class="col-md-10" style="margin-top: 50px;">
-                <h1 class="text-center" s>
+                <h1 class="text-center">
                     Контакты
                 </h1>
                 <br>
-                <div class="row">
-                    <div class="row col-md-4">
-                        <h3 style="width: 200px;">Кинотеатр 1</h3>
-                        <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png"
-                             alt="" style="height: 100px; width: 200px; margin-bottom: 10px;">
-                        <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png"
-                             alt="" style="height: 500px; width: 500px;">
-                    </div>
-                    <div class="row col-md-4">
-                        <ul style="list-style-type: none;">
-                            <li>Кинотеатр "Multiplex"</li>
-                            <li>Одесса, юж.дорога ТРЦ "Rivera"</li>
-                            <li>Бронирование билетов: (048)111-22-33</li>
-                            <li>email: kino@gmail.com</li>
-                        </ul>
-                        <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d175497.36735731494!2d30.646656386850392!3d46.584343842372306!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40c63b64051f44b9%3A0xb5b33f88761d44b0!2sMULTIPLEX!5e0!3m2!1sru!2sua!4v1701871626970!5m2!1sru!2sua"
-                                width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                </div>
+                {% for contact in contacts %}
+                    {% if contact.status == True %}
+                        <div class="row mt-4">
+                            <div class="row col-md-4">
+                                <h3 style="width: 200px;">{{ contact.title }}</h3>
+                                <img src="{{ contact.logo.url }}"
+                                     alt="" style="height: 100px; width: 200px; margin-bottom: 10px;"
+                                     class="image-fluid">
+                                <img src="{{ contact.logo.url }}"
+                                     alt="" style="height: 500px; width: 500px;" class="image-fluid">
+                            </div>
+                            <div class="row col-md-4">
+                                <ul style="list-style-type: none;">
+                                    <li>Кинотеатр "{{ contact.title }}"</li>
+                                    <li>{{ contact.address }}</li>
+                                    <li>Бронирование билетов: (048)111-22-33</li>
+                                    <li>email: kino@gmail.com</li>
+                                </ul>
+                                <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d175497.36735731494!2d30.646656386850392!3d46.584343842372306!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40c63b64051f44b9%3A0xb5b33f88761d44b0!2sMULTIPLEX!5e0!3m2!1sru!2sua!4v1701871626970!5m2!1sru!2sua"
+                                        width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"
+                                        referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
             <div class="col-md-2">
                 <img src="https://i.pinimg.com/originals/71/9e/80/719e80760999b4c355a723224120eb07.png" alt=""
@@ -42,5 +48,4 @@
             </div>
         </div>
     </div>
-</section>
 {% endblock %}

@@ -4,13 +4,13 @@
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper" style="background-color: white;">
         <!-- Main content -->
-        <div class="content">
+        <div class="container">
             <form action="{% url 'adminlte:contact_page' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ formset.management_form }}
-                <div id="contact-formset-container">
+                <div class="row" id="contact-formset-container">
                     <div id="contact-form"
-                         style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;">
+                         style="border-radius: 30px; border: 1px solid #000; padding: 20px;">
                         <div class="row form-group">
                             <div class="col-md-6">
                                 <label for="exampleInputText1">Название кинотеатра</label>
@@ -40,8 +40,8 @@
                         </div>
                     </div>
                     {% for form in formset %}
-                        <div id="contact-form" data-formset-id="{{ form.instance.id }}"
-                             style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;">
+                        <div id="contact-form" data-formset-id="{{ form.instance.id }}" class="mt-4"
+                             style="border-radius: 30px; border: 1px solid #000; padding: 20px;">
                             <div class="row form-group">
                                 <div class="col-md-4">
                                     <label for="exampleInputText1">Название кинотеатра</label>
@@ -84,8 +84,7 @@
                             <button class="delete-formset-button" type="button">Удалить</button>
                         </div>
                     {% endfor %}
-                    <button id="add-contact-form" type="button" class="btn btn-primary"
-                            style="width: 400px; height: 40px; margin-top: 20px; margin-left: 40%">
+                    <button id="add-contact-form" type="button" class="btn btn-primary btn-lg mt-4 col-md-auto">
                         Добавить еще
                     </button>
                 </div>
@@ -126,14 +125,14 @@
                     </div>
                 </div>
                 <div class="card-footer text-center">
-                    <button type="submit" class="btn btn-primary" style="width: 400px; height: 40px;">Сохранить
+                    <button type="submit" class="btn btn-primary btn-lg">Сохранить
                     </button>
                 </div>
             </form>
 
             {% with empty_form=formset.empty_form %}
-                <div id="empty-contact-form"
-                     style="display: none; border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;">
+                <div id="empty-contact-form" class="mt-4"
+                     style="display: none; border-radius: 30px; border: 1px solid #000; padding: 20px;">
                     <div class="row form-group">
                         <div class="col-md-4">
                             <label for="exampleInputText1">Название кинотеатра</label>
@@ -183,7 +182,7 @@
 
 {% block script %}
     <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
-            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
+            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
 
     <script>
         function handlePreview(input, previewId) {

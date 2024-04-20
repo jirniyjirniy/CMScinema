@@ -12,7 +12,7 @@ from django.views.generic import ListView
 
 from .models import (Cinema, CinemaCity, CinemaHall, Gallery, GalleryImage,
                      MovieCard, MovieSes, NewsEvents, Reservation, Banner, BannerSettings, BackgroundBanner, Pages,
-                     SeoBlock, MainPage)
+                     SeoBlock, MainPage, Contacts)
 
 
 class MovieSessionsAjaxView(View):
@@ -128,7 +128,8 @@ def cinema_card(request, cinema_id):
 
 
 def cinema_contacts(request):
-    return render(request, 'cinema/cinema_contacts.html')
+    contacts = Contacts.objects.all()
+    return render(request, 'cinema/cinema_contacts.html', {"contacts": contacts})
 
 
 def cinemas(request):

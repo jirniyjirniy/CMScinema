@@ -9,191 +9,198 @@
                 {% endfor %}
             </ul>
         {% endif %}
-        <h1 style="margin-left: 40%;"> На главной верх </h1>
-        <form action="{% url 'adminlte:top_banner' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ top_formset.management_form }}
-            <div class="row"
-                 style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;"
-                 id="gallery-container">
-                <div class="col-md-2">
-                    <label for="exampleInputText1">Статус</label>
-                    <div class="d-flex col-md-2">
-                        <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
-                        <div class="form-check form-switch">
-                            {% if top_banner_settings.status == True %}
-                                <input type="checkbox" name="status" class="form-check-input" role="switch"
-                                       id="top_banner" checked="">
-                            {% else %}
-                                <input type="checkbox" name="status" class="form-check-input" role="switch"
-                                       id="top_banner">
-                            {% endif %}
-                        </div>
-                        <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
-                    </div>
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col-md-auto">
+                    <h1>На главной вверх</h1>
                 </div>
-                {% for form in top_formset %}
-                    <div id="gallery-form"
-                         style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
-                        <img src="
-                                
-                                
-                                {% if form.image.value %}{{ form.image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
-                             alt="Картинка с крестиком"
-                             style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;"
-                             id="top-image-{{ forloop.counter0 }}-image">
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
+                <form action="{% url 'adminlte:top_banner' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ top_formset.management_form }}
+                    <div class="row justify-content-md-center"
+                         style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;"
+                         id="gallery-container">
+                        <div class="col-md-10">
+                            <label for="exampleInputText1">Статус</label>
+                            <div class="d-flex col-md-2">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
+                                <div class="form-check form-switch">
+                                    {% if top_banner_settings.status == True %}
+                                        <input type="checkbox" name="status" class="form-check-input" role="switch"
+                                               id="top_banner" checked="">
+                                    {% else %}
+                                        <input type="checkbox" name="status" class="form-check-input" role="switch"
+                                               id="top_banner">
+                                    {% endif %}
+                                </div>
+                                <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
+                            </div>
+                        </div>
+                        {% for form in top_formset %}
+                            <div class="col-md-auto" id="gallery-form"
+                                 style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
+                                <img class="img-fluid" src="
+                                        
+                                        
+                                        
+                                        {% if form.image.value %}{{ form.image.value.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                     alt="Картинка с крестиком"
+                                     style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;"
+                                     id="top-image-{{ forloop.counter0 }}-image">
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                                {{ form.image }}
+                                {{ form.url }}
+                                {{ form.text }}
+                                {{ form.DELETE }}
+                                <button class="delete-advertisement-banner-button">Удалить</button>
+                            </div>
                         {% endfor %}
-                        {{ form.image }}
-                        {{ form.url }}
-                        {{ form.text }}
-                        {{ form.DELETE }}
-                        <button class="delete-advertisement-banner-button">Удалить</button>
-                    </div>
-                {% endfor %}
-                <button
-                        style="margin-top: 240px; background-color: #2ecc71; color: white; padding: 5px; border: none; cursor: pointer; width: 305px; height: 55px;"
-                        type="button" id="add-gallery-form">
-                    Добавить
-                    фото
-                </button>
-                <div style="margin-right: 10px; max-width: 300px; text-align: center; margin-bottom: 20px;">
-                    <label for="rotation-speed">Скорость вращения:</label>
-                    <select id="top-rotation-speed"
-                            style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box;">
-                        <option value="{{ top_banner_settings.rotation_speed }}">
-                            {% if top_banner_settings.rotation_speed == 1000 %}
-                                1sec
-                            {% elif top_banner_settings.rotation_speed == 2000 %}
-                                2sec
-                            {% elif top_banner_settings.rotation_speed == 3000 %}
-                                3sec
-                            {% endif %}
-                        </option>
-                        <option value="1000">1sec</option>
-                        <option value="2000">2sec</option>
-                        <option value="3000">3sec</option>
-                    </select>
-                </div>
-
-                <div
-                        style="max-width: 500px; text-align: center; margin-bottom: 20px; margin-top: 40px; margin-left: 100px;">
-                    <button
-                            style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 100%;"
-                            type="submit">
-                        Сохранить
-                        все
-                    </button>
-                </div>
-            </div>
-        </form>
-        <h1 style="margin-left: 40%;">Сквозной банер на заднем фоне</h1>
-        <form action="{% url 'adminlte:middle_banner' %}" enctype="multipart/form-data" method="post">
-            {% csrf_token %}
-            <div class="row"
-                 style="border: 1px solid #000; border-radius: 30px; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
-                <div class="radio-buttons" style="display: flex; flex-direction: column;">
-                    {{ back_banner.type }}
-                </div>
-                <div class="content">
-                    {{ back_banner.image }}
-                    <img src="{{ back_banner.image.value.url }}" alt="Картинка с крестиком"
-                         id="background-image"
-                         style="width: 260px; height: 200px; cursor: pointer; margin-right: 20px;">
-                    <button type="button" id="add-photo"
-                            style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;"
-                            onclick="document.getElementById('photoFile').click();">
-                        Добавить фото
-                    </button>
-                    <a href="{% url 'adminlte:delete_middle_image' %}" id="remove-photo"
-                       style="background-color: red; color: white; padding: 10px; border: none; cursor: pointer; width: 250px; height: 50px;">
-                        Удалить фото
-                    </a>
-                </div>
-                <button type="submit"
-                        class="btn btn-success">
-                    Сохранить
-                </button>
-            </div>
-        </form>
-        <h1 style="margin-left: 40%;"> На главной Новости Акции </h1>
-        <form action="{% url 'adminlte:bot_banner' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ bot_formset.management_form }}
-            <div class="row"
-                 style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;"
-                 id="bot-gallery-container">
-                <div class="col-md-2">
-                    <label for="exampleInputText1">Статус</label>
-                    <div class="d-flex col-md-2">
-                        <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
-                        <div class="form-check form-switch">
-                            {% if bot_banner_settings.status == True %}
-                                <input type="checkbox" name="status" class="form-check-input" role="switch"
-                                       id="bot_banner" checked="">
-                            {% else %}
-                                <input type="checkbox" name="status" class="form-check-input" role="switch"
-                                       id="bot_banner">
-                            {% endif %}
+                        <div class="col align-self-center" id="add_button">
+                            <button class="btn btn-outline-success btn-lg" type="button" id="add-gallery-form">
+                                Добавить
+                                фото
+                            </button>
                         </div>
-                        <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
+                        <div class="row">
+                            <div style="text-align: center; width: 300px">
+                                <label for="rotation-speed">Скорость вращения:</label>
+                                <select id="top-rotation-speed"
+                                        style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box;">
+                                    <option value="{{ top_banner_settings.rotation_speed }}">
+                                        {% if top_banner_settings.rotation_speed == 1000 %}
+                                            1sec
+                                        {% elif top_banner_settings.rotation_speed == 2000 %}
+                                            2sec
+                                        {% elif top_banner_settings.rotation_speed == 3000 %}
+                                            3sec
+                                        {% endif %}
+                                    </option>
+                                    <option value="1000">1sec</option>
+                                    <option value="2000">2sec</option>
+                                    <option value="3000">3sec</option>
+                                </select>
+                            </div>
+                            <div class="col-md-auto col align-self-end">
+                                <button
+                                        class="btn btn-outline-success btn-lg"
+                                        type="submit">
+                                    Сохранить
+                                    все
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                </form>
+                <div class="col-md-auto">
+                    <h1>Сквозной банер на заднем фоне</h1></div>
+                <form action="{% url 'adminlte:middle_banner' %}" enctype="multipart/form-data" method="post">
+                    {% csrf_token %}
+                    <div class="row"
+                         style="border: 1px solid #000; border-radius: 30px; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px; display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;">
+                        <div class="radio-buttons" style="display: flex; flex-direction: column;">
+                            {{ back_banner.type }}
+                        </div>
+                        <div class="content">
+                            {{ back_banner.image }}
+                            <img src="{{ back_banner.image.value.url }}" alt="Картинка с крестиком"
+                                 id="background-image" class="img-thumbnail image-fluid">
+                            <button type="button" id="add-photo" class="btn btn-outline-success btn-lg"
+                                    onclick="document.getElementById('photoFile').click();">
+                                Добавить фото
+                            </button>
+                            <a href="{% url 'adminlte:delete_middle_image' %}" id="remove-photo"
+                               class="btn btn-outline-danger btn-lg">
+                                Удалить фото
+                            </a>
+                        </div>
+                        <button type="submit"
+                                class="btn btn-success">
+                            Сохранить
+                        </button>
+                    </div>
+                </form>
+                <div class="col-md-auto">
+                    <h1> На главной Новости Акции </h1>
                 </div>
-                {% for form in bot_formset %}
-                    <div id="bot-gallery-form"
-                         style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
-                        <img src="{% if form.image.value %}{{ form.image.value.url }}
+                <form action="{% url 'adminlte:bot_banner' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ bot_formset.management_form }}
+                    <div class="row justify-content-md-center"
+                         style="border-radius: 30px; border: 1px solid #000; margin-left: 30px; margin-top: 30px; margin-right: 30px; padding: 20px;"
+                         id="bot-gallery-container">
+                        <div class="col-md-10">
+                            <label for="exampleInputText1">Статус</label>
+                            <div class="d-flex col-md-2">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
+                                <div class="form-check form-switch">
+                                    {% if bot_banner_settings.status == True %}
+                                        <input type="checkbox" name="status" class="form-check-input" role="switch"
+                                               id="bot_banner" checked="">
+                                    {% else %}
+                                        <input type="checkbox" name="status" class="form-check-input" role="switch"
+                                               id="bot_banner">
+                                    {% endif %}
+                                </div>
+                                <label class="form-check-label" for="flexSwitchCheckDefault">ВКЛ</label>
+                            </div>
+                        </div>
+                        {% for form in bot_formset %}
+                            <div id="bot-gallery-form" class="col-md-auto"
+                                 style="margin-right: 10px; border: 1px solid #000; border-radius: 10px; padding: 20px; max-width: 300px; text-align: center; background-color: white; display: flex; flex-direction: column; margin-bottom: 20px;">
+                                <img class="image-fluid" src="{% if form.image.value %}{{ form.image.value.url }}
 {% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
-                             alt="Картинка с крестиком"
-                             style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;"
-                             id="bot-image-{{ forloop.counter0 }}-image">
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
+                                     alt="Картинка с крестиком"
+                                     id="bot-image-{{ forloop.counter0 }}-image">
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+                                {{ form.image }}
+                                {{ form.url }}
+                                {{ form.text }}
+                                {{ form.DELETE }}
+                                <button class="delete-bot-banner-button">Удалить</button>
+                            </div>
                         {% endfor %}
-                        {{ form.image }}
-                        {{ form.url }}
-                        {{ form.text }}
-                        {{ form.DELETE }}
-                        <button class="delete-bot-banner-button">Удалить</button>
+                        <div class="col align-self-center" id="add_button2">
+                            <button class="btn btn-outline-success btn-lg" type="button" id="add-gallery-form">
+                                Добавить
+                                фото
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div style="margin-right: 10px; max-width: 300px; text-align: center; margin-bottom: 20px;">
+                                <label for="rotation-speed">Скорость вращения:</label>
+                                <select id="bot-rotation-speed"
+                                        style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box;">
+                                    <option value="{{ bot_banner_settings.rotation_speed }}">
+                                        {% if bot_banner_settings.rotation_speed == 1000 %}
+                                            1sec
+                                        {% elif bot_banner_settings.rotation_speed == 2000 %}
+                                            2sec
+                                        {% elif bot_banner_settings.rotation_speed == 3000 %}
+                                            3sec
+                                        {% endif %}
+                                    </option>
+                                    <option value="1000">1sec</option>
+                                    <option value="2000">2sec</option>
+                                    <option value="3000">3sec</option>
+                                </select>
+                            </div>
+                            <div class="col-md-auto col align-self-end">
+                                <button
+                                        class="btn btn-outline-success btn-lg"
+                                        type="submit">
+                                    Сохранить
+                                    все
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                {% endfor %}
-                <button
-                        style="margin-top: 240px; background-color: #2ecc71; color: white; padding: 5px; border: none; cursor: pointer; width: 305px; height: 55px;"
-                        type="button" id="add-bot-gallery-form">
-                    Добавить
-                    фото
-                </button>
-                <div style="margin-right: 10px; max-width: 300px; text-align: center; margin-bottom: 20px;">
-                    <label for="rotation-speed">Скорость вращения:</label>
-                    <select id="bot-rotation-speed"
-                            style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box;">
-                        <option value="{{ bot_banner_settings.rotation_speed }}">
-                            {% if bot_banner_settings.rotation_speed == 1000 %}
-                                1sec
-                            {% elif bot_banner_settings.rotation_speed == 2000 %}
-                                2sec
-                            {% elif bot_banner_settings.rotation_speed == 3000 %}
-                                3sec
-                            {% endif %}
-                        </option>
-                        <option value="1000">1sec</option>
-                        <option value="2000">2sec</option>
-                        <option value="3000">3sec</option>
-                    </select>
-                </div>
-
-                <div
-                        style="max-width: 500px; text-align: center; margin-bottom: 20px; margin-top: 40px; margin-left: 100px;">
-                    <button
-                            style="background-color: #2ecc71; color: white; padding: 10px; border: none; cursor: pointer; width: 100%;"
-                            type="submit">
-                        Сохранить
-                        все
-                    </button>
-                </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 {% endblock %}
 {% block script %}
@@ -237,7 +244,7 @@
 
         let galleryForm = document.querySelectorAll('#gallery-form');
         let totalForms = document.querySelector("#id_top-banner-formset-TOTAL_FORMS");
-        let addButton = document.querySelector("#add-gallery-form");
+        let addButton = document.querySelector("#add_button");
         let container = document.querySelector('#gallery-container');
 
         let formNum = galleryForm.length - 1;
@@ -247,7 +254,7 @@
             e.preventDefault();
 
             let tempElement =
-                `<img src="" alt="Картинка с крестиком" style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="id_top-image-0-image">
+                `<img src="" class="img-fluid" alt="Картинка с крестиком" style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="id_top-image-0-image">
                 <input type="hidden" name="top-banner-formset-0-id" value="" id="id_top-banner-formset-0-id">
                 <input type="file" name="top-banner-formset-0-image" class="form-control" id="id_top-banner-formset-0-image" accept="image/*">
                 <input type="text" name="top-banner-formset-0-url" value="" style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box" placeholder="Ссылка на картинку" maxlength="250" id="id_top-banner-formset-0-url">
@@ -294,7 +301,7 @@
 
         let botGalleryForm = document.querySelectorAll('#bot-gallery-form');
         let botTotalForms = document.querySelector("#id_bot-banner-formset-TOTAL_FORMS");
-        let botAddButton = document.querySelector("#add-bot-gallery-form");
+        let botAddButton = document.querySelector("#add_button2");
         let botContainer = document.querySelector('#bot-gallery-container');
 
         let formBotNum = botGalleryForm.length - 1;
@@ -304,7 +311,7 @@
             e.preventDefault();
 
             let tempElement =
-                `<img src="" alt="Картинка с крестиком" style="width: 260px; height: 200px; cursor: pointer; margin-bottom: 10px;" id="id_bot-image-0-image">
+                `<img src="" class="image-fluid" alt="Картинка с крестиком" id="id_bot-image-0-image">
                 <input type="hidden" name="bot-banner-formset-0-id" value="" id="id_bot-banner-formset-0-id">
                 <input type="file" name="bot-banner-formset-0-image" class="form-control" id="id_bot-banner-formset-0-image" accept="image/*">
                 <input type="text" name="bot-banner-formset-0-url" value="" style="margin: 10px 0; width: 100%; padding: 8px; box-sizing: border-box" placeholder="Ссылка на картинку" maxlength="250" id="id_bot-banner-formset-0-url">

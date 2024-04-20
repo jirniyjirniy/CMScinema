@@ -74,16 +74,7 @@
                         <div class="row" id="gallery-container">
                             {% for gallery_form in formset %}
                                 <div class="col-md-2" id="gallery-form">
-                                    <img id="top-image-{{ forloop.counter0 }}-image" src="
-                                                    
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            
-                                            {% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
+                                    <img id="top-image-{{ forloop.counter0 }}-image" src="{% if gallery_form.instance.image %}{{ gallery_form.instance.image.url }}{% else %}https://via.placeholder.com/300.png?text=No+Image{% endif %}"
                                          class="img-fluid mb-2" alt="black sample" style="width:100%;"/>
                                     {{ gallery_form.image }}
                                     {{ gallery_form.id }}
@@ -142,8 +133,7 @@
                     <!-- /.card-body -->
 
                     <div class="card-footer text-center">
-                        <button type="submit" class="btn btn-primary"
-                                style="width: 400px; height: 40px;">Сохранить
+                        <button type="submit" class="btn btn-primary btn-lg">Сохранить
                         </button>
                     </div>
                     </form>
@@ -154,7 +144,7 @@
 {% endblock %}
 {% block script %}
     <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
-            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
+            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
 
     <script>
         $(document).ready(function () {
