@@ -143,12 +143,6 @@
                                         </tr>
                                     {% endfor %}
                                     </tbody>
-                                    <tfoot>
-                                    <tr>
-                                        <th>Название зала</th>
-                                        <th>Дата создания</th>
-                                    </tr>
-                                    </tfoot>
                                 </table>
                                 <br>
                                 <a href="{% url 'adminlte:hall_add' cinema_id %}" class="btn btn-success"
@@ -197,7 +191,7 @@
                     <!-- /.card-body -->
 
                     <div class="card-footer text-center">
-                        <button type="submit" class="btn btn-primary" style="width: 400px; height: 40px;">
+                        <button type="submit" class="btn btn-primary btn-lg">
                             Сохранить
                         </button>
                     </div>
@@ -209,7 +203,7 @@
 {% endblock %}
 {% block script %}
     <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
-            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>a
+            integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
 
     <script>
         $(document).ready(function () {

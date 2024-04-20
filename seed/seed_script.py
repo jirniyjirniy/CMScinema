@@ -114,6 +114,7 @@ def create_fake_cinemas(num):
 
 def create_fake_cinema_halls(num):
     for _ in range(num):
+        random_gallery = Gallery.objects.create(title=fake.word(), time_delay=10000)
         random_cinema = Cinema.objects.order_by('?').first()
         if random_cinema:
             cinema_hall = CinemaHall.objects.create(
@@ -122,13 +123,19 @@ def create_fake_cinema_halls(num):
                 desc=fake.text(max_nb_chars=5000),
                 scheme='images/image.png',
                 top_banner='images/image.png',
-                gallery=Gallery.objects.create(title=fake.word(), time_delay=10000)
+                gallery=random_gallery
             )
             seo_block = SeoBlock.objects.create(url=fake.word(), title=fake.sentence(nb_words=3),
                                                 keywords=fake.words(),
                                                 desc=fake.text())
             cinema_hall.seo_block = seo_block
             cinema_hall.save()
+
+        GalleryImage.objects.create(
+            title=fake.word(),
+            image='images/image.png',
+            gallery=random_gallery
+        )
 
 
 def random_past_or_future_date():
@@ -316,16 +323,16 @@ def create_fake_gallery_images(num):
 
 if __name__ == '__main__':
     create_fake_main_pages(4)
-    create_fake_users(10)
+    create_fake_users(50)
     create_fake_movies(20)
     create_fake_cinemas(5)
     create_fake_cinema_halls(10)
-    create_fake_movie_sessions(30)
+    create_fake_movie_sessions(60)
     create_fake_pages(3)
     create_fake_news_events(10)
     create_fake_main_page(1)
     create_fake_contacts(1)
-    create_fake_reservations(45)
+    create_fake_reservations(120)
     create_fake_banners(10)
     create_fake_background_banners(1)
-    create_fake_gallery_images(10)
+    create_fake_gallery_images(30)
