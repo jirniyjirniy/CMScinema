@@ -23,6 +23,7 @@ migrations:
 	$(MANAGE) flush --no-input
 	python seed/seed_script.py
 	$(MANAGE) collectstatic --no-input
+	gunicorn core.wsgi:application -b 0.0.0.0:8000 --reload
 
 
 gen-users:
