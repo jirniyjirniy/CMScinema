@@ -149,8 +149,10 @@ class FilmPage(View):
                     gallery = Gallery.objects.filter(title=title_en).first()
 
                     if not gallery:
-                        # Если галереи с указанным заголовком не существует, создаем новую галерею
-                        gallery, created = Gallery.objects.create(title=title_en)
+                        if title_en:
+                            gallery, created = Gallery.objects.create(title=title_en)
+                        else:
+                            gallery, created = Gallery.objects.create(title=title)
 
                     for form in formset:
                         if form.is_valid() and form.has_changed():
