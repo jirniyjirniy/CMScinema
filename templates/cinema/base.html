@@ -39,7 +39,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav me-auto mb-2 ml-2" style="background: whitesmoke">
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'cinema:afisha' %}">Афиша</a>
                         </li>
@@ -78,7 +78,7 @@
                         {% csrf_token %}
                         <input class="form-control me-2" type="search" placeholder="Поиск"
                                aria-label="Поиск" name="q">
-                        <button class="btn btn-outline-success" type="submit">Поиск</button>
+                        <button class="btn btn-outline-success btn-sm" type="submit">Поиск</button>
                     </form>
                     {% if user.is_authenticated %}
                         <div class="d-flex">

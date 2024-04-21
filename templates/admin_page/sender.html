@@ -8,25 +8,27 @@
             <form id="mailForm" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="container-fluid">
-                    <div class="row" style="border: 3px solid #000; border-radius: 30px; margin: 30px; padding: 20px;">
+                    <div class="row" style="border: 3px solid #000; border-radius: 30px; padding: 20px;">
                         <h1 class="text-center">E-mail</h1>
-                        <div class="col-md-6">
+                        <div class="col-md-4 mr-1 overflow-hidden">
                             <div class="row">
-                                <div class="radio-buttons"
+                                <div class="radio-buttons col-md-auto"
                                      style="display: flex; flex-direction: row; margin-left: 20px;">
-                                    <label for="">Кому отправлять</label>
-                                    <label style="margin-bottom: 10px; margin-left: 20px; display: block;">
+                                    <label class="mr-1" for="">Кому отправлять</label>
+                                    <label class="mr-1" style="display: block;">
                                         <input type="radio" name="photoSelection" value="all_users"> Все
                                         пользователи
                                     </label>
-                                    <label style="display: block; margin-left: 20px;">
+                                    <label style="display: block;">
                                         <input type="radio" name="photoSelection" value="selective"> Выборочно
                                     </label>
-                                    <button class="btn btn-info" id="sendButton" type="button" style="margin-left: 20px"
-                                            data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                        Выбрать пользователей
-                                    </button>
                                 </div>
+                            </div>
+                            <div class="col-md-auto">
+                                <button class="btn btn-info mt-2 mt-md-0" id="sendButton" type="button"
+                                        data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                    Выбрать пользователей
+                                </button>
                             </div>
                             <div class="row" style="margin: 9px;">
                                 <div><label>Загрузить HTML-письмо</label>
@@ -56,7 +58,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="row" style="border: 3px solid #000; border-radius: 30px; padding: 20px;">
                                 <h4 class="text-center">Список последних загруженных шаблонов</h4>
                                 {% for template in templates_list %}
