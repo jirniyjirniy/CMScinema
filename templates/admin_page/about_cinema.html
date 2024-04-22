@@ -8,10 +8,10 @@
                 <div class="row">
                     <ul class="nav nav-tabs mb-2">
                         <li class="nav-item ml-auto">
-                            <a class="nav-link" id="tab-en">English</a>
+                            <a class="nav-link active" id="tab-en">English</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" id="tab-uk">Українська</a>
+                            <a class="nav-link" id="tab-uk">Українська</a>
                         </li>
                     </ul>
                     {% if page_id %}
@@ -36,7 +36,7 @@
                             <div class="col-md-2">
                                 <label for="exampleInputText1">Статус</label>
                                 <div class="d-flex col-md-2">
-                                    <label class="form-check-label" for="flexSwitchCheckDefault">ВЫКЛ</label>
+                                    <label class="form-check-label mr-4" for="flexSwitchCheckDefault">ВЫКЛ</label>
                                     <div class="form-check form-switch">
                                         {{ form.status }}
                                     </div>
@@ -244,7 +244,7 @@
             $card.hide(); // Скрываем форму галереи
         });
         
-        $('.en').hide();
+        $('.uk').hide();
 
         $('.row .nav-link').click(function () {
             const clickedTabId = $(this).attr('id');

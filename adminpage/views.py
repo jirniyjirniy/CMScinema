@@ -114,8 +114,8 @@ class FilmPage(View):
             counter = 1
             if movie_id:
                 page = get_object_or_404(MovieCard, id=movie_id)
-                if page.title != title:
-                    page.gallery.title = title
+                if page.title_en != title_en:
+                    page.gallery.title = title_en
                     page.gallery.save()
                 page.title_uk = title
                 page.title_en = title_en
@@ -756,7 +756,6 @@ class PageView(View):
         if form.is_valid() and seo_form.is_valid():
             title = form.cleaned_data['title_uk']
             title_en = form.cleaned_data['title_en']
-            print(title_en)
             status = form.cleaned_data['status']
             desc = form.cleaned_data['desc_uk']
             desc_en = form.cleaned_data['desc_en']
@@ -781,7 +780,7 @@ class PageView(View):
                     page.main_image = main_image
                 else:
                     page.main_image = page.main_image
-                gallery, _ = Gallery.objects.get_or_create(title=title)
+                gallery, _ = Gallery.objects.get_or_create(title=title_en)
 
                 for form in formset:
                     if form.is_valid():
@@ -870,11 +869,11 @@ class TopBannerView(View):
         for form in formset.forms:
             if form.is_valid() and form.has_changed():
                 if top_banner_settings:
-                    banner = form.save()
-                    BannerSettings.objects.create(banner=banner, rotation_speed=top_banner_settings.rotation_speed)
+                    form.save()
                 else:
+                    print('no')
                     banner = form.save()
-                    BannerSettings.objects.create(banner=banner, rotation_speed=1000)
+                    BannerSettings.objects.get_or_create(banner=banner, rotation_speed=1000)
 
         for form in formset.deleted_forms:
             if form.instance.id:
@@ -928,7 +927,6 @@ class NewsEventsBanner(View):
                 form.instance.type = Banner.Types.MAIN_NEWS
                 if bot_banner_settings:
                     banner = form.save()
-                    BannerSettings.objects.create(banner=banner, rotation_speed=bot_banner_settings.rotation_speed)
                 else:
                     banner = form.save()
                     BannerSettings.objects.create(banner=banner, rotation_speed=1000)

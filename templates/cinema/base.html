@@ -65,9 +65,11 @@
                                 <li><a class="dropdown-item" href="{% url 'cinema:news' %}">Новости</a></li>
                                 <li><a class="dropdown-item" href="{% url 'cinema:cinema_contacts' %}">Контакты</a></li>
                                 {% for p in pages %}
-                                    <li><a class="dropdown-item"
-                                           href="{% url 'cinema:pages' p.seo_block.url %}">{{ p.title }}</a>
-                                    </li>
+                                    {% if p.status == True %}
+                                        <li><a class="dropdown-item"
+                                               href="{% url 'cinema:pages' p.seo_block.url %}">{{ p.title }}</a>
+                                        </li>
+                                    {% endif %}
                                 {% endfor %}
                             </ul>
                         </li>
@@ -149,7 +151,8 @@
                     <div class="row mt-lg-4 bottom-w3layouts-sec-nav mx-0">
                         <div class="col-md-4 footer-grid_section_w3layouts">
                             <a href="{% url 'cinema:afisha' %}"
-                               class="footer-title text-uppercase editContent mb-lg-4 mb-3" style="color: black">Афиша</a>
+                               class="footer-title text-uppercase editContent mb-lg-4 mb-3"
+                               style="color: black">Афиша</a>
                             <ul class="list-unstyled w3layouts-icons">
                                 <li>
                                     <a href="{% url 'cinema:index' %}" class="editContent">Главная</a>
@@ -166,7 +169,8 @@
                             <!-- social icons -->
                             <div class="agileinfo_social_icons">
                                 <a href="{% url 'cinema:about_cinema' %}"
-                                   class="footer-title text-uppercase editContent mb-lg-4 mb-3" style="color: black">О кинотеатре</a>
+                                   class="footer-title text-uppercase editContent mb-lg-4 mb-3" style="color: black">О
+                                    кинотеатре</a>
                                 <ul class="list-unstyled w3layouts-icons">
                                     <li>
                                         <a href="{% url 'cinema:news' %}" class="editContent">Новости</a>
