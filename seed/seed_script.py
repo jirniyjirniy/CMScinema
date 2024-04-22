@@ -6,6 +6,7 @@ from random import randrange
 
 import django
 from django.utils import timezone
+from django.utils.translation import activate
 from faker import Faker
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -57,6 +58,8 @@ def create_fake_movies(num):
             desc=fake.text(),
         )
 
+        activate('en')
+
         movie = MovieCard.objects.create(
             title=fake.name(),
             data=fake.date_this_decade(),
@@ -88,6 +91,8 @@ def create_fake_movies(num):
 
 def create_fake_cinemas(num):
     for _ in range(num):
+        activate('en')
+
         gallery_title = fake.word()
         random_gallery, created = Gallery.objects.get_or_create(title=gallery_title, defaults={'time_delay': 10000})
         if created:
@@ -109,11 +114,20 @@ def create_fake_cinemas(num):
         seo_block = SeoBlock.objects.create(url=fake.word(), title=fake.sentence(nb_words=3), keywords=fake.words(),
                                             desc=fake.text())
         cinema.seo_block = seo_block
+
+        GalleryImage.objects.create(
+            title=fake.word(),
+            image='images/image.png',
+            gallery=random_gallery
+        )
+
         cinema.save()
 
 
 def create_fake_cinema_halls(num):
     for _ in range(num):
+        activate('en')
+
         random_gallery = Gallery.objects.create(title=fake.word(), time_delay=10000)
         random_cinema = Cinema.objects.order_by('?').first()
         if random_cinema:
@@ -162,6 +176,7 @@ def create_fake_main_pages(num):
     page_types_iterator = iter(page_types)
 
     for _ in range(num):
+        activate('en')
         try:
             page_type = next(page_types_iterator)
         except StopIteration:
@@ -194,6 +209,8 @@ def create_fake_main_pages(num):
 
 def create_fake_pages(num):
     for _ in range(num):
+        activate('en')
+
         gallery = Gallery.objects.create(title=fake.word(), time_delay=10000)
         seo_block = SeoBlock.objects.create(url=fake.word(), title=fake.sentence(nb_words=3), keywords=fake.words(),
                                             desc=fake.text())
@@ -219,6 +236,8 @@ def create_fake_news_events(num):
     cinemas = Cinema.objects.all()
 
     for _ in range(num):
+        activate('en')
+
         gallery = Gallery.objects.create(title=fake.word(), time_delay=10000)
         seo_block = SeoBlock.objects.create(url=fake.word(), title=fake.sentence(nb_words=3), keywords=fake.words(),
                                             desc=fake.text())
@@ -249,6 +268,8 @@ def create_fake_news_events(num):
 
 def create_fake_main_page(num):
     for _ in range(num):
+        activate('en')
+
         seo_block = SeoBlock.objects.create(url=fake.word(), title=fake.sentence(nb_words=3), keywords=fake.words(),
                                             desc=fake.text())
         main_page = MainPage.objects.create(
@@ -335,4 +356,3 @@ if __name__ == '__main__':
     create_fake_reservations(120)
     create_fake_banners(10)
     create_fake_background_banners(1)
-    create_fake_gallery_images(30)
